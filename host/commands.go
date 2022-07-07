@@ -36,7 +36,7 @@ func SetAppSize(c net.Conn, size int) error {
 	appsize := appSize{
 		Hdr: Frame{
 			Id:       2,
-			Endpoint: DestApp,
+			Endpoint: DestFW,
 			MsgLen:   frameLen32,
 		},
 		Size: size,
@@ -94,7 +94,7 @@ func LoadAppData(c net.Conn, content []byte) error {
 	appdata := appData{
 		Hdr: Frame{
 			Id:       2,
-			Endpoint: DestApp,
+			Endpoint: DestFW,
 			MsgLen:   frameLen64,
 		},
 	}
@@ -123,7 +123,7 @@ func GetAppDigest(c net.Conn) ([32]byte, error) {
 
 	hdr := Frame{
 		Id:       2,
-		Endpoint: DestApp,
+		Endpoint: DestFW,
 		MsgLen:   frameLen1,
 	}
 
@@ -150,7 +150,7 @@ func GetAppDigest(c net.Conn) ([32]byte, error) {
 func RunApp(c net.Conn) error {
 	hdr := Frame{
 		Id:       2,
-		Endpoint: DestApp,
+		Endpoint: DestFW,
 		MsgLen:   frameLen1,
 	}
 
@@ -173,5 +173,4 @@ func RunApp(c net.Conn) error {
 	}
 
 	return nil
-
 }

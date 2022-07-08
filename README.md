@@ -1,14 +1,37 @@
-# mkdf-app
+# mta1signer
 
 Simple app to run on MTA1-MKDF.
 
 There are really two apps, one very, very simple assembler app,
 foo.bin (foo.S), and one slightly larger C app: app.bin.
 
-They are supposed to be loaded by the
-[mta1](https://github.com/mullvad/mta1-mkdf-host-priv) host program
-like this:
+The larger C app is an ed25519 signer.
+
+Build the device program with `make`.
+
+Build the host program:
 
 ```
-% mta1 load-app app.bin
+% cd host
+% go build
 ```
+
+Build our [qemu](https://github.com/mullvad/mta1-mkdf-qemu-priv). Use
+the `mta1-regs` branch.
+
+Build [the firmware](https://github.com/mullvad/mta1-mkdf-firmware-priv).
+  
+Then run the emulator:
+
+```
+% <path-to-qemu>/build/qemu-system-riscv32 -nographic -M mta1_mkdf,fifo=chrid -bios firmware \
+	-chardev socket,host=127.0.0.1,port=4444,server=on,wait=off,id=chrid
+```
+
+Then run the host program:
+
+```
+%  ./mta1signer -file ../app.bin
+```
+
+which should give you a signature on the output.

@@ -143,8 +143,7 @@ func (h *Frame) unpack(b byte) error {
 	}
 
 	h.Id = byte((uint32(b) & 0x60) >> 5)
-	h.Endpoint = endpoint(byte(b&0x10) >> 3)
-
+	h.Endpoint = endpoint(byte(b&0x18) >> 3)
 	h.MsgLen = frameLen(byte(b) & 0x3)
 
 	return nil

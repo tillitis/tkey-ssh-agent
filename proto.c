@@ -51,7 +51,6 @@ int parseframe(uint8_t b, struct frame_header *hdr)
 
 void writebyte(uint8_t b)
 {
-	//printf("Sending 0x%x\n", b);
 	for (;;) {
 		if (*can_tx) {
 			*tx = b;
@@ -62,6 +61,8 @@ void writebyte(uint8_t b)
 
 void write(uint8_t *buf, size_t nbytes)
 {
+	puts("Sending: \n");
+	hexdump(buf, nbytes);
 	for (int i = 0; i < nbytes; i ++) {
 		writebyte(buf[i]);
 	}
@@ -81,4 +82,49 @@ void read(uint8_t *buf, size_t nbytes)
 	for (int n = 0; n < nbytes; n ++) {
 		buf[n] = readbyte();
 	}
+}
+
+void appreply(struct frame_header hdr, enum appcmd rspcode, void *buf)
+{
+	size_t nbytes;
+	enum cmdlen len;
+
+	switch (rspcode) {
+	case APP_RSP_GET_PUBKEY:
+		len = LEN_32;
+		nbytes = 32;
+		break;
+
+	case APP_CMD_SET_SIZE:
+		len = LEN_1;
+		nbytes = 1;
+		break;
+
+	case APP_CMD_SIGN_DATA:
+		len = LEN_1;
+		nbytes = 1;
+		break;
+
+	case APP_CMD_GET_SIG:
+		len = LEN_64;
+		nbytes = 64;
+		break;
+
+	default:
+		puts("appreply(): Unknown response code: ");
+		puthex(rspcode);
+		lf();
+
+		return;
+	}
+
+	// Frame Protocol Header
+	//printf("Sending: (0x%x)\n  id:%d, endpoint:%d, len: %d\n  rspcode: %d\n", genhdr(hdr.id, hdr.endpoint, 0x0, len), hdr.id, hdr.endpoint, len, rspcode);
+	writebyte(genhdr(hdr.id, hdr.endpoint, 0x0, len));
+
+	// App protocol header
+	//writebyte(rspcode);
+	//nbytes --;
+
+	write(buf, nbytes);
 }

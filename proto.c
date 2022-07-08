@@ -25,7 +25,7 @@ int parseframe(uint8_t b, struct frame_header *hdr)
 	}
 
 	hdr->id = (b & 0x60) >> 5;
-	hdr->endpoint = (b & 0x10) >> 3;
+	hdr->endpoint = (b & 0x18) >> 3;
 
 	// Length
 	switch (b & 0x3) {

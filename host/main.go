@@ -67,17 +67,28 @@ func loadapp(conn net.Conn, fileName string) error {
 	fmt.Printf("Running the app\n")
 	RunApp(conn)
 
-	// For debug
-	for {
-		// Blocks
-		rx, err := recv(conn)
-		if err != nil {
-			fmt.Printf("recv error: %v\n", err)
-		}
+	return nil
+}
 
-		dump(" rx:", rx)
+func sign(conn net.Conn, data []byte) ([]byte, error) {
+	err := SignSetSize(conn, len(data))
+	if err != nil {
+		return nil, err
 	}
 
+	for i := 0; i < len(data); i += 63 {
+		err = SignLoad(conn, data[i:])
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	signature, err := GetSig(conn)
+	if err != nil {
+		return nil, err
+	}
+
+	return signature, nil
 }
 
 func main() {
@@ -97,5 +108,21 @@ func main() {
 		os.Exit(1)
 	}
 
-	// TODO Get the pub key
+	fmt.Printf("Getting the public key\n")
+	pubkey, err := GetPubkey(conn)
+	if err != nil {
+		fmt.Printf("Couldn't get pubkey: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Public key: %x\n", pubkey)
+
+	message := []byte{0x01, 0x02, 0x03}
+	signature, err := sign(conn, message)
+	if err != nil {
+		fmt.Printf("Couldn't sign: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("signature: %x\n", signature)
 }

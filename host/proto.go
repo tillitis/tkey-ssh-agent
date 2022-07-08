@@ -42,6 +42,15 @@ const (
 	fwRspGetAppDigest         = 0x10
 )
 
+type appcmd byte
+
+const (
+	appCmdGetPubkey appcmd = 0x01
+	appCmdSetSize          = 0x03
+	appCmdSignData         = 0x04
+	appCmdGetSig           = 0x05
+)
+
 func (f fwcmd) String() string {
 	switch f {
 	case fwCmdGetNameVersion:
@@ -79,17 +88,10 @@ func (f fwcmd) String() string {
 	}
 }
 
-type cmdcode byte
-
-const (
-	AppCmdGetPubkey cmdcode = 0x01
-)
-
 type Frame struct {
 	Id       byte
 	Endpoint endpoint
 	MsgLen   frameLen
-	Command  cmdcode
 }
 
 func (f *Frame) Len() int {

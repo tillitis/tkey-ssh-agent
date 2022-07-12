@@ -7,7 +7,7 @@ foo.bin (foo.S), and one slightly larger C app: app.bin.
 
 The larger C app is an ed25519 signer.
 
-Build the device program with `make`.
+You need `riscv32-elf-binutils`. Build the device program with `make`.
 
 Build the host program:
 

@@ -27,18 +27,21 @@ func main() {
 		os.Exit(1)
 	}
 
-	hwSigner := &hardwareSigner{}
-	err = hwSigner.init()
+	hwSigner, err := NewHardwareSigner()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	sshAgent, err := NewSshAgent(hwSigner)
+	agent, err := NewSSHAgent(hwSigner)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	authorizedKey := ssh.MarshalAuthorizedKey(sshAgent.sshPub)
+	sshPub, err := agent.GetSSHPub()
+	if err != nil {
+		log.Fatal(err)
+	}
+	authorizedKey := ssh.MarshalAuthorizedKey(sshPub)
 	fmt.Printf("your ssh pubkey:\n%s", authorizedKey)
 
 	// // append pubkey to authorized_keys, for local testing using something
@@ -56,7 +59,7 @@ func main() {
 	// 	log.Fatal(err)
 	// }
 
-	err = sshAgent.serve(*sockPath)
+	err = agent.Serve(*sockPath)
 	if err != nil {
 		log.Fatal(err)
 	}

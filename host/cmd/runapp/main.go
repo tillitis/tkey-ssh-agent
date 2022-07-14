@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/ed25519"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -114,7 +115,6 @@ func main() {
 		fmt.Printf("Couldn't get pubkey: %v\n", err)
 		os.Exit(1)
 	}
-
 	fmt.Printf("Public key: %x\n", pubkey)
 
 	message := []byte{0x01, 0x02, 0x03}
@@ -123,6 +123,11 @@ func main() {
 		fmt.Printf("Couldn't sign: %v\n", err)
 		os.Exit(1)
 	}
-
 	fmt.Printf("signature: %x\n", signature)
+
+	if !ed25519.Verify(pubkey, message, signature) {
+		fmt.Printf("Signature did NOT verify.\n")
+	} else {
+		fmt.Printf("Signature verified.\n")
+	}
 }

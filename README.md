@@ -13,14 +13,14 @@ Build the host program:
 
 ```
 % cd host
-% go build
+% make runapp
 ```
 
 Build our [qemu](https://github.com/mullvad/mta1-mkdf-qemu-priv). Use
 the `mta1-regs` branch.
 
 Build [the firmware](https://github.com/mullvad/mta1-mkdf-firmware-priv).
-  
+
 Then run the emulator:
 
 ```
@@ -31,7 +31,7 @@ Then run the emulator:
 Then run the host program:
 
 ```
-%  ./mta1signer -file ../app.bin
+%  ./runapp -file ../app.bin
 ```
 
 which should give you a signature on the output.

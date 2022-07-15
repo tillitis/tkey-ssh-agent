@@ -36,4 +36,24 @@ Then run the host program:
 which should give you a signature on the output.
 
 If -file is not passed, the app is assumed to be loaded and running on the
-device, and signing is attempted.
+emulated device, and signing is attempted.
+
+# Using mkdf-ssh-agent
+
+If you have followed the above, the signer app has now been loaded and is
+running on the emulated device in QEMU. You can now start up our mkdf-ssh-agent
+like this:
+
+```
+% ./mkdf-ssh-agent -a ./agent.sock
+```
+
+This will output the unique public key for the instance of the app on this
+device. If copy-paste this into your `~/.ssh/authorized_keys` you can try to
+log:
+
+```
+% SSH_AUTH_SOCK=/path/to/agent.sock -F /dev/null localhost
+```
+
+(`-F /dev/null` is to not have any of your ~/.ssh/config interfere)

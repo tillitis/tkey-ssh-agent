@@ -27,12 +27,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	hwSigner, err := NewHardwareSigner()
+	// TODO assumes that the app is already running, and many other things...
+	signer, err := NewMKDFSigner()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	agent, err := NewSSHAgent(hwSigner)
+	agent, err := NewSSHAgent(signer)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -50,7 +51,7 @@ func main() {
 	// if err != nil {
 	// 	log.Fatal(err)
 	// }
-	// f, err := os.OpenFile(home+"/.ssh/authorized_keys", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	// f, err := os.OpenFile(home+"/.ssh/authorized_keys", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o0644)
 	// if err != nil {
 	// 	log.Fatal(err)
 	// }

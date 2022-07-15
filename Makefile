@@ -15,4 +15,4 @@ mta1-ssh-agent:
 
 .PHONY: lint
 lint:
-	docker run --rm -it -v $$(pwd):/src -w /src golangci/golangci-lint:v1.46-alpine golangci-lint run
+	docker run --rm -it --env GOFLAGS=-buildvcs=false -v $$(pwd):/src -w /src golangci/golangci-lint:v1.46-alpine golangci-lint run

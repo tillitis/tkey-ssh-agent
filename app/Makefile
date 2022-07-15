@@ -8,6 +8,7 @@ RM=/bin/rm
 
 OBJS=crt0.o lib.o proto.o main.o monocypher.o monocypher-ed25519.o
 
+.PHONY:all
 all: app.bin foo.bin
 
 foo.bin: foo.S
@@ -15,10 +16,11 @@ foo.bin: foo.S
 	ld.lld -o foo.bin foo.o --oformat binary
 
 app.bin: app
-	riscv32-elf-objcopy -O binary app app.bin
+	llvm-objcopy --input-target=elf32-littleriscv --output-target=binary app app.bin
 
 app: $(OBJS) types.h lib.h proto.h
 	$(CC) $(CFLAGS) $(OBJS) $(LDFLAGS) -o $@
 
+.PHONY:clean
 clean:
 	$(RM) -f app.bin foo.bin app foo foo.o $(OBJS)

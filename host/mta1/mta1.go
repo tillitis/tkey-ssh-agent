@@ -19,9 +19,7 @@ func LoadApp(conn net.Conn, fileName string) error {
 		return fmt.Errorf("File to big")
 	}
 
-	digest := blake2s.Sum256(content)
-
-	fmt.Printf("app size: %v, 0x%x, 0b%b, digest: \n", contentlen, contentlen, contentlen)
+	fmt.Printf("app size: %v, 0x%x, 0b%b\n", contentlen, contentlen, contentlen)
 
 	err = setAppSize(conn, contentlen)
 	if err != nil {
@@ -37,17 +35,19 @@ func LoadApp(conn net.Conn, fileName string) error {
 	}
 
 	fmt.Printf("Going to getappdigest\n")
-	md, err := getAppDigest(conn)
+	appDigest, err := getAppDigest(conn)
 	if err != nil {
 		return err
 	}
 
+	digest := blake2s.Sum256(content)
+
 	fmt.Printf("Digest from host: \n")
 	printDigest(digest)
 	fmt.Printf("Digest from device: \n")
-	printDigest(md)
+	printDigest(appDigest)
 
-	if md != digest {
+	if appDigest != digest {
 		return fmt.Errorf("Different digests")
 	}
 	fmt.Printf("Same digests!\n")

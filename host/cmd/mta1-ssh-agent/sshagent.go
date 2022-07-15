@@ -29,7 +29,7 @@ func (s *SSHAgent) GetSSHPub() (ssh.PublicKey, error) {
 	}
 	sshPub, err := ssh.NewPublicKey(s.signer.Public())
 	if err != nil {
-		return nil, fmt.Errorf("NewPublicKey failed: %w", err)
+		return nil, fmt.Errorf("NewPublicKey: %w", err)
 	}
 	return sshPub, nil
 }
@@ -37,18 +37,18 @@ func (s *SSHAgent) GetSSHPub() (ssh.PublicKey, error) {
 func (s *SSHAgent) Serve(sockPath string) error {
 	sockPath, err := filepath.Abs(sockPath)
 	if err != nil {
-		return err
+		return fmt.Errorf("Abs: %w", err)
 	}
 	listener, err := net.Listen("unix", sockPath)
 	if err != nil {
-		return fmt.Errorf("listen failed: %w", err)
+		return fmt.Errorf("Listen: %w", err)
 	}
 	fmt.Printf("listening on %s ...\n", sockPath)
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
 			// TODO check err.Timeout() ?
-			return fmt.Errorf("accept failed: %w", err)
+			return fmt.Errorf("Accept: %w", err)
 		}
 		fmt.Printf("handling connection\n")
 		go s.handleConn(conn)
@@ -87,9 +87,13 @@ func (s *SSHAgent) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, error) 
 	}
 	sshSigner, err := ssh.NewSignerFromSigner(s.signer)
 	if err != nil {
-		return nil, fmt.Errorf("NewSignerFromSigner failed: %w", err)
+		return nil, fmt.Errorf("NewSignerFromSigner: %w", err)
 	}
-	return sshSigner.Sign(rand.Reader, data)
+	signature, err := sshSigner.Sign(rand.Reader, data)
+	if err != nil {
+		return nil, fmt.Errorf("Signer.Sign: %w", err)
+	}
+	return signature, nil
 }
 
 func (s *SSHAgent) SignWithFlags(key ssh.PublicKey, data []byte, flags agent.SignatureFlags) (*ssh.Signature, error) {

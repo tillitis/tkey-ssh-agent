@@ -3,6 +3,7 @@ package main
 import (
 	"crypto"
 	"crypto/ed25519"
+	"fmt"
 	"io"
 )
 
@@ -14,7 +15,7 @@ type HardwareSigner struct {
 func (h *HardwareSigner) init() error {
 	var err error
 	h.pub, h.priv, err = ed25519.GenerateKey(nil)
-	return err
+	return fmt.Errorf("GenerateKey: %w", err)
 }
 
 func NewHardwareSigner() (*HardwareSigner, error) {
@@ -32,6 +33,10 @@ func (h *HardwareSigner) Public() crypto.PublicKey {
 	return h.pub
 }
 
-func (h *HardwareSigner) Sign(rand io.Reader, digest []byte, opts crypto.SignerOpts) (signature []byte, err error) {
-	return h.priv.Sign(rand, digest, opts)
+func (h *HardwareSigner) Sign(rand io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, error) {
+	signature, err := h.priv.Sign(rand, digest, opts)
+	if err != nil {
+		return nil, fmt.Errorf("PrivateKey.Sign: %w", err)
+	}
+	return signature, nil
 }

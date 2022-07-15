@@ -1,0 +1,40 @@
+linters:
+  presets:
+    # found in: golangci-lint help linters
+    - bugs
+    - comment
+    - complexity
+    - error
+    - format
+    - import
+    - metalinter
+    - module
+    - performance
+    - sql
+    #- style  # turned off, can be too much
+    - test
+    - unused
+  disable:
+    - cyclop
+    - exhaustruct  # TODO? annoying for now
+    - goerr113  # TODO remove later
+
+    # deprecated:
+    - scopelint
+    - maligned
+    - exhaustivestruct
+
+    # TODO disable because currently not available for go1.18
+    - bodyclose
+    - contextcheck
+    - nilerr
+    - noctx
+    - rowserrcheck
+    - sqlclosecheck
+    - structcheck
+    - tparallel
+    - unparam
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0

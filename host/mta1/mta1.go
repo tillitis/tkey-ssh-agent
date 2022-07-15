@@ -11,7 +11,7 @@ import (
 func LoadApp(conn net.Conn, fileName string) error {
 	content, err := ioutil.ReadFile(fileName)
 	if err != nil {
-		return err
+		return fmt.Errorf("ReadFile: %w", err)
 	}
 
 	contentlen := len(content)

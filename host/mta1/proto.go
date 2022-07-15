@@ -206,7 +206,7 @@ func (f *frame) unpack(b byte) error {
 	return nil
 }
 
-// Pack a simple command with no corresponding struct
+// Pack a simple command with no corresponding struct.
 func packSimple(hdr frame, cmd fwCmd) ([]byte, error) {
 	var err error
 
@@ -221,7 +221,6 @@ func packSimple(hdr frame, cmd fwCmd) ([]byte, error) {
 	tx[1] = byte(cmd)
 
 	return tx, nil
-
 }
 
 func dump(s string, d []byte) {
@@ -282,7 +281,7 @@ func recv(c net.Conn) ([]byte, error) {
 	r := bufio.NewReader(c)
 	b, err := r.Peek(1)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Peek: %w", err)
 	}
 	var hdr frame
 
@@ -294,7 +293,7 @@ func recv(c net.Conn) ([]byte, error) {
 	rx := make([]byte, hdr.len()+1)
 	_, err = io.ReadFull(r, rx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ReadFull: %w", err)
 	}
 
 	return rx, nil

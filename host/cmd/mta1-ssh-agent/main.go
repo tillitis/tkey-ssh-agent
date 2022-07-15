@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	syscall.Umask(0077)
+	syscall.Umask(0o077)
 
 	sockPath := flag.String("a", "", "Path to bind agent's UNIX domain socket at")
 	flag.Parse()

@@ -9,7 +9,7 @@ app:
 runapp:
 	go build ./cmd/runapp
 
-.PHONY: mta1-ssh-agent
+.PHONY: mkdf-ssh-agent
 mkdf-ssh-agent:
 	go build ./cmd/mkdf-ssh-agent
 

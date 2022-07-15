@@ -53,7 +53,7 @@ device. If copy-paste this into your `~/.ssh/authorized_keys` you can try to
 log onto your local machine:
 
 ```
-% SSH_AUTH_SOCK=/path/to/agent.sock -F /dev/null localhost
+% SSH_AUTH_SOCK=/path/to/agent.sock ssh -F /dev/null localhost
 ```
 
 (`-F /dev/null` is to not have any of your ~/.ssh/config interfere)

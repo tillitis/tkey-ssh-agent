@@ -1,4 +1,4 @@
-# mta1signer
+# mkdfsigner
 
 Simple app to run on MTA1-MKDF.
 

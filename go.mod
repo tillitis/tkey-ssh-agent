@@ -1,4 +1,4 @@
-module github.com/mullvad/mta1signer
+module github.com/mullvad/mta1-mkdf-signer
 
 go 1.18
 

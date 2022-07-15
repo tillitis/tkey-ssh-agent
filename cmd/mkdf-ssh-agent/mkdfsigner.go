@@ -8,7 +8,7 @@ import (
 	"log"
 	"net"
 
-	"github.com/mullvad/mta1signer/mta1"
+	"github.com/mullvad/mta1-mkdf-signer/mkdf"
 )
 
 type MKDFSigner struct {
@@ -16,7 +16,7 @@ type MKDFSigner struct {
 }
 
 func NewMKDFSigner() (*MKDFSigner, error) {
-	mta1.SilenceLogging()
+	mkdf.SilenceLogging()
 	signer := &MKDFSigner{}
 	err := signer.connect()
 	if err != nil {
@@ -37,19 +37,19 @@ func (s *MKDFSigner) connect() error {
 // implementing crypto.Signer below
 
 func (s *MKDFSigner) Public() crypto.PublicKey {
-	pub, err := mta1.GetPubkey(s.conn)
+	pub, err := mkdf.GetPubkey(s.conn)
 	if err != nil {
-		log.Printf("mta1.GetPubKey failed: %v\n", err)
+		log.Printf("mkdf.GetPubKey failed: %v\n", err)
 		return nil
 	}
 	return ed25519.PublicKey(pub)
 }
 
 func (s *MKDFSigner) Sign(rand io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, error) {
-	signature, err := mta1.Sign(s.conn, digest)
+	signature, err := mkdf.Sign(s.conn, digest)
 	if err != nil {
-		log.Printf("mta1.Sign: %v", err)
-		return nil, fmt.Errorf("mta1.Sign: %w", err)
+		log.Printf("mkdf.Sign: %v", err)
+		return nil, fmt.Errorf("mkdf.Sign: %w", err)
 	}
 	return signature, nil
 }

@@ -1,5 +1,5 @@
 .PHONY: all
-all: app runapp mta1-ssh-agent
+all: app runapp mkdf-ssh-agent
 
 .PHONY: app
 app:
@@ -10,8 +10,8 @@ runapp:
 	go build ./cmd/runapp
 
 .PHONY: mta1-ssh-agent
-mta1-ssh-agent:
-	go build ./cmd/mta1-ssh-agent
+mkdf-ssh-agent:
+	go build ./cmd/mkdf-ssh-agent
 
 .PHONY: lint
 lint:

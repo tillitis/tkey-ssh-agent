@@ -50,7 +50,7 @@ like this:
 
 This will output the unique public key for the instance of the app on this
 device. If copy-paste this into your `~/.ssh/authorized_keys` you can try to
-log:
+log onto your local machine:
 
 ```
 % SSH_AUTH_SOCK=/path/to/agent.sock -F /dev/null localhost

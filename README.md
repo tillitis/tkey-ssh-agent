@@ -7,13 +7,12 @@ foo.bin (foo.S), and one slightly larger C app: app.bin.
 
 The larger C app is an ed25519 signer.
 
-You need `riscv32-elf-binutils`. Build the device program with `make`.
+You need `riscv32-elf-binutils`.
 
-Build the host program:
+To build everything:
 
 ```
-% cd host
-% make runapp
+make
 ```
 
 Build our [qemu](https://github.com/mullvad/mta1-mkdf-qemu-priv). Use
@@ -31,7 +30,7 @@ Then run the emulator:
 Then run the host program:
 
 ```
-%  ./runapp -file ../app.bin
+%  ./runapp -file app/app.bin
 ```
 
 which should give you a signature on the output.

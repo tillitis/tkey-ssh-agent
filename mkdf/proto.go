@@ -5,8 +5,9 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
-	"net"
 	"os"
+
+	"github.com/tarm/serial"
 )
 
 type appSize struct {
@@ -227,7 +228,7 @@ func dump(s string, d []byte) {
 	ll.Printf("%s\n%s", s, hex.Dump(d))
 }
 
-func xmit(c net.Conn, d []byte) {
+func xmit(c *serial.Port, d []byte) {
 	b := bufio.NewWriter(c)
 	_, err := b.Write(d)
 	if err != nil {
@@ -241,7 +242,7 @@ func xmit(c net.Conn, d []byte) {
 	}
 }
 
-func fwRecv(conn net.Conn, expectedRsp fwCmd, id byte, expectedLen frameLen) ([]byte, error) {
+func fwRecv(conn *serial.Port, expectedRsp fwCmd, id byte, expectedLen frameLen) ([]byte, error) {
 	// Blocks
 	rx, err := recv(conn)
 	if err != nil {
@@ -277,7 +278,7 @@ func fwRecv(conn net.Conn, expectedRsp fwCmd, id byte, expectedLen frameLen) ([]
 	return rx[2:], nil
 }
 
-func recv(c net.Conn) ([]byte, error) {
+func recv(c *serial.Port) ([]byte, error) {
 	r := bufio.NewReader(c)
 	b, err := r.Peek(1)
 	if err != nil {

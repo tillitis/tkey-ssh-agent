@@ -7,18 +7,21 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"net"
 
 	"github.com/mullvad/mta1-mkdf-signer/mkdf"
+	"github.com/tarm/serial"
 )
 
 type MKDFSigner struct {
-	conn net.Conn
+	devPath string
+	port    *serial.Port
 }
 
-func NewMKDFSigner() (*MKDFSigner, error) {
+func NewMKDFSigner(devPath string) (*MKDFSigner, error) {
 	mkdf.SilenceLogging()
-	signer := &MKDFSigner{}
+	signer := &MKDFSigner{
+		devPath: devPath,
+	}
 	err := signer.connect()
 	if err != nil {
 		return nil, err
@@ -28,9 +31,9 @@ func NewMKDFSigner() (*MKDFSigner, error) {
 
 func (s *MKDFSigner) connect() error {
 	var err error
-	s.conn, err = net.Dial("tcp", "localhost:4444")
+	s.port, err = serial.OpenPort(&serial.Config{Name: s.devPath, Baud: 1000000})
 	if err != nil {
-		return fmt.Errorf("Dial: %w", err)
+		return fmt.Errorf("OpenPort: %w", err)
 	}
 	return nil
 }
@@ -38,7 +41,7 @@ func (s *MKDFSigner) connect() error {
 // implementing crypto.Signer below
 
 func (s *MKDFSigner) Public() crypto.PublicKey {
-	pub, err := mkdf.GetPubkey(s.conn)
+	pub, err := mkdf.GetPubkey(s.port)
 	if err != nil {
 		log.Printf("mkdf.GetPubKey failed: %v\n", err)
 		return nil
@@ -53,7 +56,7 @@ func (s *MKDFSigner) Sign(rand io.Reader, message []byte, opts crypto.SignerOpts
 		return nil, errors.New("message must not be hashed")
 	}
 
-	signature, err := mkdf.Sign(s.conn, message)
+	signature, err := mkdf.Sign(s.port, message)
 	if err != nil {
 		log.Printf("mkdf.Sign: %v", err)
 		return nil, fmt.Errorf("mkdf.Sign: %w", err)

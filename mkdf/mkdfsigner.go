@@ -2,10 +2,11 @@ package mkdf
 
 import (
 	"fmt"
-	"net"
+
+	"github.com/tarm/serial"
 )
 
-func GetPubkey(c net.Conn) ([]byte, error) {
+func GetPubkey(c *serial.Port) ([]byte, error) {
 	hdr := frame{
 		id:       2,
 		endpoint: destApp,
@@ -37,7 +38,7 @@ func GetPubkey(c net.Conn) ([]byte, error) {
 	return rx[1:], nil
 }
 
-func Sign(conn net.Conn, data []byte) ([]byte, error) {
+func Sign(conn *serial.Port, data []byte) ([]byte, error) {
 	err := signSetSize(conn, len(data))
 	if err != nil {
 		return nil, err
@@ -117,7 +118,7 @@ func (a *signSize) pack() ([]byte, error) {
 	return buf, nil
 }
 
-func signSetSize(c net.Conn, size int) error {
+func signSetSize(c *serial.Port, size int) error {
 	signsize := signSize{
 		hdr: frame{
 			id:       2,
@@ -148,7 +149,7 @@ func signSetSize(c net.Conn, size int) error {
 	return nil
 }
 
-func signLoad(c net.Conn, data []byte) error {
+func signLoad(c *serial.Port, data []byte) error {
 	signdata := signData{
 		hdr: frame{
 			id:       2,
@@ -176,7 +177,7 @@ func signLoad(c net.Conn, data []byte) error {
 	return nil
 }
 
-func getSig(c net.Conn) ([]byte, error) {
+func getSig(c *serial.Port) ([]byte, error) {
 	hdr := frame{
 		id:       2,
 		endpoint: destApp,

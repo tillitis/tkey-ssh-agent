@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net"
 	"os"
 
+	"github.com/tarm/serial"
 	"golang.org/x/crypto/blake2s"
 )
 
@@ -20,7 +20,7 @@ func SilenceLogging() {
 	ll.SetOutput(ioutil.Discard)
 }
 
-func LoadApp(conn net.Conn, fileName string) error {
+func LoadApp(conn *serial.Port, fileName string) error {
 	content, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		return fmt.Errorf("ReadFile: %w", err)
@@ -69,7 +69,7 @@ func LoadApp(conn net.Conn, fileName string) error {
 	return runApp(conn)
 }
 
-func setAppSize(c net.Conn, size int) error {
+func setAppSize(c *serial.Port, size int) error {
 	appsize := appSize{
 		hdr: frame{
 			id:       2,
@@ -98,7 +98,7 @@ func setAppSize(c net.Conn, size int) error {
 	return nil
 }
 
-func loadAppData(c net.Conn, content []byte) error {
+func loadAppData(c *serial.Port, content []byte) error {
 	appdata := appData{
 		hdr: frame{
 			id:       2,
@@ -129,7 +129,7 @@ func loadAppData(c net.Conn, content []byte) error {
 	return nil
 }
 
-func getAppDigest(c net.Conn) ([32]byte, error) {
+func getAppDigest(c *serial.Port) ([32]byte, error) {
 	var md [32]byte
 
 	hdr := frame{
@@ -157,7 +157,7 @@ func getAppDigest(c net.Conn) ([32]byte, error) {
 	return md, nil
 }
 
-func runApp(c net.Conn) error {
+func runApp(c *serial.Port) error {
 	hdr := frame{
 		id:       2,
 		endpoint: destFW,

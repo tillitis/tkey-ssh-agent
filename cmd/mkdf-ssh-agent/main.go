@@ -15,11 +15,15 @@ func main() {
 	syscall.Umask(0o077)
 
 	sockPath := flag.String("a", "", "Path to bind agent's UNIX domain socket at")
+	devPath := flag.String("port", "/dev/ttyACM0", "Path to serial port device")
 	flag.Parse()
+
 	if *sockPath == "" {
 		fmt.Printf("Give me: -a /path/for/agent.sock\n")
 		os.Exit(2)
 	}
+
+	fmt.Printf("Using serial port at %v\n", *devPath)
 
 	_, err := os.Stat(*sockPath)
 	if err == nil || !errors.Is(err, os.ErrNotExist) {
@@ -28,7 +32,7 @@ func main() {
 	}
 
 	// TODO assumes that the app is already running, and many other things...
-	signer, err := NewMKDFSigner()
+	signer, err := NewMKDFSigner(*devPath)
 	if err != nil {
 		log.Fatal(err)
 	}

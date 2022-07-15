@@ -4,19 +4,20 @@ import (
 	"crypto/ed25519"
 	"flag"
 	"fmt"
-	"net"
 	"os"
 
 	"github.com/mullvad/mta1-mkdf-signer/mkdf"
+	"github.com/tarm/serial"
 )
 
 func main() {
 	fileName := flag.String("file", "", "Name of file to be uploaded")
+	port := flag.String("port", "/dev/ttyACM0", "Serial port path")
 	flag.Parse()
 
 	// mkdf.SilenceLogging()
 
-	conn, err := net.Dial("tcp", "localhost:4444")
+	conn, err := serial.OpenPort(&serial.Config{Name: *port, Baud: 1000000})
 	if err != nil {
 		fmt.Printf("Couldn't connect: %v\n", err)
 		os.Exit(1)

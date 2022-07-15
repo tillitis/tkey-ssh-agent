@@ -25,7 +25,7 @@ func (a *appSize) pack() ([]byte, error) {
 	}
 
 	// Append command code
-	buf[1] = fwCmdLoadAppSize
+	buf[1] = byte(fwCmdLoadAppSize)
 
 	// Append size
 	buf[2] = byte(a.size)
@@ -61,7 +61,7 @@ func (a *appData) pack() ([]byte, error) {
 		return nil, err
 	}
 
-	tx[1] = fwCmdLoadAppData
+	tx[1] = byte(fwCmdLoadAppData)
 
 	copy(tx[2:], a.data[:])
 
@@ -72,42 +72,42 @@ type endpoint byte
 
 const (
 	destIFPGA endpoint = 0
-	destAFPGA          = 1
-	destFW             = 2
-	destApp            = 3
+	destAFPGA endpoint = 1
+	destFW    endpoint = 2
+	destApp   endpoint = 3
 )
 
 type frameLen byte
 
 const (
 	frameLen1  frameLen = 0
-	frameLen4           = 1
-	frameLen32          = 2
-	frameLen64          = 3
+	frameLen4  frameLen = 1
+	frameLen32 frameLen = 2
+	frameLen64 frameLen = 3
 )
 
 type fwCmd byte
 
 const (
 	fwCmdGetNameVersion fwCmd = 0x01
-	fwRspGetNameVersion       = 0x02
-	fwCmdLoadAppSize          = 0x03
-	fwRspLoadAppSize          = 0x04
-	fwCmdLoadAppData          = 0x05
-	fwRspLoadAppData          = 0x06
-	fwCmdRunApp               = 0x07
-	fwRspRunApp               = 0x08
-	fwCmdGetAppDigest         = 0x09
-	fwRspGetAppDigest         = 0x10
+	fwRspGetNameVersion fwCmd = 0x02
+	fwCmdLoadAppSize    fwCmd = 0x03
+	fwRspLoadAppSize    fwCmd = 0x04
+	fwCmdLoadAppData    fwCmd = 0x05
+	fwRspLoadAppData    fwCmd = 0x06
+	fwCmdRunApp         fwCmd = 0x07
+	fwRspRunApp         fwCmd = 0x08
+	fwCmdGetAppDigest   fwCmd = 0x09
+	fwRspGetAppDigest   fwCmd = 0x10
 )
 
 type appCmd byte
 
 const (
 	appCmdGetPubkey appCmd = 0x01
-	appCmdSetSize          = 0x03
-	appCmdSignData         = 0x04
-	appCmdGetSig           = 0x05
+	appCmdSetSize   appCmd = 0x03
+	appCmdSignData  appCmd = 0x04
+	appCmdGetSig    appCmd = 0x05
 )
 
 func (f fwCmd) String() string {

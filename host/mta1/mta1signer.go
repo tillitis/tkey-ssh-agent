@@ -80,7 +80,7 @@ func (a *signData) pack() ([]byte, error) {
 		return nil, err
 	}
 
-	tx[1] = appCmdSignData
+	tx[1] = byte(appCmdSignData)
 
 	copy(tx[2:], a.data[:])
 
@@ -103,7 +103,7 @@ func (a *signSize) pack() ([]byte, error) {
 	}
 
 	// Append command code
-	buf[1] = appCmdSetSize
+	buf[1] = byte(appCmdSetSize)
 
 	// Append size
 	buf[2] = byte(a.size)

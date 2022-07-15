@@ -7,9 +7,9 @@ foo.bin (foo.S), and one slightly larger C app: app.bin.
 
 The larger C app is an ed25519 signer.
 
-You need `riscv32-elf-binutils`.
-
-To build everything:
+To build you need the `clang`, `llvm` and `lld` packages installed. And they
+need to have risc32 support, check this with `llc --version | grep riscv32`.
+Build everything:
 
 ```
 make

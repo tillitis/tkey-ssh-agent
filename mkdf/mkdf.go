@@ -5,16 +5,19 @@ import (
 	"io/ioutil"
 	"log"
 	"net"
+	"os"
 
 	"golang.org/x/crypto/blake2s"
 )
 
+var ll *log.Logger
+
 func init() {
-	log.SetFlags(0)
+	ll = log.New(os.Stdout, "", 0)
 }
 
 func SilenceLogging() {
-	log.SetOutput(ioutil.Discard)
+	ll.SetOutput(ioutil.Discard)
 }
 
 func LoadApp(conn net.Conn, fileName string) error {
@@ -28,7 +31,7 @@ func LoadApp(conn net.Conn, fileName string) error {
 		return fmt.Errorf("File to big")
 	}
 
-	log.Printf("app size: %v, 0x%x, 0b%b\n", contentlen, contentlen, contentlen)
+	ll.Printf("app size: %v, 0x%x, 0b%b\n", contentlen, contentlen, contentlen)
 
 	err = setAppSize(conn, contentlen)
 	if err != nil {
@@ -43,7 +46,7 @@ func LoadApp(conn net.Conn, fileName string) error {
 		}
 	}
 
-	log.Printf("Going to getappdigest\n")
+	ll.Printf("Going to getappdigest\n")
 	appDigest, err := getAppDigest(conn)
 	if err != nil {
 		return err
@@ -51,18 +54,18 @@ func LoadApp(conn net.Conn, fileName string) error {
 
 	digest := blake2s.Sum256(content)
 
-	log.Printf("Digest from host: \n")
+	ll.Printf("Digest from host: \n")
 	printDigest(digest)
-	log.Printf("Digest from device: \n")
+	ll.Printf("Digest from device: \n")
 	printDigest(appDigest)
 
 	if appDigest != digest {
 		return fmt.Errorf("Different digests")
 	}
-	log.Printf("Same digests!\n")
+	ll.Printf("Same digests!\n")
 
 	// Run the app
-	log.Printf("Running the app\n")
+	ll.Printf("Running the app\n")
 	return runApp(conn)
 }
 
@@ -185,9 +188,9 @@ func runApp(c net.Conn) error {
 func printDigest(md [32]byte) {
 	for j := 0; j < 4; j++ {
 		for i := 0; i < 8; i++ {
-			log.Printf("0x%02x ", md[i+8*j])
+			ll.Printf("0x%02x ", md[i+8*j])
 		}
-		log.Printf("\n")
+		ll.Printf("\n")
 	}
-	log.Printf("\n")
+	ll.Printf("\n")
 }

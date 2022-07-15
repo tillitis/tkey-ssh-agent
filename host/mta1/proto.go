@@ -191,19 +191,17 @@ func (f *frame) pack() (byte, error) {
 	return hdr, nil
 }
 
-func (h *frame) unpack(b byte) error {
+func (f *frame) unpack(b byte) error {
 	if b&0x80 != 0 {
 		return fmt.Errorf("bad version")
-
 	}
 	if b&0x4 != 0 {
 		return fmt.Errorf("must be zero")
-
 	}
 
-	h.id = byte((uint32(b) & 0x60) >> 5)
-	h.endpoint = endpoint(byte(b&0x18) >> 3)
-	h.msgLen = frameLen(byte(b) & 0x3)
+	f.id = byte((uint32(b) & 0x60) >> 5)
+	f.endpoint = endpoint(byte(b&0x18) >> 3)
+	f.msgLen = frameLen(byte(b) & 0x3)
 
 	return nil
 }
@@ -257,7 +255,7 @@ func fwRecv(conn net.Conn, expectedRsp fwCmd, id byte, expectedLen frameLen) ([]
 
 	err = frame.unpack(rx[0])
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("frame.unpack: %w", err)
 	}
 
 	if frame.msgLen != expectedLen {
@@ -265,13 +263,13 @@ func fwRecv(conn net.Conn, expectedRsp fwCmd, id byte, expectedLen frameLen) ([]
 	}
 
 	if frame.id != id {
-		fmt.Errorf("incorrect id %v != expected %v", frame.id, id)
+		return nil, fmt.Errorf("incorrect id %v != expected %v", frame.id, id)
 	}
 
 	cmd := fwCmd(rx[1])
 	fmt.Printf("FW code: %v\n", cmd)
 	if cmd != expectedRsp {
-		fmt.Errorf("incorrect response code %v != expected %v", rx[1], expectedRsp)
+		return nil, fmt.Errorf("incorrect response code %v != expected %v", rx[1], expectedRsp)
 	}
 
 	// 0 is frame header
@@ -290,7 +288,7 @@ func recv(c net.Conn) ([]byte, error) {
 
 	err = hdr.unpack(b[0])
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("hdr.unpack: %w", err)
 	}
 
 	rx := make([]byte, hdr.len()+1)

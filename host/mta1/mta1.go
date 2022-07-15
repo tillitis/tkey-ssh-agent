@@ -11,7 +11,7 @@ import (
 func LoadApp(conn net.Conn, fileName string) error {
 	content, err := ioutil.ReadFile(fileName)
 	if err != nil {
-		return fmt.Errorf("couldn't load file %v", fileName)
+		return err
 	}
 
 	contentlen := len(content)
@@ -31,6 +31,9 @@ func LoadApp(conn net.Conn, fileName string) error {
 	// Load the file
 	for i := 0; i < contentlen; i += 63 {
 		err = loadAppData(conn, content[i:])
+		if err != nil {
+			return err
+		}
 	}
 
 	fmt.Printf("Going to getappdigest\n")
@@ -46,15 +49,12 @@ func LoadApp(conn net.Conn, fileName string) error {
 
 	if md != digest {
 		return fmt.Errorf("Different digests")
-	} else {
-		fmt.Printf("Same digests!\n")
 	}
+	fmt.Printf("Same digests!\n")
 
 	// Run the app
 	fmt.Printf("Running the app\n")
-	runApp(conn)
-
-	return nil
+	return runApp(conn)
 }
 
 func setAppSize(c net.Conn, size int) error {
@@ -79,6 +79,9 @@ func setAppSize(c net.Conn, size int) error {
 	if rx[2] != 0 {
 		return fmt.Errorf("SetAppSize NOK")
 	}
+	if err != nil {
+		return fmt.Errorf("fwRecv: %w", err)
+	}
 
 	return nil
 }
@@ -94,6 +97,9 @@ func loadAppData(c net.Conn, content []byte) error {
 
 	appdata.copy(content)
 	tx, err := appdata.pack()
+	if err != nil {
+		return err
+	}
 
 	dump("LoadAppData tx:", tx)
 	xmit(c, tx)
@@ -123,7 +129,7 @@ func getAppDigest(c net.Conn) ([32]byte, error) {
 	// Check the digest
 	tx, err := packSimple(hdr, fwCmdGetAppDigest)
 	if err != nil {
-		return md, fmt.Errorf("packing packet: %v", err)
+		return md, fmt.Errorf("packing packet: %w", err)
 	}
 
 	dump("GetDigest tx:", tx)

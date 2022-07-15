@@ -53,7 +53,6 @@ func (s *SSHAgent) Serve(sockPath string) error {
 		fmt.Printf("handling connection\n")
 		go s.handleConn(conn)
 	}
-	return nil
 }
 
 func (s *SSHAgent) handleConn(c net.Conn) {

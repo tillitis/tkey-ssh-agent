@@ -23,14 +23,14 @@ func main() {
 
 	err = mta1.LoadApp(conn, *fileName)
 	if err != nil {
-		fmt.Printf("Couldn't load file: %v\n", err)
+		fmt.Printf("LoadApp failed: %v\n", err)
 		os.Exit(1)
 	}
 
 	fmt.Printf("Getting the public key\n")
 	pubkey, err := mta1.GetPubkey(conn)
 	if err != nil {
-		fmt.Printf("Couldn't get pubkey: %v\n", err)
+		fmt.Printf("GetPubKey failed: %v\n", err)
 		os.Exit(1)
 	}
 	fmt.Printf("Public key: %x\n", pubkey)
@@ -38,10 +38,10 @@ func main() {
 	message := []byte{0x01, 0x02, 0x03}
 	signature, err := mta1.Sign(conn, message)
 	if err != nil {
-		fmt.Printf("Couldn't sign: %v\n", err)
+		fmt.Printf("Sign failed: %v\n", err)
 		os.Exit(1)
 	}
-	fmt.Printf("signature: %x\n", signature)
+	fmt.Printf("Signature: %x\n", signature)
 
 	if !ed25519.Verify(pubkey, message, signature) {
 		fmt.Printf("Signature did NOT verify.\n")

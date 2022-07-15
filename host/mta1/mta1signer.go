@@ -18,6 +18,9 @@ func GetPubkey(c net.Conn) ([]byte, error) {
 
 	// Frame header
 	tx[0], err = hdr.pack()
+	if err != nil {
+		return nil, err
+	}
 	tx[1] = byte(appCmdGetPubkey)
 
 	dump("GetPubkey tx:", tx)
@@ -156,6 +159,9 @@ func signLoad(c net.Conn, data []byte) error {
 
 	signdata.copy(data)
 	tx, err := signdata.pack()
+	if err != nil {
+		return err
+	}
 
 	dump("SignData tx:", tx)
 	xmit(c, tx)
@@ -183,6 +189,9 @@ func getSig(c net.Conn) ([]byte, error) {
 
 	// Frame header
 	tx[0], err = hdr.pack()
+	if err != nil {
+		return nil, err
+	}
 	tx[1] = byte(appCmdGetSig)
 
 	dump("GetSig tx:", tx)

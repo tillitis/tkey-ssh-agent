@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"os"
 )
@@ -224,7 +225,7 @@ func packSimple(hdr frame, cmd fwCmd) ([]byte, error) {
 }
 
 func dump(s string, d []byte) {
-	fmt.Printf("%s\n%s", s, hex.Dump(d))
+	log.Printf("%s\n%s", s, hex.Dump(d))
 }
 
 func xmit(c net.Conn, d []byte) {
@@ -266,7 +267,7 @@ func fwRecv(conn net.Conn, expectedRsp fwCmd, id byte, expectedLen frameLen) ([]
 	}
 
 	cmd := fwCmd(rx[1])
-	fmt.Printf("FW code: %v\n", cmd)
+	log.Printf("FW code: %v\n", cmd)
 	if cmd != expectedRsp {
 		return nil, fmt.Errorf("incorrect response code %v != expected %v", rx[1], expectedRsp)
 	}

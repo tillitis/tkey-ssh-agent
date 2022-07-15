@@ -14,6 +14,8 @@ func main() {
 	fileName := flag.String("file", "", "Name of file to be uploaded")
 	flag.Parse()
 
+	// mta1.SilenceLogging()
+
 	conn, err := net.Dial("tcp", "localhost:4444")
 	if err != nil {
 		fmt.Printf("Couldn't connect: %v\n", err)
@@ -21,27 +23,32 @@ func main() {
 	}
 	defer conn.Close()
 
-	err = mta1.LoadApp(conn, *fileName)
-	if err != nil {
-		fmt.Printf("LoadApp failed: %v\n", err)
-		os.Exit(1)
+	if *fileName != "" {
+		fmt.Printf("Loading app onto device\n")
+		err = mta1.LoadApp(conn, *fileName)
+		if err != nil {
+			fmt.Printf("LoadApp failed: %v\n", err)
+			os.Exit(1)
+		}
+	} else {
+		fmt.Printf("Not loading app onto device, assuming it's running\n")
 	}
 
-	fmt.Printf("Getting the public key\n")
 	pubkey, err := mta1.GetPubkey(conn)
 	if err != nil {
 		fmt.Printf("GetPubKey failed: %v\n", err)
 		os.Exit(1)
 	}
-	fmt.Printf("Public key: %x\n", pubkey)
+	fmt.Printf("Public Key from device: %x\n", pubkey)
 
 	message := []byte{0x01, 0x02, 0x03}
+	fmt.Printf("Message: %+v\n", message)
 	signature, err := mta1.Sign(conn, message)
 	if err != nil {
 		fmt.Printf("Sign failed: %v\n", err)
 		os.Exit(1)
 	}
-	fmt.Printf("Signature: %x\n", signature)
+	fmt.Printf("Signature over message by device: %x\n", signature)
 
 	if !ed25519.Verify(pubkey, message, signature) {
 		fmt.Printf("Signature did NOT verify.\n")

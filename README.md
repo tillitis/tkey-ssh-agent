@@ -34,3 +34,6 @@ Then run the host program:
 ```
 
 which should give you a signature on the output.
+
+If -file is not passed, the app is assumed to be loaded and running on the
+device, and signing is attempted.

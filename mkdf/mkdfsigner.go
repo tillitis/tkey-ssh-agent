@@ -142,7 +142,7 @@ func signSetSize(c net.Conn, size int) error {
 
 	dump(" rx:", rx)
 	if rx[1] != 0 {
-		return fmt.Errorf("SignSetSize NOK")
+		return fmt.Errorf("SignSetSize NOK (%d)", rx[1])
 	}
 
 	return nil

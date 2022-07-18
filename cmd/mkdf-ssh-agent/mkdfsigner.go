@@ -3,6 +3,7 @@ package main
 import (
 	"crypto"
 	"crypto/ed25519"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -45,8 +46,14 @@ func (s *MKDFSigner) Public() crypto.PublicKey {
 	return ed25519.PublicKey(pub)
 }
 
-func (s *MKDFSigner) Sign(rand io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, error) {
-	signature, err := mkdf.Sign(s.conn, digest)
+func (s *MKDFSigner) Sign(rand io.Reader, message []byte, opts crypto.SignerOpts) ([]byte, error) {
+	// The Ed25519 signature must be made over unhashed message. See:
+	// https://cs.opensource.google/go/go/+/refs/tags/go1.18.4:src/crypto/ed25519/ed25519.go;l=80
+	if opts.HashFunc() != crypto.Hash(0) {
+		return nil, errors.New("message must not be hashed")
+	}
+
+	signature, err := mkdf.Sign(s.conn, message)
 	if err != nil {
 		log.Printf("mkdf.Sign: %v", err)
 		return nil, fmt.Errorf("mkdf.Sign: %w", err)

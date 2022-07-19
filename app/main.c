@@ -18,7 +18,7 @@ int main(void)
 	uint8_t rsp[64];
 	uint32_t message_size = 0;
 	uint8_t message[MAX_SIGN_SIZE];
-	uint8_t msg_idx; // Where we are currently loading the data to sign
+	int msg_idx; // Where we are currently loading the data to sign
 	uint8_t signature[64];
 	int left = 0;	// Bytes left to read
 	int nbytes = 0; // Bytes to write to memory

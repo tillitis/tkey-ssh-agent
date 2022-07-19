@@ -42,8 +42,12 @@ func main() {
 	}
 	fmt.Printf("Public Key from device: %x\n", pubkey)
 
-	message := []byte{0x01, 0x02, 0x03}
-	fmt.Printf("Message: %+v\n", message)
+	var message []byte
+	for i := 0; i < 4096; i++ {
+		message = append(message, byte(i))
+	}
+
+	fmt.Printf("Message size: %v, message: %x\n", len(message), message)
 	signature, err := mkdf.Sign(conn, message)
 	if err != nil {
 		fmt.Printf("Sign failed: %v\n", err)

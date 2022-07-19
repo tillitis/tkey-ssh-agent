@@ -1,5 +1,4 @@
 #include "types.h"
-#include "lib.h"
 
 volatile uint8_t *debugtx = (volatile uint8_t *)0x90001000;
 
@@ -78,9 +77,9 @@ void hexdump(uint8_t *buf, int len)
 
 	for (byte = 0; byte != max; row = byte) {
 		// Offset
-		//printf("%07x ", row - buf);
+		// printf("%07x ", row - buf);
 
-		for (byte = row; byte != max && byte != (row + 16); byte ++) {
+		for (byte = row; byte != max && byte != (row + 16); byte++) {
 			puthex(*byte);
 		}
 
@@ -92,7 +91,8 @@ void *memset(void *dest, int c, unsigned n)
 {
 	uint8_t *s = dest;
 
-	for (; n; n--, s++) *s = c;
+	for (; n; n--, s++)
+		*s = c;
 
 	return dest;
 }
@@ -102,7 +102,7 @@ __attribute__((used)) void *memcpy(void *dest, const void *src, unsigned n)
 	uint8_t *src_byte = (uint8_t *)src;
 	uint8_t *dest_byte = (uint8_t *)dest;
 
-	for (int i = 0; i < n; i ++) {
+	for (int i = 0; i < n; i++) {
 		dest_byte[i] = src_byte[i];
 	}
 

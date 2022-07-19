@@ -1,7 +1,7 @@
-#include "monocypher-ed25519.h"
-#include "types.h"
 #include "lib.h"
 #include "proto.h"
+
+#include "monocypher-ed25519.h"
 
 volatile uint8_t *cdi = (volatile uint8_t *)0x90000400;
 volatile uint32_t *name0 = (volatile uint32_t *)0x90000208;
@@ -20,7 +20,7 @@ int main(void)
 	uint8_t message[MAX_SIGN_SIZE];
 	uint8_t msg_idx; // Where we are currently loading the data to sign
 	uint8_t signature[64];
-	int left = 0; // Bytes left to read
+	int left = 0;	// Bytes left to read
 	int nbytes = 0; // Bytes to write to memory
 	uint8_t in;
 
@@ -34,7 +34,7 @@ int main(void)
 		puts("Read byte: ");
 		puthex(in);
 		putchar('\n');
-		//printf("Read byte 0x%x\n", in);
+		// printf("Read byte 0x%x\n", in);
 
 		if (parseframe(in, &hdr) == -1) {
 			// Couldn't parse header
@@ -42,9 +42,10 @@ int main(void)
 			continue;
 		}
 
-		//printf("id: %d, endpoint: %d, len: %d\n", hdr.id, hdr.endpoint, hdr.len);
+		// printf("id: %d, endpoint: %d, len: %d\n", hdr.id,
+		// hdr.endpoint, hdr.len);
 
-		//Is it for us?
+		// Is it for us?
 		if (hdr.endpoint != DST_SW) {
 			puts("Message not meant for us, endpoint: ");
 			puthex(hdr.endpoint);
@@ -63,7 +64,7 @@ int main(void)
 		memset(rsp, 0, 64);
 
 		// Min length is 1 byte so this should always be here
-		//printf("command: %d\n", cmd[0]);
+		// printf("command: %d\n", cmd[0]);
 		switch (cmd[0]) {
 		case APP_CMD_GET_PUBKEY:
 			puts("APP_CMD_GET_PUBKEY\n");
@@ -80,7 +81,8 @@ int main(void)
 			}
 
 			// cmd[1..4] contains the size.
-			message_size = cmd[1] + (cmd[2] << 8) + (cmd[3] << 16) + (cmd[4] << 24);
+			message_size = cmd[1] + (cmd[2] << 8) + (cmd[3] << 16) +
+				       (cmd[4] << 24);
 
 			if (message_size > MAX_SIGN_SIZE) {
 				puts("Message to big!\n");
@@ -113,7 +115,9 @@ int main(void)
 
 			if (left == 0) {
 				// All loaded, sign the message
-				crypto_ed25519_sign(signature, (void *)cdi, pubkey, message, message_size);
+				crypto_ed25519_sign(signature, (void *)cdi,
+						    pubkey, message,
+						    message_size);
 			}
 
 			break;

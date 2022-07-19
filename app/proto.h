@@ -1,19 +1,21 @@
+#include "types.h"
+
 #ifndef PROTO_H
 #define PROTO_H
 
 enum appcmd {
 	APP_CMD_GET_PUBKEY = 0x01,
 	APP_RSP_GET_PUBKEY = 0x02,
-	APP_CMD_SET_SIZE   = 0x03,
-	APP_CMD_SIGN_DATA  = 0x04,
-	APP_CMD_GET_SIG    = 0x05
+	APP_CMD_SET_SIZE = 0x03,
+	APP_CMD_SIGN_DATA = 0x04,
+	APP_CMD_GET_SIG = 0x05
 };
 
 enum endpoints {
 	DST_HW_IFPGA = 0x00,
 	DST_HW_AFPGA = 0x01,
-	DST_FW       = 0x02,
-	DST_SW       = 0x03
+	DST_FW = 0x02,
+	DST_SW = 0x03
 };
 
 enum cmdlen {
@@ -43,4 +45,3 @@ void read(uint8_t *buf, size_t nbytes);
 void appreply(struct frame_header hdr, enum appcmd rspcode, void *buf);
 
 #endif
-

@@ -24,3 +24,7 @@ app: $(OBJS) types.h lib.h proto.h
 .PHONY:clean
 clean:
 	$(RM) -f app.bin foo.bin app foo foo.o $(OBJS)
+
+.PHONY: fmt
+fmt:
+	clang-format -i main.c lib.h lib.c proto.h proto.c types.h

@@ -1,6 +1,5 @@
-#include "types.h"
-#include "lib.h"
 #include "proto.h"
+#include "lib.h"
 
 volatile uint8_t *can_rx = (volatile uint8_t *)0x90000214;
 volatile uint8_t *rx = (volatile uint8_t *)0x90000215;
@@ -63,7 +62,7 @@ void write(uint8_t *buf, size_t nbytes)
 {
 	puts("Sending: \n");
 	hexdump(buf, nbytes);
-	for (int i = 0; i < nbytes; i ++) {
+	for (int i = 0; i < nbytes; i++) {
 		writebyte(buf[i]);
 	}
 }
@@ -79,7 +78,7 @@ uint8_t readbyte()
 
 void read(uint8_t *buf, size_t nbytes)
 {
-	for (int n = 0; n < nbytes; n ++) {
+	for (int n = 0; n < nbytes; n++) {
 		buf[n] = readbyte();
 	}
 }
@@ -119,12 +118,14 @@ void appreply(struct frame_header hdr, enum appcmd rspcode, void *buf)
 	}
 
 	// Frame Protocol Header
-	//printf("Sending: (0x%x)\n  id:%d, endpoint:%d, len: %d\n  rspcode: %d\n", genhdr(hdr.id, hdr.endpoint, 0x0, len), hdr.id, hdr.endpoint, len, rspcode);
+	// printf("Sending: (0x%x)\n  id:%d, endpoint:%d, len: %d\n  rspcode:
+	// %d\n", genhdr(hdr.id, hdr.endpoint, 0x0, len), hdr.id, hdr.endpoint,
+	// len, rspcode);
 	writebyte(genhdr(hdr.id, hdr.endpoint, 0x0, len));
 
 	// App protocol header
-	//writebyte(rspcode);
-	//nbytes --;
+	// writebyte(rspcode);
+	// nbytes --;
 
 	write(buf, nbytes);
 }

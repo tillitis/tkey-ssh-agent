@@ -8,7 +8,7 @@ volatile uint32_t *name0 = (volatile uint32_t *)0x90000208;
 volatile uint32_t *name1 = (volatile uint32_t *)0x9000020c;
 volatile uint32_t *ver = (volatile uint32_t *)0x90000210;
 
-#define MAX_SIGN_SIZE 32768
+#define MAX_SIGN_SIZE 4096
 
 int main(void)
 {

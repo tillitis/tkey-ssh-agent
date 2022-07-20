@@ -20,6 +20,33 @@ func SilenceLogging() {
 	ll.SetOutput(ioutil.Discard)
 }
 
+func GetNameVersion(c *serial.Port) ([32]byte, error) {
+	var nameVer [32]byte
+
+	hdr := frame{
+		id:       2,
+		endpoint: destFW,
+		msgLen:   frameLen1,
+	}
+
+	tx, err := packSimple(hdr, fwCmdGetNameVersion)
+	if err != nil {
+		return nameVer, fmt.Errorf("packSimple: %w", err)
+	}
+
+	dump("GetNameVersion tx:", tx)
+	xmit(c, tx)
+
+	rx, err := fwRecv(c, fwRspGetNameVersion, hdr.id, frameLen32)
+	if err != nil {
+		return nameVer, fmt.Errorf("fwRecv: %w", err)
+	}
+
+	copy(nameVer[:], rx)
+
+	return nameVer, nil
+}
+
 func LoadApp(conn *serial.Port, fileName string) error {
 	content, err := ioutil.ReadFile(fileName)
 	if err != nil {
@@ -88,11 +115,11 @@ func setAppSize(c *serial.Port, size int) error {
 	xmit(c, tx)
 
 	rx, err := fwRecv(c, fwRspLoadAppSize, appsize.hdr.id, frameLen4)
-	if rx[2] != 0 {
-		return fmt.Errorf("SetAppSize NOK")
-	}
 	if err != nil {
 		return fmt.Errorf("fwRecv: %w", err)
+	}
+	if rx[2] != 0 {
+		return fmt.Errorf("SetAppSize NOK")
 	}
 
 	return nil
@@ -141,7 +168,7 @@ func getAppDigest(c *serial.Port) ([32]byte, error) {
 	// Check the digest
 	tx, err := packSimple(hdr, fwCmdGetAppDigest)
 	if err != nil {
-		return md, fmt.Errorf("packing packet: %w", err)
+		return md, fmt.Errorf("packSimple: %w", err)
 	}
 
 	dump("GetDigest tx:", tx)
@@ -164,10 +191,9 @@ func runApp(c *serial.Port) error {
 		msgLen:   frameLen1,
 	}
 
-	// Check the digest
 	tx, err := packSimple(hdr, fwCmdRunApp)
 	if err != nil {
-		return nil
+		return fmt.Errorf("packSimple: %w", err)
 	}
 
 	dump("RunApp tx:", tx)

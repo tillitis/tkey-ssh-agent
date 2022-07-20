@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/mullvad/mta1-mkdf-signer/mkdf"
 	"github.com/tarm/serial"
@@ -17,7 +18,11 @@ func main() {
 
 	// mkdf.SilenceLogging()
 
-	conn, err := serial.OpenPort(&serial.Config{Name: *port, Baud: 1000000})
+	conn, err := serial.OpenPort(&serial.Config{
+		Name:        *port,
+		Baud:        1000000,
+		ReadTimeout: 3 * time.Second,
+	})
 	if err != nil {
 		fmt.Printf("Couldn't connect: %v\n", err)
 		os.Exit(1)
@@ -25,6 +30,15 @@ func main() {
 	defer conn.Close()
 
 	if *fileName != "" {
+		nameVer, err := mkdf.GetNameVersion(conn)
+		if err != nil {
+			fmt.Printf("GetNameVersion failed: %v\n", err)
+			fmt.Printf("If the serial port device is correct, then the device might not be in\n" +
+				"firmware-mode. Please unplug and plug it in again.\n")
+			os.Exit(1)
+		}
+		fmt.Printf("Firmware has name0:%s name1:%s version:%s\n",
+			nameVer[0:4], nameVer[4:8], nameVer[8:12])
 		fmt.Printf("Loading app onto device\n")
 		err = mkdf.LoadApp(conn, *fileName)
 		if err != nil {
@@ -32,7 +46,7 @@ func main() {
 			os.Exit(1)
 		}
 	} else {
-		fmt.Printf("Not loading app onto device, assuming it's running\n")
+		fmt.Printf("No app filename given, assuming app is already running\n")
 	}
 
 	pubkey, err := mkdf.GetPubkey(conn)

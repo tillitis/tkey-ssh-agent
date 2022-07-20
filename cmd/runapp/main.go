@@ -40,9 +40,9 @@ func main() {
 		fmt.Printf("Firmware has name0:%s name1:%s version:%d\n",
 			nameVer.Name0, nameVer.Name1, nameVer.Version)
 		fmt.Printf("Loading app onto device\n")
-		err = mkdf.LoadApp(conn, *fileName)
+		err = mkdf.LoadAppFromFile(conn, *fileName)
 		if err != nil {
-			fmt.Printf("LoadApp failed: %v\n", err)
+			fmt.Printf("LoadAppFromFile failed: %v\n", err)
 			os.Exit(1)
 		}
 	} else {

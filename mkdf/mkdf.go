@@ -59,27 +59,30 @@ func GetNameVersion(c *serial.Port) (*NameVersion, error) {
 	return nameVer, nil
 }
 
-func LoadApp(conn *serial.Port, fileName string) error {
+func LoadAppFromFile(conn *serial.Port, fileName string) error {
 	content, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		return fmt.Errorf("ReadFile: %w", err)
 	}
+	return LoadApp(conn, content)
+}
 
-	contentlen := len(content)
-	if contentlen > 65536 {
+func LoadApp(conn *serial.Port, bin []byte) error {
+	binLen := len(bin)
+	if binLen > 65536 {
 		return fmt.Errorf("File to big")
 	}
 
-	ll.Printf("app size: %v, 0x%x, 0b%b\n", contentlen, contentlen, contentlen)
+	ll.Printf("app size: %v, 0x%x, 0b%b\n", binLen, binLen, binLen)
 
-	err = setAppSize(conn, contentlen)
+	err := setAppSize(conn, binLen)
 	if err != nil {
 		return err
 	}
 
 	// Load the file
-	for i := 0; i < contentlen; i += 63 {
-		err = loadAppData(conn, content[i:])
+	for i := 0; i < binLen; i += 63 {
+		err = loadAppData(conn, bin[i:])
 		if err != nil {
 			return err
 		}
@@ -91,7 +94,7 @@ func LoadApp(conn *serial.Port, fileName string) error {
 		return err
 	}
 
-	digest := blake2s.Sum256(content)
+	digest := blake2s.Sum256(bin)
 
 	ll.Printf("Digest from host: \n")
 	printDigest(digest)

@@ -3,14 +3,20 @@ package main
 import (
 	"crypto"
 	"crypto/ed25519"
+	_ "embed"
 	"errors"
 	"fmt"
 	"io"
 	"log"
+	"time"
 
 	"github.com/mullvad/mta1-mkdf-signer/mkdf"
 	"github.com/tarm/serial"
 )
+
+// Makefile copies the built app here ./app.bin
+//go:embed app.bin
+var appBinary []byte
 
 type MKDFSigner struct {
 	devPath string
@@ -26,14 +32,43 @@ func NewMKDFSigner(devPath string) (*MKDFSigner, error) {
 	if err != nil {
 		return nil, err
 	}
+	if signer.isFirmwareMode() {
+		fmt.Printf("Device is in firmware mode, loading app...\n")
+		err = signer.loadApp(appBinary)
+		if err != nil {
+			return nil, err
+		}
+	}
+	// TODO now correct app may be loaded, or we might be trying to talk to
+	// some other kind of device.
 	return signer, nil
 }
 
 func (s *MKDFSigner) connect() error {
 	var err error
-	s.port, err = serial.OpenPort(&serial.Config{Name: s.devPath, Baud: 1000000})
+	s.port, err = serial.OpenPort(&serial.Config{
+		Name:        s.devPath,
+		Baud:        1_000_000,
+		ReadTimeout: 3 * time.Second,
+	})
 	if err != nil {
 		return fmt.Errorf("OpenPort: %w", err)
+	}
+	return nil
+}
+
+func (s *MKDFSigner) isFirmwareMode() bool {
+	_, err := mkdf.GetNameVersion(s.port)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+func (s *MKDFSigner) loadApp(bin []byte) error {
+	err := mkdf.LoadApp(s.port, bin)
+	if err != nil {
+		return fmt.Errorf("LoadApp: %w", err)
 	}
 	return nil
 }

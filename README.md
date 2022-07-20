@@ -43,8 +43,7 @@ emulated device, and signing is attempted.
 
 # Using mkdf-ssh-agent
 
-If you have followed the above, the signer app has now been loaded and is
-running on the emulated device in QEMU. You can now start up our mkdf-ssh-agent
+The mkdf-ssh-agent should be able to upload the app itself. You can start it
 like this:
 
 ```

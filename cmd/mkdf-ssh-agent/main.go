@@ -4,7 +4,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"syscall"
 
@@ -34,17 +33,20 @@ func main() {
 	// TODO assumes that the app is already running, and many other things...
 	signer, err := NewMKDFSigner(*devPath)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("%s\n", err)
+		os.Exit(1)
 	}
 
 	agent, err := NewSSHAgent(signer)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("%s\n", err)
+		os.Exit(1)
 	}
 
 	sshPub, err := agent.GetSSHPub()
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("%s\n", err)
+		os.Exit(1)
 	}
 	authorizedKey := ssh.MarshalAuthorizedKey(sshPub)
 	fmt.Printf("your ssh pubkey:\n%s", authorizedKey)
@@ -66,6 +68,7 @@ func main() {
 
 	err = agent.Serve(*sockPath)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("%s\n", err)
+		os.Exit(1)
 	}
 }

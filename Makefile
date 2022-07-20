@@ -10,7 +10,8 @@ runapp:
 	go build ./cmd/runapp
 
 .PHONY: mkdf-ssh-agent
-mkdf-ssh-agent:
+mkdf-ssh-agent: app
+	cp -af app/app.bin cmd/mkdf-ssh-agent/app.bin
 	go build ./cmd/mkdf-ssh-agent
 
 .PHONE: clean

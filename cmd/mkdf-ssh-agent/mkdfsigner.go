@@ -14,9 +14,17 @@ import (
 	"github.com/tarm/serial"
 )
 
+var ErrMaybeWrongDevice = errors.New("wrong device or non-responsive app")
+
 // Makefile copies the built app here ./app.bin
 //go:embed app.bin
 var appBinary []byte
+
+var (
+	// 4 chars each.
+	wantAppName0 = "mkdf"
+	wantAppName1 = "sign"
+)
 
 type MKDFSigner struct {
 	devPath string
@@ -28,19 +36,22 @@ func NewMKDFSigner(devPath string) (*MKDFSigner, error) {
 	signer := &MKDFSigner{
 		devPath: devPath,
 	}
-	err := signer.connect()
-	if err != nil {
+	if err := signer.connect(); err != nil {
 		return nil, err
 	}
-	if signer.isFirmwareMode() {
+	if !signer.isWantedApp() {
+		if !signer.isFirmwareMode() {
+			// now we know that:
+			// - loaded app does not have the wanted name
+			// - device is not in firmware mode
+			// anything else is possible
+			return nil, ErrMaybeWrongDevice
+		}
 		fmt.Printf("Device is in firmware mode, loading app...\n")
-		err = signer.loadApp(appBinary)
-		if err != nil {
+		if err := signer.loadApp(appBinary); err != nil {
 			return nil, err
 		}
 	}
-	// TODO now correct app may be loaded, or we might be trying to talk to
-	// some other kind of device.
 	return signer, nil
 }
 
@@ -65,6 +76,18 @@ func (s *MKDFSigner) isFirmwareMode() bool {
 	return true
 }
 
+func (s *MKDFSigner) isWantedApp() bool {
+	nameVer, err := mkdf.GetAppNameVersion(s.port)
+	if err != nil {
+		return false
+	}
+	// not caring about nameVer.Version
+	if wantAppName0 != nameVer.Name0 || wantAppName1 != nameVer.Name1 {
+		return false
+	}
+	return true
+}
+
 func (s *MKDFSigner) loadApp(bin []byte) error {
 	err := mkdf.LoadApp(s.port, bin)
 	if err != nil {
@@ -78,7 +101,7 @@ func (s *MKDFSigner) loadApp(bin []byte) error {
 func (s *MKDFSigner) Public() crypto.PublicKey {
 	pub, err := mkdf.GetPubkey(s.port)
 	if err != nil {
-		log.Printf("mkdf.GetPubKey failed: %v\n", err)
+		log.Printf("mkdf.GetPubKey failed: %v", err)
 		return nil
 	}
 	return ed25519.PublicKey(pub)

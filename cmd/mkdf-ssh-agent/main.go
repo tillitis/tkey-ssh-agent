@@ -30,10 +30,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	// TODO assumes that the app is already running, and many other things...
 	signer, err := NewMKDFSigner(*devPath)
 	if err != nil {
-		fmt.Printf("%s\n", err)
+		if errors.Is(err, ErrMaybeWrongDevice) {
+			fmt.Printf("If the serial port is correct for the device, then it might not be it\n" +
+				"firmware-mode. Please unplug and plug it in again.\n")
+		} else {
+			fmt.Printf("%s\n", err)
+		}
 		os.Exit(1)
 	}
 

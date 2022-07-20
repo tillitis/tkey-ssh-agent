@@ -105,10 +105,11 @@ const (
 type appCmd byte
 
 const (
-	appCmdGetPubkey appCmd = 0x01
-	appCmdSetSize   appCmd = 0x02
-	appCmdSignData  appCmd = 0x03
-	appCmdGetSig    appCmd = 0x04
+	appCmdGetPubkey      appCmd = 0x01
+	appCmdSetSize        appCmd = 0x02
+	appCmdSignData       appCmd = 0x03
+	appCmdGetSig         appCmd = 0x04
+	appCmdGetNameVersion appCmd = 0x05
 )
 
 func (f fwCmd) String() string {

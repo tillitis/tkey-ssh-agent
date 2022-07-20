@@ -10,6 +10,10 @@ volatile uint32_t *ver = (volatile uint32_t *)0x90000210;
 
 #define MAX_SIGN_SIZE 4096
 
+const uint8_t app_name0[4] = "fdkm"; // mkdf backwards
+const uint8_t app_name1[4] = "ngis"; // sign backwards
+const uint32_t app_version = 0x00000001;
+
 int main(void)
 {
 	uint8_t pubkey[32];
@@ -122,6 +126,17 @@ int main(void)
 		case APP_CMD_GET_SIG:
 			memcpy(rsp, signature, 64);
 			appreply(hdr, APP_CMD_GET_SIG, rsp);
+			break;
+
+		case APP_CMD_GET_NAMEVERSION:
+			puts("APP_CMD_GET_NAMEVERSION\n");
+			// only zeroes if unexpected framelen
+			if (hdr.len == 1) {
+				memcpy(rsp, app_name0, 4);
+				memcpy(rsp + 4, app_name1, 4);
+				memcpy(rsp + 8, &app_version, 4);
+			}
+			appreply(hdr, APP_CMD_GET_NAMEVERSION, rsp);
 			break;
 		}
 	}

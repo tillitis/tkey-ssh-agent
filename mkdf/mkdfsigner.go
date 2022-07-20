@@ -6,6 +6,41 @@ import (
 	"github.com/tarm/serial"
 )
 
+func GetAppNameVersion(c *serial.Port) (*NameVersion, error) {
+	hdr := frame{
+		id:       2,
+		endpoint: destApp,
+		msgLen:   frameLen1,
+	}
+
+	var err error
+
+	tx := make([]byte, hdr.len()+1)
+
+	// Frame header
+	tx[0], err = hdr.pack()
+	if err != nil {
+		return nil, err
+	}
+	tx[1] = byte(appCmdGetNameVersion)
+
+	dump("GetAppNameVersion tx:", tx)
+	xmit(c, tx)
+
+	rx, err := recv(c)
+	if err != nil {
+		return nil, err
+	}
+
+	dump(" rx:", rx)
+
+	nameVer := &NameVersion{}
+	// Skip frame header
+	nameVer.unpack(rx[1:])
+
+	return nameVer, nil
+}
+
 func GetPubkey(c *serial.Port) ([]byte, error) {
 	hdr := frame{
 		id:       2,

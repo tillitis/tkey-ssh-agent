@@ -109,6 +109,11 @@ void appreply(struct frame_header hdr, enum appcmd rspcode, void *buf)
 		nbytes = 64;
 		break;
 
+	case APP_CMD_GET_NAMEVERSION:
+		len = LEN_32;
+		nbytes = 32;
+		break;
+
 	default:
 		puts("appreply(): Unknown response code: ");
 		puthex(rspcode);

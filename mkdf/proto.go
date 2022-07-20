@@ -106,9 +106,9 @@ type appCmd byte
 
 const (
 	appCmdGetPubkey appCmd = 0x01
-	appCmdSetSize   appCmd = 0x03
-	appCmdSignData  appCmd = 0x04
-	appCmdGetSig    appCmd = 0x05
+	appCmdSetSize   appCmd = 0x02
+	appCmdSignData  appCmd = 0x03
+	appCmdGetSig    appCmd = 0x04
 )
 
 func (f fwCmd) String() string {

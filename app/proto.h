@@ -5,10 +5,9 @@
 
 enum appcmd {
 	APP_CMD_GET_PUBKEY = 0x01,
-	APP_RSP_GET_PUBKEY = 0x02,
-	APP_CMD_SET_SIZE = 0x03,
-	APP_CMD_SIGN_DATA = 0x04,
-	APP_CMD_GET_SIG = 0x05
+	APP_CMD_SET_SIZE = 0x02,
+	APP_CMD_SIGN_DATA = 0x03,
+	APP_CMD_GET_SIG = 0x04
 };
 
 enum endpoints {

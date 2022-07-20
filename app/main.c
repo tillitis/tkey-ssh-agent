@@ -68,7 +68,7 @@ int main(void)
 		case APP_CMD_GET_PUBKEY:
 			puts("APP_CMD_GET_PUBKEY\n");
 			memcpy(rsp, pubkey, 32);
-			appreply(hdr, APP_RSP_GET_PUBKEY, rsp);
+			appreply(hdr, APP_CMD_GET_PUBKEY, rsp);
 			break;
 
 		case APP_CMD_SET_SIZE:

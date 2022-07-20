@@ -1,6 +1,7 @@
 package mkdf
 
 import (
+	"encoding/binary"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -20,9 +21,19 @@ func SilenceLogging() {
 	ll.SetOutput(ioutil.Discard)
 }
 
-func GetNameVersion(c *serial.Port) ([32]byte, error) {
-	var nameVer [32]byte
+type NameVersion struct {
+	Name0   string
+	Name1   string
+	Version uint32
+}
 
+func (n *NameVersion) unpack(raw []byte) {
+	n.Name0 = fmt.Sprintf("%c%c%c%c", raw[3], raw[2], raw[1], raw[0])
+	n.Name1 = fmt.Sprintf("%c%c%c%c", raw[7], raw[6], raw[5], raw[4])
+	n.Version = binary.LittleEndian.Uint32(raw[8:12])
+}
+
+func GetNameVersion(c *serial.Port) (*NameVersion, error) {
 	hdr := frame{
 		id:       2,
 		endpoint: destFW,
@@ -31,7 +42,7 @@ func GetNameVersion(c *serial.Port) ([32]byte, error) {
 
 	tx, err := packSimple(hdr, fwCmdGetNameVersion)
 	if err != nil {
-		return nameVer, fmt.Errorf("packSimple: %w", err)
+		return nil, fmt.Errorf("packSimple: %w", err)
 	}
 
 	dump("GetNameVersion tx:", tx)
@@ -39,10 +50,11 @@ func GetNameVersion(c *serial.Port) ([32]byte, error) {
 
 	rx, err := fwRecv(c, fwRspGetNameVersion, hdr.id, frameLen32)
 	if err != nil {
-		return nameVer, fmt.Errorf("fwRecv: %w", err)
+		return nil, fmt.Errorf("fwRecv: %w", err)
 	}
 
-	copy(nameVer[:], rx)
+	nameVer := &NameVersion{}
+	nameVer.unpack(rx)
 
 	return nameVer, nil
 }

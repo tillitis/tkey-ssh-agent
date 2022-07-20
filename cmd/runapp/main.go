@@ -37,8 +37,8 @@ func main() {
 				"firmware-mode. Please unplug and plug it in again.\n")
 			os.Exit(1)
 		}
-		fmt.Printf("Firmware has name0:%s name1:%s version:%s\n",
-			nameVer[0:4], nameVer[4:8], nameVer[8:12])
+		fmt.Printf("Firmware has name0:%s name1:%s version:%d\n",
+			nameVer.Name0, nameVer.Name1, nameVer.Version)
 		fmt.Printf("Loading app onto device\n")
 		err = mkdf.LoadApp(conn, *fileName)
 		if err != nil {

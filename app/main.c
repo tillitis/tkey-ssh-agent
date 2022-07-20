@@ -45,19 +45,17 @@ int main(void)
 		// printf("id: %d, endpoint: %d, len: %d\n", hdr.id,
 		// hdr.endpoint, hdr.len);
 
+		memset(cmd, 0, 64);
+		// Read firmware command: Blocks!
+		read(cmd, hdr.len);
+
 		// Is it for us?
 		if (hdr.endpoint != DST_SW) {
 			puts("Message not meant for app. endpoint was 0x");
 			puthex(hdr.endpoint);
 			lf();
-
-			// TODO eat the rest of the length?
 			continue;
 		}
-
-		memset(cmd, 0, 64);
-		// Read firmware command: Blocks!
-		read(cmd, hdr.len);
 
 		// Reset response buffer
 		memset(rsp, 0, 64);

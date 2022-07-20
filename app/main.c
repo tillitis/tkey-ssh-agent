@@ -47,9 +47,8 @@ int main(void)
 
 		// Is it for us?
 		if (hdr.endpoint != DST_SW) {
-			puts("Message not meant for us, endpoint: ");
+			puts("Message not meant for app. endpoint was 0x");
 			puthex(hdr.endpoint);
-			puthex(DST_SW);
 			lf();
 
 			// TODO eat the rest of the length?

@@ -16,7 +16,7 @@ mkdf-ssh-agent: app
 
 .PHONE: clean
 clean:
-	rm -f runapp mkdf-ssh-agent
+	rm -f runapp mkdf-ssh-agent cmd/mkdf-ssh-agent/app.bin
 	$(MAKE) -C app clean
 
 .PHONY: lint

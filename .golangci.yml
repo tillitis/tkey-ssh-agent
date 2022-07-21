@@ -11,13 +11,15 @@ linters:
     - module
     - performance
     - sql
-    #- style  # turned off, can be too much
+    # - style  # turned off, can be too much
     - test
     - unused
   disable:
     - cyclop
+    - funlen
     - exhaustruct  # TODO? annoying for now
-    - goerr113  # TODO remove later
+    - goerr113  # TODO enable later
+    - godot
 
     # deprecated:
     - scopelint

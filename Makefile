@@ -14,11 +14,14 @@ mkdf-ssh-agent: app
 	cp -af app/app.bin cmd/mkdf-ssh-agent/app.bin
 	go build ./cmd/mkdf-ssh-agent
 
-.PHONE: clean
+.PHONY: clean
 clean:
 	rm -f runapp mkdf-ssh-agent cmd/mkdf-ssh-agent/app.bin
 	$(MAKE) -C app clean
 
 .PHONY: lint
-lint:
-	docker run --rm -it --env GOFLAGS=-buildvcs=false -v $$(pwd):/src -w /src golangci/golangci-lint:v1.46-alpine golangci-lint run
+lint: golangci-lint
+	./golangci-lint run
+
+golangci-lint: go.mod go.sum
+	go build github.com/golangci/golangci-lint/cmd/golangci-lint

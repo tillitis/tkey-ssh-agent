@@ -3,7 +3,6 @@ ENTRY(_start)
 
 MEMORY
 {
-	ROM (rwx)   : ORIGIN = 0x1000, LENGTH = 0x20000 /* 128 KB */
 	RAM (rwx)   : ORIGIN = 0x80010000, LENGTH = 0x20000 /* 128 KB */
 }
 
@@ -13,12 +12,6 @@ SECTIONS
 	{
 		*(.text.init)
 	} >RAM
-
-	/* .htif : */
-	/* { */
-	/* 	. = ALIGN(0x1000); */
-	/* 	*(.htif) */
-	/* } >ROM */
 
 	.text :
 	{

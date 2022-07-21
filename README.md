@@ -16,7 +16,14 @@ make
 ```
 
 Build our [qemu](https://github.com/mullvad/mta1-mkdf-qemu-priv). Use
-the `mta1-regs` branch.
+the `mta1-regs` branch:
+
+```
+% mkdir build
+% cd build
+% ../configure --target-list=riscv32-softmmu
+% make -j $(nproc)
+```
 
 Build [the firmware](https://github.com/mullvad/mta1-mkdf-firmware-priv).
 

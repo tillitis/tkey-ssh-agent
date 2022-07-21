@@ -5,6 +5,7 @@
 
 int putchar(uint8_t ch);
 void lf();
+void putinthex(const uint32_t n);
 void puts(const char *s);
 void puthex(uint8_t ch);
 void hexdump(uint8_t *buf, int len);

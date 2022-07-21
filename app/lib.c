@@ -1,4 +1,5 @@
 #include "types.h"
+#include "lib.h"
 
 volatile uint8_t *debugtx = (volatile uint8_t *)0x90001000;
 
@@ -58,6 +59,17 @@ void puthex(uint8_t ch)
 {
 	putchar(hexnibble(ch >> 4 & 0x0f));
 	putchar(hexnibble(ch & 0x0f));
+}
+
+void putinthex(const uint32_t n)
+{
+	uint8_t buf[4];
+
+	memcpy(buf, &n, 4);
+	puts("0x");
+	for (int i = 3; i > -1; i --) {
+		puthex(buf[i]);
+	}
 }
 
 void puts(const char *s)

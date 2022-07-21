@@ -68,12 +68,19 @@ func (s *MKDFSigner) connect() error {
 	return nil
 }
 
+func (s *MKDFSigner) disconnect() error {
+	if s.port == nil {
+		return nil
+	}
+	if err := s.port.Close(); err != nil {
+		return fmt.Errorf("Close: %w", err)
+	}
+	return nil
+}
+
 func (s *MKDFSigner) isFirmwareMode() bool {
 	_, err := mkdf.GetNameVersion(s.port)
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
 
 func (s *MKDFSigner) isWantedApp() bool {
@@ -89,8 +96,7 @@ func (s *MKDFSigner) isWantedApp() bool {
 }
 
 func (s *MKDFSigner) loadApp(bin []byte) error {
-	err := mkdf.LoadApp(s.port, bin)
-	if err != nil {
+	if err := mkdf.LoadApp(s.port, bin); err != nil {
 		return fmt.Errorf("LoadApp: %w", err)
 	}
 	return nil

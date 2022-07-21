@@ -27,7 +27,10 @@ func main() {
 		fmt.Printf("Couldn't connect: %v\n", err)
 		os.Exit(1)
 	}
-	defer conn.Close()
+	exit := func(code int) {
+		conn.Close()
+		os.Exit(code)
+	}
 
 	if *fileName != "" {
 		nameVer, err := mkdf.GetNameVersion(conn)
@@ -35,7 +38,7 @@ func main() {
 			fmt.Printf("GetNameVersion failed: %v\n", err)
 			fmt.Printf("If the serial port device is correct, then the device might not be in\n" +
 				"firmware-mode. Please unplug and plug it in again.\n")
-			os.Exit(1)
+			exit(1)
 		}
 		fmt.Printf("Firmware has name0:%s name1:%s version:%d\n",
 			nameVer.Name0, nameVer.Name1, nameVer.Version)
@@ -43,7 +46,7 @@ func main() {
 		err = mkdf.LoadAppFromFile(conn, *fileName)
 		if err != nil {
 			fmt.Printf("LoadAppFromFile failed: %v\n", err)
-			os.Exit(1)
+			exit(1)
 		}
 	} else {
 		fmt.Printf("No app filename given, assuming app is already running\n")
@@ -52,7 +55,7 @@ func main() {
 	pubkey, err := mkdf.GetPubkey(conn)
 	if err != nil {
 		fmt.Printf("GetPubKey failed: %v\n", err)
-		os.Exit(1)
+		exit(1)
 	}
 	fmt.Printf("Public Key from device: %x\n", pubkey)
 
@@ -65,7 +68,7 @@ func main() {
 	signature, err := mkdf.Sign(conn, message)
 	if err != nil {
 		fmt.Printf("Sign failed: %v\n", err)
-		os.Exit(1)
+		exit(1)
 	}
 	fmt.Printf("Signature over message by device: %x\n", signature)
 
@@ -74,4 +77,6 @@ func main() {
 	} else {
 		fmt.Printf("Signature verified.\n")
 	}
+
+	exit(0)
 }

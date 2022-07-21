@@ -40,17 +40,23 @@ func main() {
 		}
 		os.Exit(1)
 	}
+	exit := func(code int) {
+		if err := signer.disconnect(); err != nil {
+			fmt.Printf("%s\n", err)
+		}
+		os.Exit(code)
+	}
 
 	agent, err := NewSSHAgent(signer)
 	if err != nil {
 		fmt.Printf("%s\n", err)
-		os.Exit(1)
+		exit(1)
 	}
 
 	sshPub, err := agent.GetSSHPub()
 	if err != nil {
 		fmt.Printf("%s\n", err)
-		os.Exit(1)
+		exit(1)
 	}
 	authorizedKey := ssh.MarshalAuthorizedKey(sshPub)
 	fmt.Printf("your ssh pubkey:\n%s", authorizedKey)
@@ -73,6 +79,8 @@ func main() {
 	err = agent.Serve(*sockPath)
 	if err != nil {
 		fmt.Printf("%s\n", err)
-		os.Exit(1)
+		exit(1)
 	}
+
+	exit(0)
 }

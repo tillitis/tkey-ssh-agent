@@ -202,8 +202,8 @@ func (f *frame) unpack(b byte) error {
 	}
 
 	f.id = byte((uint32(b) & 0x60) >> 5)
-	f.endpoint = endpoint(byte(b&0x18) >> 3)
-	f.msgLen = frameLen(byte(b) & 0x3)
+	f.endpoint = endpoint((b & 0x18) >> 3)
+	f.msgLen = frameLen(b & 0x3)
 
 	return nil
 }

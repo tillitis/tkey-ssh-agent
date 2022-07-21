@@ -11,11 +11,7 @@ import (
 	"golang.org/x/crypto/blake2s"
 )
 
-var ll *log.Logger
-
-func init() {
-	ll = log.New(os.Stdout, "", 0)
-}
+var ll = log.New(os.Stdout, "", 0)
 
 func SilenceLogging() {
 	ll.SetOutput(ioutil.Discard)

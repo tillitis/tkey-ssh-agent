@@ -23,17 +23,17 @@ type NameVersion struct {
 	Version uint32
 }
 
-func (n *NameVersion) unpack(raw []byte) {
+func (n *NameVersion) Unpack(raw []byte) {
 	n.Name0 = fmt.Sprintf("%c%c%c%c", raw[3], raw[2], raw[1], raw[0])
 	n.Name1 = fmt.Sprintf("%c%c%c%c", raw[7], raw[6], raw[5], raw[4])
 	n.Version = binary.LittleEndian.Uint32(raw[8:12])
 }
 
 func GetNameVersion(c *serial.Port) (*NameVersion, error) {
-	hdr := frame{
-		id:       2,
-		endpoint: destFW,
-		msgLen:   frameLen1,
+	hdr := Frame{
+		ID:       2,
+		Endpoint: DestFW,
+		MsgLen:   FrameLen1,
 	}
 
 	tx, err := packSimple(hdr, fwCmdGetNameVersion)
@@ -41,16 +41,16 @@ func GetNameVersion(c *serial.Port) (*NameVersion, error) {
 		return nil, fmt.Errorf("packSimple: %w", err)
 	}
 
-	dump("GetNameVersion tx:", tx)
-	xmit(c, tx)
+	Dump("GetNameVersion tx:", tx)
+	Xmit(c, tx)
 
-	rx, err := fwRecv(c, fwRspGetNameVersion, hdr.id, frameLen32)
+	rx, err := fwRecv(c, fwRspGetNameVersion, hdr.ID, FrameLen32)
 	if err != nil {
 		return nil, fmt.Errorf("fwRecv: %w", err)
 	}
 
 	nameVer := &NameVersion{}
-	nameVer.unpack(rx)
+	nameVer.Unpack(rx)
 
 	return nameVer, nil
 }
@@ -109,10 +109,10 @@ func LoadApp(conn *serial.Port, bin []byte) error {
 
 func setAppSize(c *serial.Port, size int) error {
 	appsize := appSize{
-		hdr: frame{
-			id:       2,
-			endpoint: destFW,
-			msgLen:   frameLen32,
+		hdr: Frame{
+			ID:       2,
+			Endpoint: DestFW,
+			MsgLen:   FrameLen32,
 		},
 		size: size,
 	}
@@ -122,10 +122,10 @@ func setAppSize(c *serial.Port, size int) error {
 		return err
 	}
 
-	dump("SetAppSize tx:", tx)
-	xmit(c, tx)
+	Dump("SetAppSize tx:", tx)
+	Xmit(c, tx)
 
-	rx, err := fwRecv(c, fwRspLoadAppSize, appsize.hdr.id, frameLen4)
+	rx, err := fwRecv(c, fwRspLoadAppSize, appsize.hdr.ID, FrameLen4)
 	if err != nil {
 		return fmt.Errorf("fwRecv: %w", err)
 	}
@@ -138,10 +138,10 @@ func setAppSize(c *serial.Port, size int) error {
 
 func loadAppData(c *serial.Port, content []byte) error {
 	appdata := appData{
-		hdr: frame{
-			id:       2,
-			endpoint: destFW,
-			msgLen:   frameLen64,
+		hdr: Frame{
+			ID:       2,
+			Endpoint: DestFW,
+			MsgLen:   FrameLen64,
 		},
 	}
 
@@ -151,11 +151,11 @@ func loadAppData(c *serial.Port, content []byte) error {
 		return err
 	}
 
-	dump("LoadAppData tx:", tx)
-	xmit(c, tx)
+	Dump("LoadAppData tx:", tx)
+	Xmit(c, tx)
 
 	// Wait for reply
-	rx, err := fwRecv(c, fwRspLoadAppData, appdata.hdr.id, frameLen4)
+	rx, err := fwRecv(c, fwRspLoadAppData, appdata.hdr.ID, FrameLen4)
 	if err != nil {
 		return err
 	}
@@ -170,10 +170,10 @@ func loadAppData(c *serial.Port, content []byte) error {
 func getAppDigest(c *serial.Port) ([32]byte, error) {
 	var md [32]byte
 
-	hdr := frame{
-		id:       2,
-		endpoint: destFW,
-		msgLen:   frameLen1,
+	hdr := Frame{
+		ID:       2,
+		Endpoint: DestFW,
+		MsgLen:   FrameLen1,
 	}
 
 	// Check the digest
@@ -182,10 +182,10 @@ func getAppDigest(c *serial.Port) ([32]byte, error) {
 		return md, fmt.Errorf("packSimple: %w", err)
 	}
 
-	dump("GetDigest tx:", tx)
-	xmit(c, tx)
+	Dump("GetDigest tx:", tx)
+	Xmit(c, tx)
 
-	rx, err := fwRecv(c, fwRspGetAppDigest, hdr.id, frameLen64)
+	rx, err := fwRecv(c, fwRspGetAppDigest, hdr.ID, FrameLen64)
 	if err != nil {
 		return md, err
 	}
@@ -196,10 +196,10 @@ func getAppDigest(c *serial.Port) ([32]byte, error) {
 }
 
 func runApp(c *serial.Port) error {
-	hdr := frame{
-		id:       2,
-		endpoint: destFW,
-		msgLen:   frameLen1,
+	hdr := Frame{
+		ID:       2,
+		Endpoint: DestFW,
+		MsgLen:   FrameLen1,
 	}
 
 	tx, err := packSimple(hdr, fwCmdRunApp)
@@ -207,10 +207,10 @@ func runApp(c *serial.Port) error {
 		return fmt.Errorf("packSimple: %w", err)
 	}
 
-	dump("RunApp tx:", tx)
-	xmit(c, tx)
+	Dump("RunApp tx:", tx)
+	Xmit(c, tx)
 
-	rx, err := fwRecv(c, fwRspRunApp, hdr.id, frameLen4)
+	rx, err := fwRecv(c, fwRspRunApp, hdr.ID, FrameLen4)
 	if err != nil {
 		return err
 	}

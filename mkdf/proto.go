@@ -11,16 +11,16 @@ import (
 )
 
 type appSize struct {
-	hdr  frame
+	hdr  Frame
 	size int
 }
 
 func (a *appSize) pack() ([]byte, error) {
-	buf := make([]byte, a.hdr.len()+1)
+	buf := make([]byte, a.hdr.Len()+1)
 	var err error
 
 	// Frame header
-	buf[0], err = a.hdr.pack()
+	buf[0], err = a.hdr.Pack()
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func (a *appSize) pack() ([]byte, error) {
 }
 
 type appData struct {
-	hdr  frame
+	hdr  Frame
 	data [63]byte
 }
 
@@ -53,11 +53,11 @@ func (a *appData) copy(content []byte) {
 }
 
 func (a *appData) pack() ([]byte, error) {
-	tx := make([]byte, a.hdr.len()+1)
+	tx := make([]byte, a.hdr.Len()+1)
 	var err error
 
 	// Frame header
-	tx[0], err = a.hdr.pack()
+	tx[0], err = a.hdr.Pack()
 	if err != nil {
 		return nil, err
 	}
@@ -69,22 +69,22 @@ func (a *appData) pack() ([]byte, error) {
 	return tx, nil
 }
 
-type endpoint byte
+type Endpoint byte
 
 const (
 	// destIFPGA endpoint = 0
 	// destAFPGA endpoint = 1
-	destFW  endpoint = 2
-	destApp endpoint = 3
+	DestFW  Endpoint = 2
+	DestApp Endpoint = 3
 )
 
-type frameLen byte
+type FrameLen byte
 
 const (
-	frameLen1  frameLen = 0
-	frameLen4  frameLen = 1
-	frameLen32 frameLen = 2
-	frameLen64 frameLen = 3
+	FrameLen1  FrameLen = 0
+	FrameLen4  FrameLen = 1
+	FrameLen32 FrameLen = 2
+	FrameLen64 FrameLen = 3
 )
 
 type fwCmd byte
@@ -100,16 +100,6 @@ const (
 	fwRspRunApp         fwCmd = 0x08
 	fwCmdGetAppDigest   fwCmd = 0x09
 	fwRspGetAppDigest   fwCmd = 0x10
-)
-
-type appCmd byte
-
-const (
-	appCmdGetPubkey      appCmd = 0x01
-	appCmdSetSize        appCmd = 0x02
-	appCmdSignData       appCmd = 0x03
-	appCmdGetSig         appCmd = 0x04
-	appCmdGetNameVersion appCmd = 0x05
 )
 
 func (f fwCmd) String() string {
@@ -149,21 +139,21 @@ func (f fwCmd) String() string {
 	}
 }
 
-type frame struct {
-	id       byte
-	endpoint endpoint
-	msgLen   frameLen
+type Frame struct {
+	ID       byte
+	Endpoint Endpoint
+	MsgLen   FrameLen
 }
 
-func (f *frame) len() int {
-	switch f.msgLen {
-	case frameLen1:
+func (f *Frame) Len() int {
+	switch f.MsgLen {
+	case FrameLen1:
 		return 1
-	case frameLen4:
+	case FrameLen4:
 		return 4
-	case frameLen32:
+	case FrameLen32:
 		return 32
-	case frameLen64:
+	case FrameLen64:
 		return 64
 	}
 
@@ -183,17 +173,17 @@ func (f *frame) len() int {
 //   4 bytes
 //   32 bytes
 //   64 bytes
-func (f *frame) pack() (byte, error) {
-	if f.id > 3 {
+func (f *Frame) Pack() (byte, error) {
+	if f.ID > 3 {
 		return 0, fmt.Errorf("bad id")
 	}
 
-	hdr := (f.id << 5) | (byte(f.endpoint) << 3) | byte(f.msgLen)
+	hdr := (f.ID << 5) | (byte(f.Endpoint) << 3) | byte(f.MsgLen)
 
 	return hdr, nil
 }
 
-func (f *frame) unpack(b byte) error {
+func (f *Frame) Unpack(b byte) error {
 	if b&0x80 != 0 {
 		return fmt.Errorf("bad version")
 	}
@@ -201,21 +191,21 @@ func (f *frame) unpack(b byte) error {
 		return fmt.Errorf("must be zero")
 	}
 
-	f.id = byte((uint32(b) & 0x60) >> 5)
-	f.endpoint = endpoint((b & 0x18) >> 3)
-	f.msgLen = frameLen(b & 0x3)
+	f.ID = byte((uint32(b) & 0x60) >> 5)
+	f.Endpoint = Endpoint((b & 0x18) >> 3)
+	f.MsgLen = FrameLen(b & 0x3)
 
 	return nil
 }
 
 // Pack a simple command with no corresponding struct.
-func packSimple(hdr frame, cmd fwCmd) ([]byte, error) {
+func packSimple(hdr Frame, cmd fwCmd) ([]byte, error) {
 	var err error
 
-	tx := make([]byte, hdr.len()+1)
+	tx := make([]byte, hdr.Len()+1)
 
 	// Frame header
-	tx[0], err = hdr.pack()
+	tx[0], err = hdr.Pack()
 	if err != nil {
 		return nil, err
 	}
@@ -225,11 +215,11 @@ func packSimple(hdr frame, cmd fwCmd) ([]byte, error) {
 	return tx, nil
 }
 
-func dump(s string, d []byte) {
+func Dump(s string, d []byte) {
 	ll.Printf("%s\n%s", s, hex.Dump(d))
 }
 
-func xmit(c *serial.Port, d []byte) {
+func Xmit(c *serial.Port, d []byte) {
 	b := bufio.NewWriter(c)
 	_, err := b.Write(d)
 	if err != nil {
@@ -243,28 +233,28 @@ func xmit(c *serial.Port, d []byte) {
 	}
 }
 
-func fwRecv(conn *serial.Port, expectedRsp fwCmd, id byte, expectedLen frameLen) ([]byte, error) {
+func fwRecv(conn *serial.Port, expectedRsp fwCmd, id byte, expectedLen FrameLen) ([]byte, error) {
 	// Blocks
-	rx, err := recv(conn)
+	rx, err := Recv(conn)
 	if err != nil {
 		return nil, err
 	}
 
-	dump(" rx:", rx)
+	Dump(" rx:", rx)
 
-	var frame frame
+	var frame Frame
 
-	err = frame.unpack(rx[0])
+	err = frame.Unpack(rx[0])
 	if err != nil {
 		return nil, fmt.Errorf("frame.unpack: %w", err)
 	}
 
-	if frame.msgLen != expectedLen {
-		return nil, fmt.Errorf("incorrect length %v != expected %v", frame.msgLen, expectedLen)
+	if frame.MsgLen != expectedLen {
+		return nil, fmt.Errorf("incorrect length %v != expected %v", frame.MsgLen, expectedLen)
 	}
 
-	if frame.id != id {
-		return nil, fmt.Errorf("incorrect id %v != expected %v", frame.id, id)
+	if frame.ID != id {
+		return nil, fmt.Errorf("incorrect id %v != expected %v", frame.ID, id)
 	}
 
 	cmd := fwCmd(rx[1])
@@ -279,20 +269,20 @@ func fwRecv(conn *serial.Port, expectedRsp fwCmd, id byte, expectedLen frameLen)
 	return rx[2:], nil
 }
 
-func recv(c *serial.Port) ([]byte, error) {
+func Recv(c *serial.Port) ([]byte, error) {
 	r := bufio.NewReader(c)
 	b, err := r.Peek(1)
 	if err != nil {
 		return nil, fmt.Errorf("Peek: %w", err)
 	}
-	var hdr frame
+	var hdr Frame
 
-	err = hdr.unpack(b[0])
+	err = hdr.Unpack(b[0])
 	if err != nil {
 		return nil, fmt.Errorf("hdr.unpack: %w", err)
 	}
 
-	rx := make([]byte, hdr.len()+1)
+	rx := make([]byte, hdr.Len()+1)
 	_, err = io.ReadFull(r, rx)
 	if err != nil {
 		return nil, fmt.Errorf("ReadFull: %w", err)

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/mullvad/mta1-mkdf-signer/mkdf"
+	"github.com/mullvad/mta1-mkdf-signer/mkdfsign"
 	"github.com/tarm/serial"
 )
 
@@ -52,7 +53,7 @@ func main() {
 		fmt.Printf("No app filename given, assuming app is already running\n")
 	}
 
-	pubkey, err := mkdf.GetPubkey(conn)
+	pubkey, err := mkdfsign.GetPubkey(conn)
 	if err != nil {
 		fmt.Printf("GetPubKey failed: %v\n", err)
 		exit(1)
@@ -65,7 +66,7 @@ func main() {
 	}
 
 	fmt.Printf("Message size: %v, message: %x\n", len(message), message)
-	signature, err := mkdf.Sign(conn, message)
+	signature, err := mkdfsign.Sign(conn, message)
 	if err != nil {
 		fmt.Printf("Sign failed: %v\n", err)
 		exit(1)

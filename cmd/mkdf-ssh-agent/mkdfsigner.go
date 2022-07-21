@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/mullvad/mta1-mkdf-signer/mkdf"
+	"github.com/mullvad/mta1-mkdf-signer/mkdfsign"
 	"github.com/tarm/serial"
 )
 
@@ -84,7 +85,7 @@ func (s *MKDFSigner) isFirmwareMode() bool {
 }
 
 func (s *MKDFSigner) isWantedApp() bool {
-	nameVer, err := mkdf.GetAppNameVersion(s.port)
+	nameVer, err := mkdfsign.GetAppNameVersion(s.port)
 	if err != nil {
 		return false
 	}
@@ -105,9 +106,9 @@ func (s *MKDFSigner) loadApp(bin []byte) error {
 // implementing crypto.Signer below
 
 func (s *MKDFSigner) Public() crypto.PublicKey {
-	pub, err := mkdf.GetPubkey(s.port)
+	pub, err := mkdfsign.GetPubkey(s.port)
 	if err != nil {
-		log.Printf("mkdf.GetPubKey failed: %v", err)
+		log.Printf("GetPubKey failed: %v", err)
 		return nil
 	}
 	return ed25519.PublicKey(pub)
@@ -120,10 +121,9 @@ func (s *MKDFSigner) Sign(rand io.Reader, message []byte, opts crypto.SignerOpts
 		return nil, errors.New("message must not be hashed")
 	}
 
-	signature, err := mkdf.Sign(s.port, message)
+	signature, err := mkdfsign.Sign(s.port, message)
 	if err != nil {
-		log.Printf("mkdf.Sign: %v", err)
-		return nil, fmt.Errorf("mkdf.Sign: %w", err)
+		return nil, fmt.Errorf("Sign: %w", err)
 	}
 	return signature, nil
 }

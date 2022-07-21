@@ -61,21 +61,6 @@ func main() {
 	authorizedKey := ssh.MarshalAuthorizedKey(sshPub)
 	fmt.Printf("your ssh pubkey:\n%s", authorizedKey)
 
-	// // append pubkey to authorized_keys, for local testing using something
-	// // like: SSH_AUTH_SOCK=$(pwd)/agent.sock ssh -F /dev/null localhost
-	// home, err := os.UserHomeDir()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// f, err := os.OpenFile(home+"/.ssh/authorized_keys", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o0644)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer f.Close()
-	// if _, err := f.Write(authorizedKey); err != nil {
-	// 	log.Fatal(err)
-	// }
-
 	err = agent.Serve(*sockPath)
 	if err != nil {
 		fmt.Printf("%s\n", err)

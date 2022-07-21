@@ -72,10 +72,10 @@ func (a *appData) pack() ([]byte, error) {
 type endpoint byte
 
 const (
-	destIFPGA endpoint = 0
-	destAFPGA endpoint = 1
-	destFW    endpoint = 2
-	destApp   endpoint = 3
+	// destIFPGA endpoint = 0
+	// destAFPGA endpoint = 1
+	destFW  endpoint = 2
+	destApp endpoint = 3
 )
 
 type frameLen byte

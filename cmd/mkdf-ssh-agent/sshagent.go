@@ -47,7 +47,6 @@ func (s *SSHAgent) Serve(sockPath string) error {
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
-			// TODO check err.Timeout() ?
 			return fmt.Errorf("Accept: %w", err)
 		}
 		fmt.Printf("handling connection\n")

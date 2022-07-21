@@ -60,3 +60,9 @@ listening socket path in the output above, which ssh needs in `SSH_AUTH_SOCK`:
 ```
 
 (`-F /dev/null` is to not have any of your ~/.ssh/config interfere)
+
+The message `agent 27: ssh: parse error in message type 27` coming from
+mkdf-ssh-agent is due to https://github.com/golang/go/issues/51689 and will
+eventually be fixed by https://go-review.googlesource.com/c/crypto/+/412154/
+(until then it's also not possible to implement the upcoming SSH agent
+restrictions https://www.openssh.com/agent-restrict.html).

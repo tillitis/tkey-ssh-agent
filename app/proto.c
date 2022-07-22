@@ -125,9 +125,6 @@ void appreply(struct frame_header hdr, enum appcmd rspcode, void *buf)
 	// Frame Protocol Header
 	writebyte(genhdr(hdr.id, hdr.endpoint, 0x0, len));
 
-	// App protocol header
-	// writebyte(rspcode);
-	// nbytes --;
-
+	// Write response directly with no app protocol header.
 	write(buf, nbytes);
 }

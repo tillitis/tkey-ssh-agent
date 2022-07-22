@@ -53,8 +53,5 @@ loop_init_bss:
 end_init_bss:
 	call main
 
-loop:
-	j loop
-
 trap_entry:
 	j trap_entry

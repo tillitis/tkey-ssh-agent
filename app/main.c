@@ -136,6 +136,12 @@ int main(void)
 			}
 			appreply(hdr, APP_CMD_GET_NAMEVERSION, rsp);
 			break;
+
+		default:
+			puts("Received unknown command: ");
+			puthex(cmd[0]);
+			lf();
+			// TODO do we send a reply anyway? Must introduce an app header?
 		}
 	}
 }

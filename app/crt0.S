@@ -1,5 +1,5 @@
 	.section ".text.init"
-	.globl _start
+	.global _start
 _start:
 	li x1, 0
 	li x2, 0

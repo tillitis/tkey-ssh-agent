@@ -16,6 +16,7 @@ const uint32_t app_version = 0x00000001;
 
 int main(void)
 {
+	uint32_t stack;
 	uint8_t pubkey[32];
 	struct frame_header hdr; // Used in both directions
 	uint8_t cmd[64];
@@ -28,7 +29,9 @@ int main(void)
 	int nbytes = 0; // Bytes to write to memory
 	uint8_t in;
 
-	puts("Hello!\n");
+	puts("Hello! &stack is on: ");
+	putinthex((uint32_t)&stack);
+	lf();
 
 	// Generate a public key from CDI
 	crypto_ed25519_public_key(pubkey, (const uint8_t *)cdi);

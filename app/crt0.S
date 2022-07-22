@@ -35,25 +35,11 @@ _start:
 
         /* init stack at the address under 0x80010000 where we load the app */
         li sp, 0x8000ffff
-        
-	/* copy data section */
-	la a0, _sidata
-	la a1, _sdata
-	la a2, _edata
-	bge a1, a2, end_init_data
 
 	/* setup trap vector */
 	la t0, trap_entry
 	csrw mtvec, t0
 
-loop_init_data:
-	lw a3, 0(a0)
-	sw a3, 0(a1)
-	addi a0, a0, 4
-	addi a1, a1, 4
-	blt a1, a2, loop_init_data
-
-end_init_data:
 	/* zero-init bss section */
 	la a0, _sbss
 	la a1, _ebss

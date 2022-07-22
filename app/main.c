@@ -41,16 +41,12 @@ int main(void)
 		puts("Read byte: ");
 		puthex(in);
 		putchar('\n');
-		// printf("Read byte 0x%x\n", in);
 
 		if (parseframe(in, &hdr) == -1) {
 			// Couldn't parse header
 			puts("Couldn't parse header\n");
 			continue;
 		}
-
-		// printf("id: %d, endpoint: %d, len: %d\n", hdr.id,
-		// hdr.endpoint, hdr.len);
 
 		memset(cmd, 0, 64);
 		// Read firmware command: Blocks!
@@ -68,7 +64,6 @@ int main(void)
 		memset(rsp, 0, 64);
 
 		// Min length is 1 byte so this should always be here
-		// printf("command: %d\n", cmd[0]);
 		switch (cmd[0]) {
 		case APP_CMD_GET_PUBKEY:
 			puts("APP_CMD_GET_PUBKEY\n");

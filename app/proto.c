@@ -123,9 +123,6 @@ void appreply(struct frame_header hdr, enum appcmd rspcode, void *buf)
 	}
 
 	// Frame Protocol Header
-	// printf("Sending: (0x%x)\n  id:%d, endpoint:%d, len: %d\n  rspcode:
-	// %d\n", genhdr(hdr.id, hdr.endpoint, 0x0, len), hdr.id, hdr.endpoint,
-	// len, rspcode);
 	writebyte(genhdr(hdr.id, hdr.endpoint, 0x0, len));
 
 	// App protocol header

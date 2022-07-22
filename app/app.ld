@@ -3,7 +3,8 @@ ENTRY(_start)
 
 MEMORY
 {
-	RAM (rwx)   : ORIGIN = 0x80010000, LENGTH = 0x10000 /* 64 KB */
+	RAM1 (rwx)   : ORIGIN = 0x80000000, LENGTH = 0x10000 /* 64 KB */
+	RAM2 (rwx)   : ORIGIN = 0x80010000, LENGTH = 0x10000 /* 64 KB */
 }
 
 SECTIONS
@@ -11,7 +12,7 @@ SECTIONS
 	.text.init :
 	{
 		*(.text.init)
-	} >RAM
+	} >RAM2
 
 	.text :
 	{
@@ -25,7 +26,7 @@ SECTIONS
 		. = ALIGN(4);
 		_etext = .;
 		_sidata = _etext;
-	} >RAM
+	} >RAM2
 
 	.data : AT (_etext)
 	{
@@ -38,7 +39,8 @@ SECTIONS
 		*(.sdata*)          /* .sdata* sections */
 		. = ALIGN(4);
 		_edata = .;
-	} >RAM
+
+	} >RAM2
 
 	/* Uninitialized data section */
 	.bss :
@@ -53,6 +55,6 @@ SECTIONS
 
 		. = ALIGN(4);
 		_ebss = .;
-	} >RAM
-	/* Init stack to _ebss + size */
+	} >RAM2
+	/* Init stack to start directly under RAM2, see crt0.s */
 }

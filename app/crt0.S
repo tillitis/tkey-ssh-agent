@@ -33,13 +33,9 @@ _start:
 	li x30,0
 	li x31,0
 
-	/* init stack (1 << 16, 16B aligned) */
-	li a0, 1
-	sll a0, a0, 16
-	la sp, _ebss + 16
-	and sp, sp, -4
-	add sp, sp, a0
-
+        /* init stack at the address under 0x80010000 where we load the app */
+        li sp, 0x8000ffff
+        
 	/* copy data section */
 	la a0, _sidata
 	la a1, _sdata

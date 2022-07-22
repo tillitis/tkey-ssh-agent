@@ -1,6 +1,32 @@
 #include "types.h"
 #include "lib.h"
 
+#ifdef NODEBUG
+int putchar(uint8_t ch)
+{
+	return 0;
+}
+
+void lf()
+{
+}
+
+void putinthex(const uint32_t n)
+{
+}
+
+void puts(const char *s)
+{
+}
+
+void puthex(uint8_t ch)
+{
+}
+
+void hexdump(uint8_t *buf, int len)
+{
+}
+#else
 volatile uint8_t *debugtx = (volatile uint8_t *)0x90001000;
 
 int putchar(uint8_t ch)
@@ -98,6 +124,7 @@ void hexdump(uint8_t *buf, int len)
 		(void)putchar('\n');
 	}
 }
+#endif
 
 void *memset(void *dest, int c, unsigned n)
 {

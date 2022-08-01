@@ -10,6 +10,7 @@ import (
 	"log"
 	"net"
 	"path/filepath"
+	"sync"
 
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
@@ -17,6 +18,7 @@ import (
 
 type SSHAgent struct {
 	signer crypto.Signer
+	mutex  sync.Mutex
 }
 
 func NewSSHAgent(signer crypto.Signer) (*SSHAgent, error) {
@@ -63,6 +65,8 @@ func (s *SSHAgent) handleConn(c net.Conn) {
 // implementing agent.ExtendedAgent below
 
 func (s *SSHAgent) List() ([]*agent.Key, error) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 	sshPub, err := s.GetSSHPub()
 	if err != nil {
 		return nil, err
@@ -77,6 +81,8 @@ func (s *SSHAgent) List() ([]*agent.Key, error) {
 var ErrNotImplemented = errors.New("not implemented")
 
 func (s *SSHAgent) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, error) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 	sshPub, err := s.GetSSHPub()
 	if err != nil {
 		return nil, err

@@ -78,7 +78,7 @@ restrictions https://www.openssh.com/agent-restrict.html).
 
 ### Memory
 
-RAM starts at 0x8000\_0000 and ends at 0x8000\_20000. Your program
+RAM starts at 0x8000\_0000 and ends at 0x8002\_0000. Your program
 will be loaded by firmware at 0x8001\_0000 which means a maximum size
 including `.data` and `.bss` of 64 kiB. In this app (see `crt0.S`) you
 have 64 kiB of stack from 0x8000\_ffff down to where RAM starts.

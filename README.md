@@ -58,7 +58,8 @@ like this:
 ```
 
 This will output the unique public key for the instance of the app on this
-device. If you copy-paste this into your `~/.ssh/authorized_keys` you can try
+device -- if the device or the app binary changes, the public key will also
+change! If you copy-paste this into your `~/.ssh/authorized_keys` you can try
 to log onto your local machine (if sshd is running there). Also note the
 listening socket path in the output above, which ssh needs in `SSH_AUTH_SOCK`:
 

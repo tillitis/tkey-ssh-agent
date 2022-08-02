@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"path/filepath"
 	"sync"
@@ -45,20 +44,20 @@ func (s *SSHAgent) Serve(sockPath string) error {
 	if err != nil {
 		return fmt.Errorf("Listen: %w", err)
 	}
-	fmt.Printf("listening on %s ...\n", sockPath)
+	le.Printf("listening on %s ...\n", sockPath)
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
 			return fmt.Errorf("Accept: %w", err)
 		}
-		fmt.Printf("handling connection\n")
+		le.Printf("handling connection\n")
 		go s.handleConn(conn)
 	}
 }
 
 func (s *SSHAgent) handleConn(c net.Conn) {
 	if err := agent.ServeAgent(s, c); !errors.Is(io.EOF, err) {
-		log.Println("Agent client connection ended with error:", err)
+		le.Printf("Agent client connection ended with error: %s\n", err)
 	}
 }
 

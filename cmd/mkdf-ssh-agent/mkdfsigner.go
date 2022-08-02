@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"time"
 
 	"github.com/mullvad/mta1-mkdf-signer/mkdf"
@@ -21,7 +20,7 @@ var ErrMaybeWrongDevice = errors.New("wrong device or non-responsive app")
 //go:embed app.bin
 var appBinary []byte
 
-var (
+const (
 	// 4 chars each.
 	wantAppName0 = "mkdf"
 	wantAppName1 = "sign"
@@ -37,7 +36,7 @@ func NewMKDFSigner(devPath string) (*MKDFSigner, error) {
 	signer := &MKDFSigner{
 		devPath: devPath,
 	}
-	fmt.Printf("Connecting to device...\n")
+	le.Printf("Connecting to device...\n")
 	if err := signer.connect(); err != nil {
 		return nil, err
 	}
@@ -49,7 +48,7 @@ func NewMKDFSigner(devPath string) (*MKDFSigner, error) {
 			// anything else is possible
 			return nil, ErrMaybeWrongDevice
 		}
-		fmt.Printf("Device is in firmware mode, loading app...\n")
+		le.Printf("Device is in firmware mode, loading app...\n")
 		if err := signer.loadApp(appBinary); err != nil {
 			return nil, err
 		}
@@ -109,7 +108,7 @@ func (s *MKDFSigner) loadApp(bin []byte) error {
 func (s *MKDFSigner) Public() crypto.PublicKey {
 	pub, err := mkdfsign.GetPubkey(s.port)
 	if err != nil {
-		log.Printf("GetPubKey failed: %v", err)
+		le.Printf("GetPubKey failed: %s", err)
 		return nil
 	}
 	return ed25519.PublicKey(pub)

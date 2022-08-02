@@ -76,6 +76,12 @@ eventually be fixed by https://go-review.googlesource.com/c/crypto/+/412154/
 (until then it's also not possible to implement the upcoming SSH agent
 restrictions https://www.openssh.com/agent-restrict.html).
 
+You can use `-k` to only output the pubkey (on stdout, some message are still
+present on stderr), which can be practical.
+to encrypt a file for yourself:
+
+% ./mkdf-ssh-agent -k -port /dev/pts/0
+
 # Developing the app
 
 ## Memory

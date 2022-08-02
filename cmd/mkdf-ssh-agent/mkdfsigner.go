@@ -37,6 +37,7 @@ func NewMKDFSigner(devPath string) (*MKDFSigner, error) {
 	signer := &MKDFSigner{
 		devPath: devPath,
 	}
+	fmt.Printf("Connecting to device...\n")
 	if err := signer.connect(); err != nil {
 		return nil, err
 	}

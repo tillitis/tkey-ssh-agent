@@ -42,7 +42,9 @@ func GetNameVersion(c *serial.Port) (*NameVersion, error) {
 	}
 
 	Dump("GetNameVersion tx:", tx)
-	Xmit(c, tx)
+	if err = Xmit(c, tx); err != nil {
+		return nil, fmt.Errorf("Xmit: %w", err)
+	}
 
 	rx, err := fwRecv(c, fwRspGetNameVersion, hdr.ID, FrameLen32)
 	if err != nil {
@@ -123,7 +125,9 @@ func setAppSize(c *serial.Port, size int) error {
 	}
 
 	Dump("SetAppSize tx:", tx)
-	Xmit(c, tx)
+	if err = Xmit(c, tx); err != nil {
+		return fmt.Errorf("Xmit: %w", err)
+	}
 
 	rx, err := fwRecv(c, fwRspLoadAppSize, appsize.hdr.ID, FrameLen4)
 	if err != nil {
@@ -152,7 +156,9 @@ func loadAppData(c *serial.Port, content []byte) error {
 	}
 
 	Dump("LoadAppData tx:", tx)
-	Xmit(c, tx)
+	if err = Xmit(c, tx); err != nil {
+		return fmt.Errorf("Xmit: %w", err)
+	}
 
 	// Wait for reply
 	rx, err := fwRecv(c, fwRspLoadAppData, appdata.hdr.ID, FrameLen4)
@@ -183,7 +189,9 @@ func getAppDigest(c *serial.Port) ([32]byte, error) {
 	}
 
 	Dump("GetDigest tx:", tx)
-	Xmit(c, tx)
+	if err = Xmit(c, tx); err != nil {
+		return md, fmt.Errorf("Xmit: %w", err)
+	}
 
 	rx, err := fwRecv(c, fwRspGetAppDigest, hdr.ID, FrameLen64)
 	if err != nil {
@@ -208,7 +216,9 @@ func runApp(c *serial.Port) error {
 	}
 
 	Dump("RunApp tx:", tx)
-	Xmit(c, tx)
+	if err = Xmit(c, tx); err != nil {
+		return fmt.Errorf("Xmit: %w", err)
+	}
 
 	rx, err := fwRecv(c, fwRspRunApp, hdr.ID, FrameLen4)
 	if err != nil {

@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
-	"os"
 
 	"github.com/tarm/serial"
 )
@@ -219,18 +218,15 @@ func Dump(s string, d []byte) {
 	ll.Printf("%s\n%s", s, hex.Dump(d))
 }
 
-func Xmit(c *serial.Port, d []byte) {
+func Xmit(c *serial.Port, d []byte) error {
 	b := bufio.NewWriter(c)
-	_, err := b.Write(d)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "err:", err)
-		panic("xmit")
+	if _, err := b.Write(d); err != nil {
+		return fmt.Errorf("Write: %w", err)
 	}
-	err = b.Flush()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "err:", err)
-		panic("xmit")
+	if err := b.Flush(); err != nil {
+		return fmt.Errorf("Flush: %w", err)
 	}
+	return nil
 }
 
 func fwRecv(conn *serial.Port, expectedRsp fwCmd, id byte, expectedLen FrameLen) ([]byte, error) {

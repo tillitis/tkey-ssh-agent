@@ -1,5 +1,6 @@
 *.o
 *.bin
-mkdf-ssh-agent
-runapp
-app/app
+/mkdf-ssh-agent
+/runapp
+/signerapp/app
+/golangci-lint

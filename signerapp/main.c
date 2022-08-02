@@ -141,7 +141,8 @@ int main(void)
 			puts("Received unknown command: ");
 			puthex(cmd[0]);
 			lf();
-			// TODO do we send a reply anyway? Must introduce an app header?
+			// TODO do we send a reply anyway? Must introduce an app
+			// header?
 		}
 	}
 }

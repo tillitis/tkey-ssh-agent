@@ -1,23 +1,23 @@
 .PHONY: all
-all: app runapp mkdf-ssh-agent
+all: signerapp runapp mkdf-ssh-agent
 
-.PHONY: app
-app:
-	$(MAKE) -C app
+.PHONY: signerapp
+signerapp:
+	$(MAKE) -C signerapp
 
 .PHONY: runapp
 runapp:
 	go build ./cmd/runapp
 
 .PHONY: mkdf-ssh-agent
-mkdf-ssh-agent: app
-	cp -af app/app.bin cmd/mkdf-ssh-agent/app.bin
+mkdf-ssh-agent: signerapp
+	cp -af signerapp/app.bin cmd/mkdf-ssh-agent/app.bin
 	go build ./cmd/mkdf-ssh-agent
 
 .PHONY: clean
 clean:
 	rm -f runapp mkdf-ssh-agent cmd/mkdf-ssh-agent/app.bin
-	$(MAKE) -C app clean
+	$(MAKE) -C signerapp clean
 
 .PHONY: lint
 lint: golangci-lint

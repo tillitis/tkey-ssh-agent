@@ -1,5 +1,5 @@
-#include "types.h"
 #include "lib.h"
+#include "types.h"
 
 #ifdef NODEBUG
 int putchar(uint8_t ch)
@@ -93,7 +93,7 @@ void putinthex(const uint32_t n)
 
 	memcpy(buf, &n, 4);
 	puts("0x");
-	for (int i = 3; i > -1; i --) {
+	for (int i = 3; i > -1; i--) {
 		puthex(buf[i]);
 	}
 }

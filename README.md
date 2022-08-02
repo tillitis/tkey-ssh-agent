@@ -1,11 +1,7 @@
-# mkdfsigner
 
-Simple app to run on MTA1-MKDF.
+# signerapp
 
-There are really two apps, one very, very simple assembler app,
-foo.bin (foo.S), and one slightly larger C app: app.bin.
-
-The larger C app is an ed25519 signer.
+An ed25519 signer app written in C to run on MTA1-MKDF.
 
 To build you need the `clang`, `llvm` and `lld` packages installed. And they
 need to have risc32 support, check this with `llc --version | grep riscv32`.
@@ -40,13 +36,18 @@ Then run the host program, specifying both the serial device from QEMU and the
 raw binary app you want to run:
 
 ```
-%  ./runapp -port /dev/pts/0 -file app/app.bin
+%  ./runapp -port /dev/pts/0 -file signerapp/app.bin
 ```
 
 which should give you a signature on the output.
 
 If -file is not passed, the app is assumed to be loaded and running on the
 emulated device, and signing is attempted.
+
+# fooapp
+
+In `fooapp/` there is also a very, very simple app written in assembler,
+foo.bin (foo.S).
 
 # Using mkdf-ssh-agent
 
@@ -75,9 +76,9 @@ eventually be fixed by https://go-review.googlesource.com/c/crypto/+/412154/
 (until then it's also not possible to implement the upcoming SSH agent
 restrictions https://www.openssh.com/agent-restrict.html).
 
-## Developing the app
+# Developing the app
 
-### Memory
+## Memory
 
 RAM starts at 0x8000\_0000 and ends at 0x8002\_0000. Your program
 will be loaded by firmware at 0x8001\_0000 which means a maximum size
@@ -97,5 +98,5 @@ port on 0x9000\_1000. Anything written there will be printed as a
 character by qemu on the console.
 
 `putchar()`, `puts()`, `putinthex()`, `hexdump()` and friends (see
-`app/lib.[ch]`) use this debug port to print stuff. If you compile
+`signerapp/lib.[ch]`) use this debug port to print stuff. If you compile
 with `-DNODEBUG` all these are no-ops.

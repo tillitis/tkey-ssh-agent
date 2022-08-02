@@ -10,11 +10,7 @@ RM=/bin/rm
 OBJS=crt0.o lib.o proto.o main.o monocypher.o monocypher-ed25519.o
 
 .PHONY:all
-all: app.bin foo.bin
-
-foo.bin: foo.S
-	clang -c -target riscv32-unknown-none-elf -march=rv32imc -mabi=ilp32 -mcmodel=medany -mno-relax foo.S
-	ld.lld -o foo.bin foo.o --oformat binary
+all: app.bin
 
 app.bin: app
 	llvm-objcopy --input-target=elf32-littleriscv --output-target=binary app app.bin
@@ -24,7 +20,7 @@ app: $(OBJS) types.h lib.h proto.h
 
 .PHONY:clean
 clean:
-	$(RM) -f app.bin foo.bin app foo foo.o $(OBJS)
+	$(RM) -f app.bin app $(OBJS)
 
 .PHONY: fmt
 fmt:

@@ -147,25 +147,25 @@ type signSize struct {
 }
 
 func (a *signSize) pack() ([]byte, error) {
-	buf := make([]byte, a.hdr.Len()+1)
+	tx := make([]byte, a.hdr.Len()+1)
 	var err error
 
 	// Frame header
-	buf[0], err = a.hdr.Pack()
+	tx[0], err = a.hdr.Pack()
 	if err != nil {
 		return nil, fmt.Errorf("Pack: %w", err)
 	}
 
 	// Append command code
-	buf[1] = byte(appCmdSetSize)
+	tx[1] = byte(appCmdSetSize)
 
 	// Append size
-	buf[2] = byte(a.size)
-	buf[3] = byte(a.size >> 8)
-	buf[4] = byte(a.size >> 16)
-	buf[5] = byte(a.size >> 24)
+	tx[2] = byte(a.size)
+	tx[3] = byte(a.size >> 8)
+	tx[4] = byte(a.size >> 16)
+	tx[5] = byte(a.size >> 24)
 
-	return buf, nil
+	return tx, nil
 }
 
 func signSetSize(c *serial.Port, size int) error {

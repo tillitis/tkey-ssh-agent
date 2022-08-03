@@ -11,10 +11,10 @@ import (
 	"golang.org/x/crypto/blake2s"
 )
 
-var ll = log.New(os.Stdout, "", 0)
+var le = log.New(os.Stderr, "", 0)
 
 func SilenceLogging() {
-	ll.SetOutput(ioutil.Discard)
+	le.SetOutput(ioutil.Discard)
 }
 
 type NameVersion struct {
@@ -71,7 +71,7 @@ func LoadApp(conn *serial.Port, bin []byte) error {
 		return fmt.Errorf("File to big")
 	}
 
-	ll.Printf("app size: %v, 0x%x, 0b%b\n", binLen, binLen, binLen)
+	le.Printf("app size: %v, 0x%x, 0b%b\n", binLen, binLen, binLen)
 
 	err := setAppSize(conn, binLen)
 	if err != nil {
@@ -86,7 +86,7 @@ func LoadApp(conn *serial.Port, bin []byte) error {
 		}
 	}
 
-	ll.Printf("Going to getappdigest\n")
+	le.Printf("Going to getappdigest\n")
 	appDigest, err := getAppDigest(conn)
 	if err != nil {
 		return err
@@ -94,18 +94,18 @@ func LoadApp(conn *serial.Port, bin []byte) error {
 
 	digest := blake2s.Sum256(bin)
 
-	ll.Printf("Digest from host: \n")
+	le.Printf("Digest from host: \n")
 	printDigest(digest)
-	ll.Printf("Digest from device: \n")
+	le.Printf("Digest from device: \n")
 	printDigest(appDigest)
 
 	if appDigest != digest {
 		return fmt.Errorf("Different digests")
 	}
-	ll.Printf("Same digests!\n")
+	le.Printf("Same digests!\n")
 
 	// Run the app
-	ll.Printf("Running the app\n")
+	le.Printf("Running the app\n")
 	return runApp(conn)
 }
 
@@ -235,9 +235,9 @@ func runApp(c *serial.Port) error {
 func printDigest(md [32]byte) {
 	for j := 0; j < 4; j++ {
 		for i := 0; i < 8; i++ {
-			ll.Printf("0x%02x ", md[i+8*j])
+			le.Printf("0x%02x ", md[i+8*j])
 		}
-		ll.Printf("\n")
+		le.Printf("\n")
 	}
-	ll.Printf("\n")
+	le.Printf("\n")
 }

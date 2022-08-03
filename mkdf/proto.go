@@ -215,7 +215,7 @@ func packSimple(hdr Frame, cmd fwCmd) ([]byte, error) {
 }
 
 func Dump(s string, d []byte) {
-	ll.Printf("%s\n%s", s, hex.Dump(d))
+	le.Printf("%s\n%s", s, hex.Dump(d))
 }
 
 func Xmit(c *serial.Port, d []byte) error {
@@ -254,7 +254,7 @@ func fwRecv(conn *serial.Port, expectedRsp fwCmd, id byte, expectedLen FrameLen)
 	}
 
 	cmd := fwCmd(rx[1])
-	ll.Printf("FW code: %v\n", cmd)
+	le.Printf("FW code: %v\n", cmd)
 	if cmd != expectedRsp {
 		return nil, fmt.Errorf("incorrect response code %v != expected %v", rx[1], expectedRsp)
 	}

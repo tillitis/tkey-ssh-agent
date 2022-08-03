@@ -36,7 +36,7 @@ func NewMKDFSigner(devPath string) (*MKDFSigner, error) {
 	signer := &MKDFSigner{
 		devPath: devPath,
 	}
-	le.Printf("Connecting to device...\n")
+	le.Printf("Connecting to device on serial port %s ...\n", devPath)
 	if err := signer.connect(); err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (s *MKDFSigner) loadApp(bin []byte) error {
 func (s *MKDFSigner) Public() crypto.PublicKey {
 	pub, err := mkdfsign.GetPubkey(s.port)
 	if err != nil {
-		le.Printf("GetPubKey failed: %s", err)
+		le.Printf("GetPubKey failed: %s\n", err)
 		return nil
 	}
 	return ed25519.PublicKey(pub)

@@ -7,8 +7,6 @@ import (
 	"log"
 	"os"
 	"syscall"
-
-	"golang.org/x/crypto/ssh"
 )
 
 // Use when printing err/diag msgs
@@ -16,6 +14,10 @@ var le = log.New(os.Stderr, "", 0)
 
 func main() {
 	syscall.Umask(0o077)
+
+	exit := func(code int) {
+		os.Exit(code)
+	}
 
 	var sockPath, devPath string
 	var onlyKeyOutput bool
@@ -28,21 +30,21 @@ func main() {
 	if onlyKeyOutput && sockPath != "" {
 		le.Printf("Can't combine -a and -k.\n\n")
 		flag.Usage()
-		os.Exit(2)
+		exit(2)
 	}
 
 	if !onlyKeyOutput && sockPath == "" {
 		le.Printf("Please pass at least -a or -k.\n\n")
 		flag.Usage()
-		os.Exit(2)
+		exit(2)
 	}
 
-	le.Printf("Using serial port at %v\n", devPath)
-
-	_, err := os.Stat(sockPath)
-	if err == nil || !errors.Is(err, os.ErrNotExist) {
-		le.Printf("%s exists?\n", sockPath)
-		os.Exit(1)
+	if sockPath != "" {
+		_, err := os.Stat(sockPath)
+		if err == nil || !errors.Is(err, os.ErrNotExist) {
+			le.Printf("Socket path %s exists?\n", sockPath)
+			exit(1)
+		}
 	}
 
 	signer, err := NewMKDFSigner(devPath)
@@ -53,38 +55,32 @@ func main() {
 		} else {
 			le.Printf("%s\n", err)
 		}
-		os.Exit(1)
+		exit(1)
 	}
-	exit := func(code int) {
+
+	exit = func(code int) {
 		if err := signer.disconnect(); err != nil {
 			le.Printf("%s\n", err)
 		}
 		os.Exit(code)
 	}
 
-	agent, err := NewSSHAgent(signer)
+	agent := NewSSHAgent(signer)
+
+	authorizedKey, err := agent.GetAuthorizedKey()
 	if err != nil {
 		le.Printf("%s\n", err)
 		exit(1)
 	}
 
-	sshPub, err := agent.GetSSHPub()
-	if err != nil {
-		le.Printf("%s\n", err)
-		exit(1)
-	}
-
-	authorizedKey := ssh.MarshalAuthorizedKey(sshPub)
 	le.Printf("Your ssh pubkey (on stdout):\n")
 	fmt.Fprintf(os.Stdout, "%s", authorizedKey)
-	if onlyKeyOutput {
-		exit(0)
-	}
 
-	err = agent.Serve(sockPath)
-	if err != nil {
-		le.Printf("%s\n", err)
-		exit(1)
+	if !onlyKeyOutput {
+		if err = agent.Serve(sockPath); err != nil {
+			le.Printf("%s\n", err)
+			exit(1)
+		}
 	}
 
 	exit(0)

@@ -20,11 +20,19 @@ type SSHAgent struct {
 	mutex  sync.Mutex
 }
 
-func NewSSHAgent(signer crypto.Signer) (*SSHAgent, error) {
-	return &SSHAgent{signer: signer}, nil
+func NewSSHAgent(signer crypto.Signer) *SSHAgent {
+	return &SSHAgent{signer: signer}
 }
 
-func (s *SSHAgent) GetSSHPub() (ssh.PublicKey, error) {
+func (s *SSHAgent) GetAuthorizedKey() ([]byte, error) {
+	sshPub, err := s.getSSHPub()
+	if err != nil {
+		return nil, err
+	}
+	return ssh.MarshalAuthorizedKey(sshPub), nil
+}
+
+func (s *SSHAgent) getSSHPub() (ssh.PublicKey, error) {
 	if s.signer.Public() == nil {
 		return nil, fmt.Errorf("pubkey is nil")
 	}
@@ -66,7 +74,7 @@ func (s *SSHAgent) handleConn(c net.Conn) {
 func (s *SSHAgent) List() ([]*agent.Key, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
-	sshPub, err := s.GetSSHPub()
+	sshPub, err := s.getSSHPub()
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +90,7 @@ var ErrNotImplemented = errors.New("not implemented")
 func (s *SSHAgent) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
-	sshPub, err := s.GetSSHPub()
+	sshPub, err := s.getSSHPub()
 	if err != nil {
 		return nil, err
 	}

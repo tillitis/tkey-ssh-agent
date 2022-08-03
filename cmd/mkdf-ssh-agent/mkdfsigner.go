@@ -17,6 +17,7 @@ import (
 var ErrMaybeWrongDevice = errors.New("wrong device or non-responsive app")
 
 // Makefile copies the built app here ./app.bin
+//
 //go:embed app.bin
 var appBinary []byte
 

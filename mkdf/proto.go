@@ -161,17 +161,21 @@ func (f *Frame) Len() int {
 
 // Bit [7] (1 bit). Reserved - possible protocol version.
 // Bits [6..5] (2 bits). Frame ID tag.
+//
 // Bits [4..3] (2 bits). Endpoint number.
-//   HW in interface_fpga
-//   HW in application_fpga
-//   FW in application_fpga
-//   SW (application) in application_fpga
+//
+//	HW in interface_fpga
+//	HW in application_fpga
+//	FW in application_fpga
+//	SW (application) in application_fpga
+//
 // Bit [2] (1 bit). Unused. MUST be zero.
 // Bits [1..0] (2 bits). Command data length.
-//   1 byte
-//   4 bytes
-//   32 bytes
-//   64 bytes
+//
+//	1 byte
+//	4 bytes
+//	32 bytes
+//	64 bytes
 func (f *Frame) Pack() (byte, error) {
 	if f.ID > 3 {
 		return 0, fmt.Errorf("bad id")

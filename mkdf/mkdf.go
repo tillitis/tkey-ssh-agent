@@ -3,7 +3,7 @@ package mkdf
 import (
 	"encoding/binary"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 
@@ -14,7 +14,7 @@ import (
 var le = log.New(os.Stderr, "", 0)
 
 func SilenceLogging() {
-	le.SetOutput(ioutil.Discard)
+	le.SetOutput(io.Discard)
 }
 
 type NameVersion struct {
@@ -58,7 +58,7 @@ func GetNameVersion(c *serial.Port) (*NameVersion, error) {
 }
 
 func LoadAppFromFile(conn *serial.Port, fileName string) error {
-	content, err := ioutil.ReadFile(fileName)
+	content, err := os.ReadFile(fileName)
 	if err != nil {
 		return fmt.Errorf("ReadFile: %w", err)
 	}

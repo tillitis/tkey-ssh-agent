@@ -15,8 +15,10 @@ all: app.bin
 app.bin: app
 	llvm-objcopy --input-target=elf32-littleriscv --output-target=binary app app.bin
 
-app: $(OBJS) types.h lib.h proto.h
+app: $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) $(LDFLAGS) -o $@
+
+$(OBJS): types.h lib.h proto.h monocypher.h monocypher-ed25519.h
 
 .PHONY:clean
 clean:

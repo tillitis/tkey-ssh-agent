@@ -9,65 +9,6 @@ import (
 	"github.com/tarm/serial"
 )
 
-type appSize struct {
-	hdr  Frame
-	size int
-}
-
-func (a *appSize) pack() ([]byte, error) {
-	tx := make([]byte, a.hdr.FrameLen())
-	var err error
-
-	// Frame header
-	tx[0], err = a.hdr.Pack()
-	if err != nil {
-		return nil, err
-	}
-
-	// Append command code
-	tx[1] = byte(fwCmdLoadAppSize)
-
-	// Append size
-	tx[2] = byte(a.size)
-	tx[3] = byte(a.size >> 8)
-	tx[4] = byte(a.size >> 16)
-	tx[5] = byte(a.size >> 24)
-
-	return tx, nil
-}
-
-type appData struct {
-	hdr  Frame
-	data []byte
-}
-
-func (a *appData) copy(content []byte) int {
-	copied := copy(a.data, content)
-	// Add padding if not filling the payload buf.
-	if copied < len(a.data) {
-		padding := make([]byte, len(a.data)-copied)
-		copy(a.data[copied:], padding)
-	}
-	return copied
-}
-
-func (a *appData) pack() ([]byte, error) {
-	tx := make([]byte, a.hdr.FrameLen())
-	var err error
-
-	// Frame header
-	tx[0], err = a.hdr.Pack()
-	if err != nil {
-		return nil, err
-	}
-
-	tx[1] = byte(fwCmdLoadAppData)
-
-	copy(tx[2:], a.data)
-
-	return tx, nil
-}
-
 type Endpoint byte
 
 const (
@@ -234,6 +175,65 @@ func packSimple(hdr Frame, cmd fwCmd) ([]byte, error) {
 	}
 
 	tx[1] = byte(cmd)
+
+	return tx, nil
+}
+
+type appSize struct {
+	hdr  Frame
+	size int
+}
+
+func (a *appSize) pack() ([]byte, error) {
+	tx := make([]byte, a.hdr.FrameLen())
+	var err error
+
+	// Frame header
+	tx[0], err = a.hdr.Pack()
+	if err != nil {
+		return nil, err
+	}
+
+	// Append command code
+	tx[1] = byte(fwCmdLoadAppSize)
+
+	// Append size
+	tx[2] = byte(a.size)
+	tx[3] = byte(a.size >> 8)
+	tx[4] = byte(a.size >> 16)
+	tx[5] = byte(a.size >> 24)
+
+	return tx, nil
+}
+
+type appData struct {
+	hdr  Frame
+	data []byte
+}
+
+func (a *appData) copy(content []byte) int {
+	copied := copy(a.data, content)
+	// Add padding if not filling the payload buf.
+	if copied < len(a.data) {
+		padding := make([]byte, len(a.data)-copied)
+		copy(a.data[copied:], padding)
+	}
+	return copied
+}
+
+func (a *appData) pack() ([]byte, error) {
+	tx := make([]byte, a.hdr.FrameLen())
+	var err error
+
+	// Frame header
+	tx[0], err = a.hdr.Pack()
+	if err != nil {
+		return nil, err
+	}
+
+	tx[1] = byte(fwCmdLoadAppData)
+
+	copy(tx[2:], a.data)
 
 	return tx, nil
 }

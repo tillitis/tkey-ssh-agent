@@ -19,8 +19,8 @@ int main(void)
 	uint32_t stack;
 	uint8_t pubkey[32];
 	struct frame_header hdr; // Used in both directions
-	uint8_t cmd[64];
-	uint8_t rsp[64];
+	uint8_t cmd[CMDLEN_MAXBYTES];
+	uint8_t rsp[CMDLEN_MAXBYTES];
 	uint32_t message_size = 0;
 	uint8_t message[MAX_SIGN_SIZE];
 	int msg_idx; // Where we are currently loading the data to sign
@@ -37,19 +37,18 @@ int main(void)
 	crypto_ed25519_public_key(pubkey, (const uint8_t *)cdi);
 
 	for (;;) {
-		in = readbyte(); // blocks
+		in = readbyte(); // blocking
 		puts("Read byte: ");
 		puthex(in);
 		putchar('\n');
 
 		if (parseframe(in, &hdr) == -1) {
-			// Couldn't parse header
 			puts("Couldn't parse header\n");
 			continue;
 		}
 
-		memset(cmd, 0, 64);
-		// Read firmware command: Blocks!
+		memset(cmd, 0, CMDLEN_MAXBYTES);
+		// Read app command, blocking
 		read(cmd, hdr.len);
 
 		// Is it for us?
@@ -61,7 +60,7 @@ int main(void)
 		}
 
 		// Reset response buffer
-		memset(rsp, 0, 64);
+		memset(rsp, 0, CMDLEN_MAXBYTES);
 
 		// Min length is 1 byte so this should always be here
 		switch (cmd[0]) {
@@ -99,8 +98,17 @@ int main(void)
 			break;
 
 		case APP_CMD_SIGN_DATA:
-			if (left > 63) {
-				nbytes = 63;
+			puts("APP_CMD_SIGN_DATA\n");
+			const uint32_t cmdBytelen = 128;
+
+			if (hdr.len != cmdBytelen) {
+				rsp[0] = STATUS_BAD;
+				appreply(hdr, APP_CMD_SIGN_DATA, rsp);
+				break;
+			}
+
+			if (left > (cmdBytelen - 1)) {
+				nbytes = cmdBytelen - 1;
 			} else {
 				nbytes = left;
 			}
@@ -110,7 +118,7 @@ int main(void)
 			left -= nbytes;
 
 			rsp[0] = STATUS_OK;
-			appreply(hdr, APP_CMD_SET_SIZE, rsp);
+			appreply(hdr, APP_CMD_SIGN_DATA, rsp);
 
 			if (left == 0) {
 				// All loaded, sign the message
@@ -122,13 +130,14 @@ int main(void)
 			break;
 
 		case APP_CMD_GET_SIG:
+			puts("APP_CMD_GET_SIG\n");
 			memcpy(rsp, signature, 64);
 			appreply(hdr, APP_CMD_GET_SIG, rsp);
 			break;
 
 		case APP_CMD_GET_NAMEVERSION:
 			puts("APP_CMD_GET_NAMEVERSION\n");
-			// only zeroes if unexpected framelen
+			// only zeroes if unexpected cmdlen bytelen
 			if (hdr.len == 1) {
 				memcpy(rsp, app_name0, 4);
 				memcpy(rsp + 4, app_name1, 4);
@@ -141,8 +150,7 @@ int main(void)
 			puts("Received unknown command: ");
 			puthex(cmd[0]);
 			lf();
-			// TODO do we send a reply anyway? Must introduce an app
-			// header?
+			appreply(hdr, APP_RSP_UNKNOWN_CMD, rsp);
 		}
 	}
 }

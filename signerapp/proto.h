@@ -8,7 +8,9 @@ enum appcmd {
 	APP_CMD_SET_SIZE = 0x02,
 	APP_CMD_SIGN_DATA = 0x03,
 	APP_CMD_GET_SIG = 0x04,
-	APP_CMD_GET_NAMEVERSION = 0x05
+	APP_CMD_GET_NAMEVERSION = 0x05,
+
+	APP_RSP_UNKNOWN_CMD = 0xff
 };
 
 enum endpoints {
@@ -22,8 +24,10 @@ enum cmdlen {
 	LEN_1,
 	LEN_4,
 	LEN_32,
-	LEN_64
+	LEN_128
 };
+
+#define CMDLEN_MAXBYTES 128
 
 enum status {
 	STATUS_OK,

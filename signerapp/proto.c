@@ -37,8 +37,8 @@ int parseframe(uint8_t b, struct frame_header *hdr)
 	case LEN_32:
 		hdr->len = 32;
 		break;
-	case LEN_64:
-		hdr->len = 64;
+	case LEN_128:
+		hdr->len = 128;
 		break;
 	default:
 		// Unknown length
@@ -83,6 +83,7 @@ void read(uint8_t *buf, size_t nbytes)
 	}
 }
 
+// Send app reply with frame header, response code, and LEN_X-1 bytes from buf
 void appreply(struct frame_header hdr, enum appcmd rspcode, void *buf)
 {
 	size_t nbytes;
@@ -90,28 +91,33 @@ void appreply(struct frame_header hdr, enum appcmd rspcode, void *buf)
 
 	switch (rspcode) {
 	case APP_CMD_GET_PUBKEY:
-		len = LEN_32;
-		nbytes = 32;
+		len = LEN_128;
+		nbytes = 128;
 		break;
 
 	case APP_CMD_SET_SIZE:
-		len = LEN_1;
-		nbytes = 1;
+		len = LEN_4;
+		nbytes = 4;
 		break;
 
 	case APP_CMD_SIGN_DATA:
-		len = LEN_1;
-		nbytes = 1;
+		len = LEN_4;
+		nbytes = 4;
 		break;
 
 	case APP_CMD_GET_SIG:
-		len = LEN_64;
-		nbytes = 64;
+		len = LEN_128;
+		nbytes = 128;
 		break;
 
 	case APP_CMD_GET_NAMEVERSION:
 		len = LEN_32;
 		nbytes = 32;
+		break;
+
+	case APP_RSP_UNKNOWN_CMD:
+		len = LEN_1;
+		nbytes = 1;
 		break;
 
 	default:
@@ -125,6 +131,9 @@ void appreply(struct frame_header hdr, enum appcmd rspcode, void *buf)
 	// Frame Protocol Header
 	writebyte(genhdr(hdr.id, hdr.endpoint, 0x0, len));
 
-	// Write response directly with no app protocol header.
+	// app protocol header is 1 byte response code
+	writebyte(rspcode);
+	nbytes--;
+
 	write(buf, nbytes);
 }

@@ -17,6 +17,11 @@ func SilenceLogging() {
 	le.SetOutput(io.Discard)
 }
 
+const (
+	StatusOK  = 0x00
+	StatusBad = 0x01
+)
+
 type NameVersion struct {
 	Name0   string
 	Name1   string
@@ -33,7 +38,7 @@ func GetNameVersion(c *serial.Port) (*NameVersion, error) {
 	hdr := Frame{
 		ID:       2,
 		Endpoint: DestFW,
-		MsgLen:   FrameLen1,
+		CmdLen:   CmdLen1,
 	}
 
 	tx, err := packSimple(hdr, fwCmdGetNameVersion)
@@ -46,7 +51,7 @@ func GetNameVersion(c *serial.Port) (*NameVersion, error) {
 		return nil, fmt.Errorf("Xmit: %w", err)
 	}
 
-	rx, err := fwRecv(c, fwRspGetNameVersion, hdr.ID, FrameLen32)
+	rx, err := fwRecv(c, fwRspGetNameVersion, hdr.ID, CmdLen32)
 	if err != nil {
 		return nil, fmt.Errorf("fwRecv: %w", err)
 	}
@@ -79,11 +84,15 @@ func LoadApp(conn *serial.Port, bin []byte) error {
 	}
 
 	// Load the file
-	for i := 0; i < binLen; i += 63 {
-		err = loadAppData(conn, bin[i:])
+	var offset int
+	for nsent := 0; offset < binLen; offset += nsent {
+		nsent, err = loadAppData(conn, bin[offset:])
 		if err != nil {
-			return err
+			return fmt.Errorf("loadAppData: %w", err)
 		}
+	}
+	if offset > binLen {
+		return fmt.Errorf("transmitted more than expected")
 	}
 
 	le.Printf("Going to getappdigest\n")
@@ -114,7 +123,7 @@ func setAppSize(c *serial.Port, size int) error {
 		hdr: Frame{
 			ID:       2,
 			Endpoint: DestFW,
-			MsgLen:   FrameLen32,
+			CmdLen:   CmdLen32,
 		},
 		size: size,
 	}
@@ -129,48 +138,52 @@ func setAppSize(c *serial.Port, size int) error {
 		return fmt.Errorf("Xmit: %w", err)
 	}
 
-	rx, err := fwRecv(c, fwRspLoadAppSize, appsize.hdr.ID, FrameLen4)
+	rx, err := fwRecv(c, fwRspLoadAppSize, appsize.hdr.ID, CmdLen4)
 	if err != nil {
 		return fmt.Errorf("fwRecv: %w", err)
 	}
-	if rx[2] != 0 {
+	if rx[2] != StatusOK {
 		return fmt.Errorf("SetAppSize NOK")
 	}
 
 	return nil
 }
 
-func loadAppData(c *serial.Port, content []byte) error {
+func loadAppData(c *serial.Port, content []byte) (int, error) {
+	cmdLen := CmdLen128
 	appdata := appData{
 		hdr: Frame{
 			ID:       2,
 			Endpoint: DestFW,
-			MsgLen:   FrameLen64,
+			CmdLen:   cmdLen,
 		},
+		// Payload len is cmdlen minus the fw cmd byte
+		data: make([]byte, cmdLen.Bytelen()-1),
 	}
 
-	appdata.copy(content)
+	nsent := appdata.copy(content)
+
 	tx, err := appdata.pack()
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	Dump("LoadAppData tx:", tx)
 	if err = Xmit(c, tx); err != nil {
-		return fmt.Errorf("Xmit: %w", err)
+		return 0, fmt.Errorf("Xmit: %w", err)
 	}
 
 	// Wait for reply
-	rx, err := fwRecv(c, fwRspLoadAppData, appdata.hdr.ID, FrameLen4)
+	rx, err := fwRecv(c, fwRspLoadAppData, appdata.hdr.ID, CmdLen4)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	if rx[2] != 0 {
-		return fmt.Errorf("LoadAppData NOK")
+	if rx[2] != StatusOK {
+		return 0, fmt.Errorf("LoadAppData NOK")
 	}
 
-	return nil
+	return nsent, nil
 }
 
 func getAppDigest(c *serial.Port) ([32]byte, error) {
@@ -179,7 +192,7 @@ func getAppDigest(c *serial.Port) ([32]byte, error) {
 	hdr := Frame{
 		ID:       2,
 		Endpoint: DestFW,
-		MsgLen:   FrameLen1,
+		CmdLen:   CmdLen1,
 	}
 
 	// Check the digest
@@ -193,7 +206,7 @@ func getAppDigest(c *serial.Port) ([32]byte, error) {
 		return md, fmt.Errorf("Xmit: %w", err)
 	}
 
-	rx, err := fwRecv(c, fwRspGetAppDigest, hdr.ID, FrameLen64)
+	rx, err := fwRecv(c, fwRspGetAppDigest, hdr.ID, CmdLen128)
 	if err != nil {
 		return md, err
 	}
@@ -207,7 +220,7 @@ func runApp(c *serial.Port) error {
 	hdr := Frame{
 		ID:       2,
 		Endpoint: DestFW,
-		MsgLen:   FrameLen1,
+		CmdLen:   CmdLen1,
 	}
 
 	tx, err := packSimple(hdr, fwCmdRunApp)
@@ -220,12 +233,12 @@ func runApp(c *serial.Port) error {
 		return fmt.Errorf("Xmit: %w", err)
 	}
 
-	rx, err := fwRecv(c, fwRspRunApp, hdr.ID, FrameLen4)
+	rx, err := fwRecv(c, fwRspRunApp, hdr.ID, CmdLen4)
 	if err != nil {
 		return err
 	}
 
-	if rx[2] != 0 {
+	if rx[2] != StatusOK {
 		return fmt.Errorf("RunApp NOK")
 	}
 

@@ -88,6 +88,9 @@ func (s *MKDFSigner) isFirmwareMode() bool {
 func (s *MKDFSigner) isWantedApp() bool {
 	nameVer, err := mkdfsign.GetAppNameVersion(s.port)
 	if err != nil {
+		if !errors.Is(err, io.EOF) {
+			le.Printf("GetAppNameVersion: %s\n", err)
+		}
 		return false
 	}
 	// not caring about nameVer.Version

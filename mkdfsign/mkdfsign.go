@@ -112,38 +112,6 @@ func Sign(conn *serial.Port, data []byte) ([]byte, error) {
 	return signature, nil
 }
 
-type signData struct {
-	hdr  mkdf.Frame
-	data []byte
-}
-
-func (a *signData) copy(content []byte) int {
-	copied := copy(a.data, content)
-	// Add padding if not filling the payload buf.
-	if copied < len(a.data) {
-		padding := make([]byte, len(a.data)-copied)
-		copy(a.data[copied:], padding)
-	}
-	return copied
-}
-
-func (a *signData) pack() ([]byte, error) {
-	tx := make([]byte, a.hdr.FrameLen())
-	var err error
-
-	// Frame header
-	tx[0], err = a.hdr.Pack()
-	if err != nil {
-		return nil, fmt.Errorf("Pack: %w", err)
-	}
-
-	tx[1] = byte(appCmdSignData)
-
-	copy(tx[2:], a.data)
-
-	return tx, nil
-}
-
 type signSize struct {
 	hdr  mkdf.Frame
 	size int
@@ -201,6 +169,38 @@ func signSetSize(c *serial.Port, size int) error {
 	}
 
 	return nil
+}
+
+type signData struct {
+	hdr  mkdf.Frame
+	data []byte
+}
+
+func (a *signData) copy(content []byte) int {
+	copied := copy(a.data, content)
+	// Add padding if not filling the payload buf.
+	if copied < len(a.data) {
+		padding := make([]byte, len(a.data)-copied)
+		copy(a.data[copied:], padding)
+	}
+	return copied
+}
+
+func (a *signData) pack() ([]byte, error) {
+	tx := make([]byte, a.hdr.FrameLen())
+	var err error
+
+	// Frame header
+	tx[0], err = a.hdr.Pack()
+	if err != nil {
+		return nil, fmt.Errorf("Pack: %w", err)
+	}
+
+	tx[1] = byte(appCmdSignData)
+
+	copy(tx[2:], a.data)
+
+	return tx, nil
 }
 
 func signLoad(c *serial.Port, data []byte) (int, error) {

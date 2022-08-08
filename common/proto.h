@@ -3,16 +3,6 @@
 #ifndef PROTO_H
 #define PROTO_H
 
-enum appcmd {
-	APP_CMD_GET_PUBKEY = 0x01,
-	APP_CMD_SET_SIZE = 0x02,
-	APP_CMD_SIGN_DATA = 0x03,
-	APP_CMD_GET_SIG = 0x04,
-	APP_CMD_GET_NAMEVERSION = 0x05,
-
-	APP_RSP_UNKNOWN_CMD = 0xff
-};
-
 enum endpoints {
 	DST_HW_IFPGA = 0x00,
 	DST_HW_AFPGA = 0x01,
@@ -46,6 +36,5 @@ void writebyte(uint8_t b);
 void write(uint8_t *buf, size_t nbytes);
 uint8_t readbyte();
 void read(uint8_t *buf, size_t nbytes);
-void appreply(struct frame_header hdr, enum appcmd rspcode, void *buf);
 
 #endif

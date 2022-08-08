@@ -7,7 +7,7 @@ LDFLAGS=-T app.ld
 
 RM=/bin/rm
 
-OBJS=crt0.o lib.o proto.o main.o monocypher.o monocypher-ed25519.o
+OBJS=crt0.o ../common/lib.o ../common/proto.o app_proto.o main.o monocypher.o monocypher-ed25519.o
 
 .PHONY:all
 all: app.bin
@@ -18,7 +18,7 @@ app.bin: app
 app: $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) $(LDFLAGS) -o $@
 
-$(OBJS): types.h lib.h proto.h monocypher.h monocypher-ed25519.h
+$(OBJS): ../common/types.h ../common/lib.h ../common/proto.h app_proto.h monocypher.h monocypher-ed25519.h
 
 .PHONY:clean
 clean:
@@ -26,4 +26,5 @@ clean:
 
 .PHONY: fmt
 fmt:
-	clang-format -i main.c lib.h lib.c proto.h proto.c types.h
+	make -C ../common fmt
+	clang-format -i main.c app_proto.h app_proto.c

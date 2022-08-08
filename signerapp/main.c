@@ -1,6 +1,4 @@
-#include "lib.h"
-#include "proto.h"
-
+#include "app_proto.h"
 #include "monocypher-ed25519.h"
 
 volatile uint8_t *cdi = (volatile uint8_t *)0x90000400;

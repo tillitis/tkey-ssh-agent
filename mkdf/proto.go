@@ -129,7 +129,7 @@ func (f *Frame) FrameLen() int {
 //
 // Note that the number of bytes indicated by the command data length field
 // does **not** include the command header byte. This means that a complete
-// command frame, with a header indicating a data length of 64 bytes, is 65
+// command frame, with a header indicating a data length of 128 bytes, is 129
 // bytes in length.
 func (f *Frame) Pack() (byte, error) {
 	if f.ID > 3 {

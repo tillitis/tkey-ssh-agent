@@ -1,6 +1,8 @@
 #include "lib.h"
 #include "types.h"
 
+#include "../../mta1-mkdf-qemu-priv/include/hw/riscv/mta1_mkdf_mem.h"
+
 #ifdef NODEBUG
 int putchar(uint8_t ch)
 {
@@ -27,7 +29,7 @@ void hexdump(uint8_t *buf, int len)
 {
 }
 #else
-volatile uint8_t *debugtx = (volatile uint8_t *)0x90001000;
+volatile uint8_t *debugtx = (volatile uint8_t *)MTA1_MKDF_MMIO_QEMU_DEBUG;
 
 int putchar(uint8_t ch)
 {

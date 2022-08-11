@@ -1,10 +1,12 @@
 #include "app_proto.h"
 #include "monocypher-ed25519.h"
 
-volatile uint8_t *cdi = (volatile uint8_t *)0x90000400;
-volatile uint32_t *name0 = (volatile uint32_t *)0x90000208;
-volatile uint32_t *name1 = (volatile uint32_t *)0x9000020c;
-volatile uint32_t *ver = (volatile uint32_t *)0x90000210;
+#include "../../mta1-mkdf-qemu-priv/include/hw/riscv/mta1_mkdf_mem.h"
+
+volatile uint8_t *cdi = (volatile uint8_t *)MTA1_MKDF_MMIO_QEMU_CDI;
+volatile uint32_t *name0 = (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_NAME0;
+volatile uint32_t *name1 = (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_NAME1;
+volatile uint32_t *ver = (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_VERSION;
 
 #define MAX_SIGN_SIZE 4096
 

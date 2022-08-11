@@ -1,10 +1,12 @@
 #include "proto.h"
 #include "lib.h"
 
-volatile uint8_t *can_rx = (volatile uint8_t *)0x90000214;
-volatile uint8_t *rx = (volatile uint8_t *)0x90000215;
-volatile uint8_t *can_tx = (volatile uint8_t *)0x90000216;
-volatile uint8_t *tx = (volatile uint8_t *)0x90000217;
+#include "../../mta1-mkdf-qemu-priv/include/hw/riscv/mta1_mkdf_mem.h"
+
+volatile uint8_t *can_rx = (volatile uint8_t *)MTA1_MKDF_MMIO_UART_RX_STATUS;
+volatile uint8_t *rx = (volatile uint8_t *)MTA1_MKDF_MMIO_UART_RX_DATA;
+volatile uint8_t *can_tx = (volatile uint8_t *)MTA1_MKDF_MMIO_UART_TX_STATUS;
+volatile uint8_t *tx = (volatile uint8_t *)MTA1_MKDF_MMIO_UART_TX_DATA;
 
 uint8_t genhdr(uint8_t id, uint8_t endpoint, uint8_t status, enum cmdlen len)
 {

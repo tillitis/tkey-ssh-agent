@@ -33,8 +33,8 @@ _start:
 	li x30,0
 	li x31,0
 
-        /* init stack at the address under 0x80010000 where we load the app */
-        li sp, 0x8000ffff
+        /* init stack at the address under 0x40010000 where we load the app */
+        li sp, 0x4000ffff
 
 	/* setup trap vector */
 	la t0, trap_entry

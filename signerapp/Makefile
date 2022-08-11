@@ -15,10 +15,11 @@ all: app.bin
 app.bin: app
 	llvm-objcopy --input-target=elf32-littleriscv --output-target=binary app app.bin
 
-app: $(OBJS)
+app: $(OBJS) app.ld
 	$(CC) $(CFLAGS) $(OBJS) $(LDFLAGS) -o $@
 
-$(OBJS): ../common/types.h ../common/lib.h ../common/proto.h app_proto.h monocypher.h monocypher-ed25519.h
+$(OBJS): ../../mta1-mkdf-qemu-priv/include/hw/riscv/mta1_mkdf_mem.h \
+         ../common/types.h ../common/lib.h ../common/proto.h app_proto.h monocypher.h monocypher-ed25519.h
 
 .PHONY:clean
 clean:

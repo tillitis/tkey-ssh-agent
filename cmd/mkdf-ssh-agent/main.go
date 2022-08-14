@@ -2,11 +2,12 @@ package main
 
 import (
 	"errors"
-	"flag"
 	"fmt"
 	"log"
 	"os"
 	"syscall"
+
+	"github.com/spf13/pflag"
 )
 
 // Use when printing err/diag msgs
@@ -21,21 +22,21 @@ func main() {
 
 	var sockPath, devPath string
 	var onlyKeyOutput bool
-	flag.CommandLine.SetOutput(os.Stderr)
-	flag.StringVar(&sockPath, "a", "", "Path to bind agent's UNIX domain socket at")
-	flag.BoolVar(&onlyKeyOutput, "k", false, "Don't start the agent, just output the ssh-ed25519 pubkey")
-	flag.StringVar(&devPath, "port", "/dev/ttyACM0", "Path to serial port device")
-	flag.Parse()
+	pflag.CommandLine.SetOutput(os.Stderr)
+	pflag.StringVarP(&sockPath, "agent-socket", "a", "", "Path to bind agent's UNIX domain socket at")
+	pflag.BoolVarP(&onlyKeyOutput, "show-pubkey", "k", false, "Don't start the agent, just output the ssh-ed25519 pubkey")
+	pflag.StringVar(&devPath, "port", "/dev/ttyACM0", "Path to serial port device")
+	pflag.Parse()
 
 	if onlyKeyOutput && sockPath != "" {
 		le.Printf("Can't combine -a and -k.\n\n")
-		flag.Usage()
+		pflag.Usage()
 		exit(2)
 	}
 
 	if !onlyKeyOutput && sockPath == "" {
 		le.Printf("Please pass at least -a or -k.\n\n")
-		flag.Usage()
+		pflag.Usage()
 		exit(2)
 	}
 

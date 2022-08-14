@@ -2,20 +2,20 @@ package main
 
 import (
 	"crypto/ed25519"
-	"flag"
 	"fmt"
 	"os"
 	"time"
 
 	"github.com/mullvad/mta1-mkdf-signer/mkdf"
 	"github.com/mullvad/mta1-mkdf-signer/mkdfsign"
+	"github.com/spf13/pflag"
 	"github.com/tarm/serial"
 )
 
 func main() {
-	fileName := flag.String("file", "", "Name of file to be uploaded")
-	port := flag.String("port", "/dev/ttyACM0", "Serial port path")
-	flag.Parse()
+	fileName := pflag.String("file", "", "Name of file to be uploaded")
+	port := pflag.String("port", "/dev/ttyACM0", "Serial port path")
+	pflag.Parse()
 
 	// mkdf.SilenceLogging()
 

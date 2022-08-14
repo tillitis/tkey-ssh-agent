@@ -36,7 +36,7 @@ Then run the host program, specifying both the serial device from QEMU and the
 raw binary app you want to run:
 
 ```
-%  ./runapp -port /dev/pts/0 -file signerapp/app.bin
+% ./runapp --port /dev/pts/0 --file signerapp/app.bin
 ```
 
 which should give you a signature on the output.
@@ -55,7 +55,7 @@ The mkdf-ssh-agent should be able to upload the app itself. You can start it
 like this:
 
 ```
-% ./mkdf-ssh-agent -a ./agent.sock -port /dev/pts/0
+% ./mkdf-ssh-agent -a ./agent.sock --port /dev/pts/0
 ```
 
 This will output the unique public key for the instance of the app on this
@@ -80,7 +80,7 @@ You can use `-k` to only output the pubkey (on stdout, some message are still
 present on stderr), which can be practical.
 to encrypt a file for yourself:
 
-% ./mkdf-ssh-agent -k -port /dev/pts/0
+% ./mkdf-ssh-agent -k --port /dev/pts/0
 
 # Developing the app
 

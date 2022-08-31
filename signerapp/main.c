@@ -3,7 +3,7 @@
 
 #include "../../mta1-mkdf-qemu-priv/include/hw/riscv/mta1_mkdf_mem.h"
 
-volatile uint8_t *cdi = (volatile uint8_t *)MTA1_MKDF_MMIO_QEMU_CDI;
+volatile uint32_t *cdi = (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_CDI_START;
 volatile uint32_t *name0 = (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_NAME0;
 volatile uint32_t *name1 = (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_NAME1;
 volatile uint32_t *ver = (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_VERSION;
@@ -28,13 +28,15 @@ int main(void)
 	int left = 0;	// Bytes left to read
 	int nbytes = 0; // Bytes to write to memory
 	uint8_t in;
+	uint32_t local_cdi[8];
 
 	puts("Hello! &stack is on: ");
 	putinthex((uint32_t)&stack);
 	lf();
 
 	// Generate a public key from CDI
-	crypto_ed25519_public_key(pubkey, (const uint8_t *)cdi);
+	wordcpy(local_cdi, (void *)cdi, 8); // Only word aligned access to CDI
+	crypto_ed25519_public_key(pubkey, (const uint8_t *)local_cdi);
 
 	for (;;) {
 		in = readbyte(); // blocking
@@ -122,7 +124,7 @@ int main(void)
 
 			if (left == 0) {
 				// All loaded, sign the message
-				crypto_ed25519_sign(signature, (void *)cdi,
+				crypto_ed25519_sign(signature, (void *)local_cdi,
 						    pubkey, message,
 						    message_size);
 			}

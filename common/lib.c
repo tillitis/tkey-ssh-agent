@@ -149,3 +149,15 @@ __attribute__((used)) void *memcpy(void *dest, const void *src, unsigned n)
 
 	return dest;
 }
+
+__attribute__((used)) void *wordcpy(void *dest, const void *src, unsigned n)
+{
+	uint32_t *src_word = (uint32_t *)src;
+	uint32_t *dest_word = (uint32_t *)dest;
+
+	for (int i = 0; i < n; i++) {
+		dest_word[i] = src_word[i];
+	}
+
+	return dest;
+}

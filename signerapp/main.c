@@ -1,7 +1,7 @@
 #include "app_proto.h"
 #include "monocypher-ed25519.h"
 
-#include "../../mta1-mkdf-qemu-priv/include/hw/riscv/mta1_mkdf_mem.h"
+#include "../common/mta1_mkdf_mem.h"
 
 volatile uint32_t *cdi = (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_CDI_START;
 volatile uint32_t *name0 = (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_NAME0;

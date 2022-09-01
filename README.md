@@ -95,9 +95,8 @@ There are no heap allocation functions, no `malloc()` and friends.
 
 Special memory areas for memory mapped hardware functions are
 available at base 0xc000\_0000 and an offset. See [MTA1-MKDF
-software](https://github.com/mullvad/mta1_mkdf/blob/main/doc/system_description/software.md).
-
-TODO rather see #include "../mta1-mkdf-qemu-priv/include/hw/riscv/mta1_mkdf_mem.h"
+software](https://github.com/mullvad/mta1_mkdf/blob/main/doc/system_description/software.md)
+and the include file `mta1_mkdf_mem.h`.
 
 ### Debugging
 

@@ -1,7 +1,7 @@
 #include "proto.h"
 #include "lib.h"
 
-#include "../../mta1-mkdf-qemu-priv/include/hw/riscv/mta1_mkdf_mem.h"
+#include "mta1_mkdf_mem.h"
 
 volatile uint32_t *can_rx = (volatile uint32_t *)MTA1_MKDF_MMIO_UART_RX_STATUS;
 volatile uint32_t *rx = (volatile uint32_t *)MTA1_MKDF_MMIO_UART_RX_DATA;

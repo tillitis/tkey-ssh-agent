@@ -18,7 +18,7 @@ app.bin: app
 app: $(OBJS) app.ld
 	$(CC) $(CFLAGS) $(OBJS) $(LDFLAGS) -o $@
 
-$(OBJS): ../../mta1-mkdf-qemu-priv/include/hw/riscv/mta1_mkdf_mem.h \
+$(OBJS): ../common/mta1_mkdf_mem.h \
          ../common/types.h ../common/lib.h ../common/proto.h app_proto.h monocypher.h monocypher-ed25519.h
 
 .PHONY:clean

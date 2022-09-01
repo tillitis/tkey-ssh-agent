@@ -1,7 +1,7 @@
 #include "lib.h"
 #include "types.h"
 
-#include "../../mta1-mkdf-qemu-priv/include/hw/riscv/mta1_mkdf_mem.h"
+#include "mta1_mkdf_mem.h"
 
 #ifdef NODEBUG
 int putchar(uint8_t ch)

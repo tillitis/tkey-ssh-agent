@@ -44,6 +44,10 @@ which should give you a signature on the output.
 If -file is not passed, the app is assumed to be loaded and running on the
 emulated device, and signing is attempted.
 
+The mta1 guest machine running in QEMU (which in turn runs the firmware and
+then the app) outputs some memory access (and other) logging. To make QEMU send
+these to stderr, add `-d guest_errors` to the qemu commandline.
+
 # fooapp
 
 In `fooapp/` there is also a very, very simple app written in assembler,

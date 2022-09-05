@@ -19,6 +19,10 @@ clean:
 	rm -f runapp mkdf-ssh-agent cmd/mkdf-ssh-agent/app.bin
 	$(MAKE) -C signerapp clean
 
+.PHONY: update-mem-include
+update-mem-include:
+	cp -af ../mta1-mkdf-qemu-priv/include/hw/riscv/mta1_mkdf_mem.h common/mta1_mkdf_mem.h
+
 .PHONY: lint
 lint: golangci-lint
 	./golangci-lint run

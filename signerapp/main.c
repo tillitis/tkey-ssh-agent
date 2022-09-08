@@ -3,7 +3,7 @@
 
 #include "../common/mta1_mkdf_mem.h"
 
-volatile uint32_t *cdi = (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_CDI_START;
+volatile uint32_t *cdi = (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_CDI_FIRST;
 volatile uint32_t *name0 = (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_NAME0;
 volatile uint32_t *name1 = (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_NAME1;
 volatile uint32_t *ver = (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_VERSION;

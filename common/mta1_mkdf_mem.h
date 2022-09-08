@@ -21,7 +21,12 @@
 #ifndef HW_MTA1_MKDF_MEM_H
 #define HW_MTA1_MKDF_MEM_H
 
-// TODO could we generate this file from the Verilog? And FW and app also needs it!
+// The canonical location of this file is:
+// repo: mta1_mkdf
+// path: hw/application_fpga/mta1_mkdf_mem.h
+
+// The contents are derived from the Verilog code. For use by QEMU model,
+// firmware, and apps.
 
 enum {
     MTA1_MKDF_ROM_BASE       = 0x00000000, // 0b00000000...
@@ -38,6 +43,7 @@ enum {
     // This "core" only exists in QEMU
     MTA1_MKDF_MMIO_QEMU_BASE        = MTA1_MKDF_MMIO_BASE | 0x3e000000,
     MTA1_MKDF_MMIO_MTA1_BASE        = MTA1_MKDF_MMIO_BASE | 0x3f000000, // 0xff000000
+
     MTA1_MKDF_NAME0_SUFFIX   = 0x00,
     MTA1_MKDF_NAME1_SUFFIX   = 0x04,
     MTA1_MKDF_VERSION_SUFFIX = 0x08,
@@ -64,8 +70,8 @@ enum {
     MTA1_MKDF_MMIO_UDS_NAME0        = MTA1_MKDF_MMIO_UDS_BASE | MTA1_MKDF_NAME0_SUFFIX,
     MTA1_MKDF_MMIO_UDS_NAME1        = MTA1_MKDF_MMIO_UDS_BASE | MTA1_MKDF_NAME1_SUFFIX,
     MTA1_MKDF_MMIO_UDS_VERSION      = MTA1_MKDF_MMIO_UDS_BASE | MTA1_MKDF_VERSION_SUFFIX,
-    MTA1_MKDF_MMIO_UDS_START        = MTA1_MKDF_MMIO_UDS_BASE | 0x40,
-    MTA1_MKDF_MMIO_UDS_END          = MTA1_MKDF_MMIO_UDS_BASE | 0x5c, // Last word of UDS starts here
+    MTA1_MKDF_MMIO_UDS_FIRST        = MTA1_MKDF_MMIO_UDS_BASE | 0x40,
+    MTA1_MKDF_MMIO_UDS_LAST         = MTA1_MKDF_MMIO_UDS_BASE | 0x5c, // Address of last 32-bit word of UDS
 
     MTA1_MKDF_MMIO_UART_NAME0       = MTA1_MKDF_MMIO_UART_BASE | MTA1_MKDF_NAME0_SUFFIX,
     MTA1_MKDF_MMIO_UART_NAME1       = MTA1_MKDF_MMIO_UART_BASE | MTA1_MKDF_NAME1_SUFFIX,
@@ -106,8 +112,8 @@ enum {
     MTA1_MKDF_MMIO_MTA1_APP_ADDR    = MTA1_MKDF_MMIO_MTA1_BASE | 0x30, /* 0x4000_0000 */
     MTA1_MKDF_MMIO_MTA1_APP_SIZE    = MTA1_MKDF_MMIO_MTA1_BASE | 0x34,
     MTA1_MKDF_MMIO_MTA1_DEBUG       = MTA1_MKDF_MMIO_MTA1_BASE | 0x40,
-    MTA1_MKDF_MMIO_MTA1_CDI_START   = MTA1_MKDF_MMIO_MTA1_BASE | 0x80,
-    MTA1_MKDF_MMIO_MTA1_CDI_END     = MTA1_MKDF_MMIO_MTA1_BASE | 0x9c, // Last word of CDI starts here
+    MTA1_MKDF_MMIO_MTA1_CDI_FIRST   = MTA1_MKDF_MMIO_MTA1_BASE | 0x80,
+    MTA1_MKDF_MMIO_MTA1_CDI_LAST    = MTA1_MKDF_MMIO_MTA1_BASE | 0x9c, // Address of last 32-bit word of CDI.
 };
 
 #endif

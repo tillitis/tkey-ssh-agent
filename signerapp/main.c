@@ -124,9 +124,9 @@ int main(void)
 
 			if (left == 0) {
 				// All loaded, sign the message
-				crypto_ed25519_sign(signature, (void *)local_cdi,
-						    pubkey, message,
-						    message_size);
+				crypto_ed25519_sign(signature,
+						    (void *)local_cdi, pubkey,
+						    message, message_size);
 			}
 
 			break;

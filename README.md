@@ -51,7 +51,7 @@ these to stderr, add `-d guest_errors` to the qemu commandline.
 # fooapp
 
 In `fooapp/` there is also a very, very simple app written in assembler,
-foo.bin (foo.S).
+foo.bin (foo.S) that blinks the LED.
 
 # Using mkdf-ssh-agent
 

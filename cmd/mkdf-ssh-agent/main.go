@@ -21,11 +21,14 @@ func main() {
 	}
 
 	var sockPath, devPath string
+	var speed int
 	var onlyKeyOutput bool
 	pflag.CommandLine.SetOutput(os.Stderr)
 	pflag.StringVarP(&sockPath, "agent-socket", "a", "", "Path to bind agent's UNIX domain socket at")
 	pflag.BoolVarP(&onlyKeyOutput, "show-pubkey", "k", false, "Don't start the agent, just output the ssh-ed25519 pubkey")
 	pflag.StringVar(&devPath, "port", "/dev/ttyACM0", "Path to serial port device")
+	pflag.IntVar(&speed, "speed", 38400, "When talking over the serial port, bits per second")
+
 	pflag.Parse()
 
 	if onlyKeyOutput && sockPath != "" {
@@ -48,7 +51,7 @@ func main() {
 		}
 	}
 
-	signer, err := NewMKDFSigner(devPath)
+	signer, err := NewMKDFSigner(devPath, speed)
 	if err != nil {
 		if errors.Is(err, ErrMaybeWrongDevice) {
 			le.Printf("If the serial port is correct for the device, then it might not be it\n" +

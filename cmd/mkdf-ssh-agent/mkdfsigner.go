@@ -30,12 +30,14 @@ const (
 type MKDFSigner struct {
 	devPath string
 	port    *serial.Port
+	speed   int
 }
 
-func NewMKDFSigner(devPath string) (*MKDFSigner, error) {
+func NewMKDFSigner(devPath string, speed int) (*MKDFSigner, error) {
 	mkdf.SilenceLogging()
 	signer := &MKDFSigner{
 		devPath: devPath,
+		speed:   speed,
 	}
 	le.Printf("Connecting to device on serial port %s ...\n", devPath)
 	if err := signer.connect(); err != nil {
@@ -61,7 +63,7 @@ func (s *MKDFSigner) connect() error {
 	var err error
 	s.port, err = serial.OpenPort(&serial.Config{
 		Name:        s.devPath,
-		Baud:        1_000_000,
+		Baud:        s.speed,
 		ReadTimeout: 3 * time.Second,
 	})
 	if err != nil {

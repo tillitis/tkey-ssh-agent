@@ -15,13 +15,14 @@ import (
 func main() {
 	fileName := pflag.String("file", "", "Name of file to be uploaded")
 	port := pflag.String("port", "/dev/ttyACM0", "Serial port path")
+	speed := pflag.Int("speed", 38400, "When talking over the serial port, bits per second")
 	pflag.Parse()
 
 	// mkdf.SilenceLogging()
 
 	conn, err := serial.OpenPort(&serial.Config{
 		Name:        *port,
-		Baud:        1000000,
+		Baud:        *speed,
 		ReadTimeout: 3 * time.Second,
 	})
 	if err != nil {

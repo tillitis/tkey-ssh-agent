@@ -25,6 +25,7 @@ int main(void)
 	uint8_t message[MAX_SIGN_SIZE];
 	int msg_idx; // Where we are currently loading the data to sign
 	uint8_t signature[64];
+	uint32_t signature_done = 0;
 	int left = 0;	// Bytes left to read
 	int nbytes = 0; // Bytes to write to memory
 	uint8_t in;
@@ -79,13 +80,13 @@ int main(void)
 				puts("APP_CMD_SET_SIZE bad length\n");
 				break;
 			}
-
+			signature_done = 0;
 			// cmd[1..4] contains the size.
 			message_size = cmd[1] + (cmd[2] << 8) + (cmd[3] << 16) +
 				       (cmd[4] << 24);
 
 			if (message_size > MAX_SIGN_SIZE) {
-				puts("Message to big!\n");
+				puts("Message too big!\n");
 				rsp[0] = STATUS_BAD;
 				appreply(hdr, APP_CMD_SET_SIZE, rsp);
 				break;
@@ -104,7 +105,9 @@ int main(void)
 			puts("APP_CMD_SIGN_DATA\n");
 			const uint32_t cmdBytelen = 128;
 
-			if (hdr.len != cmdBytelen) {
+			// Bad length of this command, or APP_CMD_SET_SIZE has
+			// not been called
+			if (hdr.len != cmdBytelen || message_size == 0) {
 				rsp[0] = STATUS_BAD;
 				appreply(hdr, APP_CMD_SIGN_DATA, rsp);
 				break;
@@ -125,6 +128,8 @@ int main(void)
 				crypto_ed25519_sign(signature,
 						    (void *)local_cdi, pubkey,
 						    message, message_size);
+				signature_done = 1;
+				message_size = 0;
 			}
 
 			rsp[0] = STATUS_OK;
@@ -133,6 +138,11 @@ int main(void)
 
 		case APP_CMD_GET_SIG:
 			puts("APP_CMD_GET_SIG\n");
+			if (signature_done == 0) {
+				rsp[0] = STATUS_BAD;
+				appreply(hdr, APP_CMD_GET_SIG, rsp);
+				break;
+			}
 			memcpy(rsp, signature, 64);
 			appreply(hdr, APP_CMD_GET_SIG, rsp);
 			break;

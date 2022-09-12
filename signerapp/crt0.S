@@ -48,6 +48,3 @@ loop_init_bss:
 
 end_init_bss:
 	call main
-
-trap_entry:
-	j trap_entry

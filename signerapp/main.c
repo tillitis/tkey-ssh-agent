@@ -77,7 +77,7 @@ int main(void)
 			if (hdr.len != 32) {
 				// Bad length
 				puts("APP_CMD_SET_SIZE bad length\n");
-				continue;
+				break;
 			}
 
 			// cmd[1..4] contains the size.

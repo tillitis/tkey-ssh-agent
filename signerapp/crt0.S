@@ -34,7 +34,7 @@ _start:
 	li x31,0
 
         /* init stack at the address under 0x40010000 where we load the app */
-        li sp, 0x4000ffff
+        li sp, 0x4000fff0
 
 	/* zero-init bss section */
 	la a0, _sbss

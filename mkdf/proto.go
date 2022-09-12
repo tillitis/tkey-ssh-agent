@@ -239,7 +239,9 @@ func (a *appData) pack() ([]byte, error) {
 }
 
 func Dump(s string, d []byte) {
-	le.Printf("%s\n%s", s, hex.Dump(d))
+	var hdr Frame
+	hdr.Unpack(d[0])
+	le.Printf("%s (FrameLen: 1+%d):\n%s", s, hdr.CmdLen.Bytelen(), hex.Dump(d))
 }
 
 func Xmit(c *serial.Port, d []byte) error {
@@ -260,7 +262,7 @@ func fwRecv(conn *serial.Port, expectedRsp fwCmd, id byte, expectedLen CmdLen) (
 		return nil, err
 	}
 
-	Dump(" rx:", rx)
+	Dump(" rx", rx)
 
 	var hdr Frame
 

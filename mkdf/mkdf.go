@@ -47,7 +47,7 @@ func GetNameVersion(c *serial.Port) (*NameVersion, error) {
 		return nil, fmt.Errorf("packSimple: %w", err)
 	}
 
-	Dump("GetNameVersion tx:", tx)
+	Dump("GetNameVersion tx", tx)
 	if err = Xmit(c, tx); err != nil {
 		return nil, fmt.Errorf("Xmit: %w", err)
 	}
@@ -136,7 +136,7 @@ func setAppSize(c *serial.Port, size int) error {
 		return err
 	}
 
-	Dump("SetAppSize tx:", tx)
+	Dump("SetAppSize tx", tx)
 	if err = Xmit(c, tx); err != nil {
 		return fmt.Errorf("Xmit: %w", err)
 	}
@@ -171,7 +171,7 @@ func loadAppData(c *serial.Port, content []byte) (int, error) {
 		return 0, err
 	}
 
-	Dump("LoadAppData tx:", tx)
+	Dump("LoadAppData tx", tx)
 	if err = Xmit(c, tx); err != nil {
 		return 0, fmt.Errorf("Xmit: %w", err)
 	}
@@ -204,7 +204,7 @@ func getAppDigest(c *serial.Port) ([32]byte, error) {
 		return md, fmt.Errorf("packSimple: %w", err)
 	}
 
-	Dump("GetDigest tx:", tx)
+	Dump("GetDigest tx", tx)
 	if err = Xmit(c, tx); err != nil {
 		return md, fmt.Errorf("Xmit: %w", err)
 	}
@@ -231,7 +231,7 @@ func runApp(c *serial.Port) error {
 		return fmt.Errorf("packSimple: %w", err)
 	}
 
-	Dump("RunApp tx:", tx)
+	Dump("RunApp tx", tx)
 	if err = Xmit(c, tx); err != nil {
 		return fmt.Errorf("Xmit: %w", err)
 	}

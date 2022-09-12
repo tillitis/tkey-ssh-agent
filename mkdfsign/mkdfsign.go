@@ -38,7 +38,7 @@ func GetAppNameVersion(c *serial.Port) (*mkdf.NameVersion, error) {
 	}
 	tx[1] = byte(appCmdGetNameVersion)
 
-	mkdf.Dump("GetAppNameVersion tx:", tx)
+	mkdf.Dump("GetAppNameVersion tx", tx)
 	if err = mkdf.Xmit(c, tx); err != nil {
 		return nil, fmt.Errorf("Xmit: %w", err)
 	}
@@ -73,7 +73,7 @@ func GetPubkey(c *serial.Port) ([]byte, error) {
 	}
 	tx[1] = byte(appCmdGetPubkey)
 
-	mkdf.Dump("GetPubkey tx:", tx)
+	mkdf.Dump("GetPubkey tx", tx)
 	if err = mkdf.Xmit(c, tx); err != nil {
 		return nil, fmt.Errorf("Xmit: %w", err)
 	}
@@ -154,7 +154,7 @@ func signSetSize(c *serial.Port, size int) error {
 		return err
 	}
 
-	mkdf.Dump("SignSetSize tx:", tx)
+	mkdf.Dump("SignSetSize tx", tx)
 	if err = mkdf.Xmit(c, tx); err != nil {
 		return fmt.Errorf("Xmit: %w", err)
 	}
@@ -222,7 +222,7 @@ func signLoad(c *serial.Port, data []byte) (int, error) {
 		return 0, err
 	}
 
-	mkdf.Dump("SignData tx:", tx)
+	mkdf.Dump("SignData tx", tx)
 	if err = mkdf.Xmit(c, tx); err != nil {
 		return 0, fmt.Errorf("Xmit: %w", err)
 	}
@@ -257,7 +257,7 @@ func getSig(c *serial.Port) ([]byte, error) {
 	}
 	tx[1] = byte(appCmdGetSig)
 
-	mkdf.Dump("GetSig tx:", tx)
+	mkdf.Dump("GetSig tx", tx)
 	if err = mkdf.Xmit(c, tx); err != nil {
 		return nil, fmt.Errorf("Xmit: %w", err)
 	}
@@ -277,7 +277,7 @@ func appRecv(conn *serial.Port, expectedRsp appCmd, id byte, expectedLen mkdf.Cm
 		return nil, fmt.Errorf("Recv: %w", err)
 	}
 
-	mkdf.Dump(" rx:", rx)
+	mkdf.Dump(" rx", rx)
 
 	var hdr mkdf.Frame
 

@@ -120,9 +120,6 @@ int main(void)
 			msg_idx += nbytes;
 			left -= nbytes;
 
-			rsp[0] = STATUS_OK;
-			appreply(hdr, APP_CMD_SIGN_DATA, rsp);
-
 			if (left == 0) {
 				// All loaded, sign the message
 				crypto_ed25519_sign(signature,
@@ -130,6 +127,8 @@ int main(void)
 						    message, message_size);
 			}
 
+			rsp[0] = STATUS_OK;
+			appreply(hdr, APP_CMD_SIGN_DATA, rsp);
 			break;
 
 		case APP_CMD_GET_SIG:

@@ -55,7 +55,7 @@ func main() {
 	if err != nil {
 		if errors.Is(err, ErrMaybeWrongDevice) {
 			le.Printf("If the serial port is correct for the device, then it might not be it\n" +
-				"firmware-mode. Please unplug and plug it in again.\n")
+				"firmware-mode (and already have an app running). Please unplug and plug it in again.\n")
 		} else {
 			le.Printf("%s\n", err)
 		}

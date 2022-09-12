@@ -39,7 +39,7 @@ func main() {
 		if err != nil {
 			fmt.Printf("GetNameVersion failed: %v\n", err)
 			fmt.Printf("If the serial port device is correct, then the device might not be in\n" +
-				"firmware-mode. Please unplug and plug it in again.\n")
+				"firmware-mode (and already have an app running). Please unplug and plug it in again.\n")
 			exit(1)
 		}
 		fmt.Printf("Firmware has name0:%s name1:%s version:%d\n",

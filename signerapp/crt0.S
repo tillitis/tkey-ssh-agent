@@ -36,10 +36,6 @@ _start:
         /* init stack at the address under 0x40010000 where we load the app */
         li sp, 0x4000ffff
 
-	/* setup trap vector */
-	la t0, trap_entry
-	csrw mtvec, t0
-
 	/* zero-init bss section */
 	la a0, _sbss
 	la a1, _ebss

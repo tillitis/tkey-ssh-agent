@@ -88,6 +88,7 @@ int main(void)
 				puts("Message to big!\n");
 				rsp[0] = STATUS_BAD;
 				appreply(hdr, APP_CMD_SET_SIZE, rsp);
+				break;
 			}
 
 			// Reset where we load the data

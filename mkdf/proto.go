@@ -240,7 +240,11 @@ func (a *appData) pack() ([]byte, error) {
 
 func Dump(s string, d []byte) {
 	var hdr Frame
-	hdr.Unpack(d[0])
+	err := hdr.Unpack(d[0])
+	if err != nil {
+		le.Printf("%s (header Unpack error: %s):\n%s", s, err, hex.Dump(d))
+		return
+	}
 	le.Printf("%s (FrameLen: 1+%d):\n%s", s, hdr.CmdLen.Bytelen(), hex.Dump(d))
 }
 

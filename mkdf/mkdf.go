@@ -106,9 +106,9 @@ func LoadApp(conn *serial.Port, bin []byte) error {
 
 	digest := blake2s.Sum256(bin)
 
-	le.Printf("Digest from host: \n")
+	le.Printf("Digest from host:\n")
 	printDigest(digest)
-	le.Printf("Digest from device: \n")
+	le.Printf("Digest from device:\n")
 	printDigest(appDigest)
 
 	if appDigest != digest {
@@ -249,11 +249,12 @@ func runApp(c *serial.Port) error {
 }
 
 func printDigest(md [32]byte) {
+	digest := ""
 	for j := 0; j < 4; j++ {
 		for i := 0; i < 8; i++ {
-			le.Printf("0x%02x ", md[i+8*j])
+			digest += fmt.Sprintf("%02x", md[i+8*j])
 		}
-		le.Printf("\n")
+		digest += " "
 	}
-	le.Printf("\n")
+	le.Printf(digest + "\n")
 }

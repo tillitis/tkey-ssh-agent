@@ -3,16 +3,42 @@
 
 #include "../common/mta1_mkdf_mem.h"
 
-volatile uint32_t *cdi = (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_CDI_FIRST;
-volatile uint32_t *name0 = (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_NAME0;
-volatile uint32_t *name1 = (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_NAME1;
-volatile uint32_t *ver = (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_VERSION;
+// clang-format off
+static volatile uint32_t *cdi =   (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_CDI_FIRST;
+static volatile uint32_t *led =   (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_LED;
+static volatile uint32_t *touch = (volatile uint32_t *)MTA1_MKDF_MMIO_TOUCH_STATUS;
+
+#define LED_BLACK 0
+#define LED_RED   (1 << MTA1_MKDF_MMIO_MTA1_LED_R_BIT)
+#define LED_GREEN (1 << MTA1_MKDF_MMIO_MTA1_LED_G_BIT)
+#define LED_BLUE  (1 << MTA1_MKDF_MMIO_MTA1_LED_B_BIT)
+// clang-format on
 
 #define MAX_SIGN_SIZE 4096
 
 const uint8_t app_name0[4] = "fdkm"; // mkdf backwards
 const uint8_t app_name1[4] = "ngis"; // sign backwards
 const uint32_t app_version = 0x00000001;
+
+void wait_touch_ledflash(int ledvalue, int loopcount)
+{
+	int led_on = 0;
+	// first a write, to ensure no stray touch?
+	*touch = 0;
+	for (;;) {
+		*led = led_on ? ledvalue : 0;
+		for (int i = 0; i < loopcount; i++) {
+			if (*touch &
+			    (1 << MTA1_MKDF_MMIO_TOUCH_STATUS_EVENT_BIT)) {
+				goto touched;
+			}
+		}
+		led_on = !led_on;
+	}
+touched:
+	// write, confirming we read the touch event
+	*touch = 0;
+}
 
 int main(void)
 {
@@ -35,12 +61,16 @@ int main(void)
 	putinthex((uint32_t)&stack);
 	lf();
 
-	// Generate a public key from CDI
-	wordcpy(local_cdi, (void *)cdi, 8); // Only word aligned access to CDI
+	// Generate a public key from CDI (only word aligned access to CDI)
+	wordcpy(local_cdi, (void *)cdi, 8);
 	crypto_ed25519_public_key(pubkey, (const uint8_t *)local_cdi);
 
+	// color for steady led light, depending on state
+	int led_steady = LED_BLACK;
 	for (;;) {
-		in = readbyte(); // blocking
+		// blocking; flashing a safe blue while waiting for cmd
+		in = readbyte_ledflash(LED_BLUE, 700000);
+		*led = led_steady;
 		puts("Read byte: ");
 		puthex(in);
 		putchar('\n');
@@ -64,6 +94,8 @@ int main(void)
 
 		// Reset response buffer
 		memset(rsp, 0, CMDLEN_MAXBYTES);
+
+		led_steady = LED_BLACK;
 
 		// Min length is 1 byte so this should always be here
 		switch (cmd[0]) {
@@ -96,9 +128,9 @@ int main(void)
 			left = message_size;
 			msg_idx = 0;
 
-			puts("Reply OK\n");
 			rsp[0] = STATUS_OK;
 			appreply(hdr, APP_CMD_SET_SIZE, rsp);
+			led_steady = LED_GREEN;
 			break;
 
 		case APP_CMD_SIGN_DATA:
@@ -124,7 +156,9 @@ int main(void)
 			left -= nbytes;
 
 			if (left == 0) {
-				// All loaded, sign the message
+				wait_touch_ledflash(LED_GREEN, 200000);
+				// All loaded, device touched, let's
+				// sign the message
 				crypto_ed25519_sign(signature,
 						    (void *)local_cdi, pubkey,
 						    message, message_size);
@@ -134,6 +168,7 @@ int main(void)
 
 			rsp[0] = STATUS_OK;
 			appreply(hdr, APP_CMD_SIGN_DATA, rsp);
+			led_steady = LED_GREEN;
 			break;
 
 		case APP_CMD_GET_SIG:
@@ -145,6 +180,7 @@ int main(void)
 			}
 			memcpy(rsp, signature, 64);
 			appreply(hdr, APP_CMD_GET_SIG, rsp);
+			led_steady = LED_GREEN;
 			break;
 
 		case APP_CMD_GET_NAMEVERSION:

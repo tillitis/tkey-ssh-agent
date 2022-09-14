@@ -6,7 +6,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"time"
 
 	"github.com/tarm/serial"
 	"golang.org/x/crypto/blake2s"
@@ -97,8 +96,6 @@ func LoadApp(conn *serial.Port, bin []byte) error {
 	}
 
 	le.Printf("Going to getappdigest\n")
-	// give the device a sec to complete it
-	time.Sleep(2 * time.Second)
 	appDigest, err := getAppDigest(conn)
 	if err != nil {
 		return err

@@ -62,9 +62,11 @@ func NewMKDFSigner(devPath string, speed int) (*MKDFSigner, error) {
 func (s *MKDFSigner) connect() error {
 	var err error
 	s.port, err = serial.OpenPort(&serial.Config{
-		Name:        s.devPath,
-		Baud:        s.speed,
-		ReadTimeout: 3 * time.Second,
+		Name: s.devPath,
+		Baud: s.speed,
+		// TODO need to work out timeout/or no timeout for UX (consider
+		// checking for fw-mode, touch, slow verilator, more?)
+		ReadTimeout: 5 * time.Second,
 	})
 	if err != nil {
 		return fmt.Errorf("OpenPort: %w", err)

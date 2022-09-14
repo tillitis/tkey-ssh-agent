@@ -21,9 +21,11 @@ func main() {
 	// mkdf.SilenceLogging()
 
 	conn, err := serial.OpenPort(&serial.Config{
-		Name:        *port,
-		Baud:        *speed,
-		ReadTimeout: 3 * time.Second,
+		Name: *port,
+		Baud: *speed,
+		// TODO need to work out timeout/or no timeout for UX (consider
+		// checking for fw-mode, touch, slow verilator, more?)
+		ReadTimeout: 5 * time.Second,
 	})
 	if err != nil {
 		fmt.Printf("Couldn't connect: %v\n", err)

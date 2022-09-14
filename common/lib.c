@@ -29,7 +29,8 @@ void hexdump(uint8_t *buf, int len)
 {
 }
 #else
-volatile uint8_t *debugtx = (volatile uint8_t *)MTA1_MKDF_MMIO_QEMU_DEBUG;
+static volatile uint8_t *debugtx =
+    (volatile uint8_t *)MTA1_MKDF_MMIO_QEMU_DEBUG;
 
 int putchar(uint8_t ch)
 {

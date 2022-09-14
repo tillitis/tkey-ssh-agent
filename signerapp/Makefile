@@ -4,7 +4,7 @@ CC=clang -target riscv32-unknown-none-elf -march=rv32imc -mabi=ilp32 -mcmodel=me
    -static -std=gnu99 -O2 -ffast-math -fno-common -fno-builtin-printf \
    -fno-builtin-putchar -static -nostdlib -mno-relax -Wall -flto
 
-#CFLAGS=-DNODEBUG
+CFLAGS=-DNODEBUG
 LDFLAGS=-T app.ld
 
 RM=/bin/rm

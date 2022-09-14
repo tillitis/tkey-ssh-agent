@@ -3,10 +3,13 @@
 
 #include "mta1_mkdf_mem.h"
 
-volatile uint32_t *can_rx = (volatile uint32_t *)MTA1_MKDF_MMIO_UART_RX_STATUS;
-volatile uint32_t *rx = (volatile uint32_t *)MTA1_MKDF_MMIO_UART_RX_DATA;
-volatile uint32_t *can_tx = (volatile uint32_t *)MTA1_MKDF_MMIO_UART_TX_STATUS;
-volatile uint32_t *tx = (volatile uint32_t *)MTA1_MKDF_MMIO_UART_TX_DATA;
+// clang-format off
+static volatile uint32_t *can_rx = (volatile uint32_t *)MTA1_MKDF_MMIO_UART_RX_STATUS;
+static volatile uint32_t *rx =     (volatile uint32_t *)MTA1_MKDF_MMIO_UART_RX_DATA;
+static volatile uint32_t *can_tx = (volatile uint32_t *)MTA1_MKDF_MMIO_UART_TX_STATUS;
+static volatile uint32_t *tx =     (volatile uint32_t *)MTA1_MKDF_MMIO_UART_TX_DATA;
+static volatile uint32_t *led =    (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_LED;
+// clang-format on
 
 uint8_t genhdr(uint8_t id, uint8_t endpoint, uint8_t status, enum cmdlen len)
 {
@@ -75,6 +78,20 @@ uint8_t readbyte()
 		if (*can_rx) {
 			return *rx;
 		}
+	}
+}
+
+uint8_t readbyte_ledflash(int ledvalue, int loopcount)
+{
+	int led_on = 0;
+	for (;;) {
+		*led = led_on ? ledvalue : 0;
+		for (int i = 0; i < loopcount; i++) {
+			if (*can_rx) {
+				return *rx;
+			}
+		}
+		led_on = !led_on;
 	}
 }
 

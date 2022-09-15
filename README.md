@@ -11,12 +11,13 @@ Build everything:
 make
 ```
 
-Build our [qemu](https://github.com/mullvad/mta1-mkdf-qemu-priv). Use
-the `mta1-regs` branch:
+Build our [qemu](https://github.com/tillitis/qemu). Use
+the `mta1` branch:
 
 ```
-% mkdir build
-% cd build
+% git clone -b mta1 https://github.com/tillitis/qemu
+% mkdir qemu/build
+% cd qemu/build
 % ../configure --target-list=riscv32-softmmu
 % make -j $(nproc)
 ```
@@ -41,7 +42,7 @@ raw binary app you want to run:
 
 which should give you a signature on the output.
 
-If -file is not passed, the app is assumed to be loaded and running on the
+If `--file` is not passed, the app is assumed to be loaded and running on the
 emulated device, and signing is attempted.
 
 The mta1 guest machine running in QEMU (which in turn runs the firmware and
@@ -55,16 +56,19 @@ foo.bin (foo.S) that blinks the LED.
 
 # Using mkdf-ssh-agent
 
-The mkdf-ssh-agent should be able to upload the app itself. You can start it
-like this:
+The signer app gets build into mkdf-ssh-agent, which will upload it to the
+device when started. You can start it like this:
 
 ```
 % ./mkdf-ssh-agent -a ./agent.sock --port /dev/pts/0
 ```
 
-This will output the unique public key for the instance of the app on this
-device -- if the device or the app binary changes, the public key will also
-change! If you copy-paste this into your `~/.ssh/authorized_keys` you can try
+This will start the ssh-agent, listening on the specified socket. It will also
+output the ed25519 public key for this instance of the app on this device. If
+the app binary, or the physical device changes, then the private key will also
+change -- and thus also the public key displayed!
+
+If you copy-paste the public key into your `~/.ssh/authorized_keys` you can try
 to log onto your local machine (if sshd is running there). Also note the
 listening socket path in the output above, which ssh needs in `SSH_AUTH_SOCK`:
 
@@ -80,9 +84,8 @@ eventually be fixed by https://go-review.googlesource.com/c/crypto/+/412154/
 (until then it's also not possible to implement the upcoming SSH agent
 restrictions https://www.openssh.com/agent-restrict.html).
 
-You can use `-k` to only output the pubkey (on stdout, some message are still
-present on stderr), which can be practical.
-to encrypt a file for yourself:
+You can use `-k` (long option: `--show-pubkey`) to only output the pubkey (on
+stdout, some message are still present on stderr), which can be practical.
 
 % ./mkdf-ssh-agent -k --port /dev/pts/0
 

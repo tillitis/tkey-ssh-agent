@@ -94,6 +94,7 @@ func (s *SSHAgent) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, error) 
 	if err != nil {
 		return nil, err
 	}
+	le.Printf("Sign: user will have to touch the device\n")
 	if !bytes.Equal(sshPub.Marshal(), key.Marshal()) {
 		return nil, fmt.Errorf("pubkey mismatch")
 	}

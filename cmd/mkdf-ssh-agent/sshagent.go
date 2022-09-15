@@ -90,11 +90,11 @@ var ErrNotImplemented = errors.New("not implemented")
 func (s *SSHAgent) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
+	le.Printf("Sign: user will have to touch the device\n")
 	sshPub, err := s.getSSHPub()
 	if err != nil {
 		return nil, err
 	}
-	le.Printf("Sign: user will have to touch the device\n")
 	if !bytes.Equal(sshPub.Marshal(), key.Marshal()) {
 		return nil, fmt.Errorf("pubkey mismatch")
 	}

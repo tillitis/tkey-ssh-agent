@@ -7,11 +7,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"time"
 
 	"github.com/mullvad/mta1-mkdf-signer/mkdf"
 	"github.com/mullvad/mta1-mkdf-signer/mkdfsign"
-	"github.com/tarm/serial"
+	"go.bug.st/serial"
 )
 
 var ErrMaybeWrongDevice = errors.New("wrong device or non-responsive app")
@@ -29,7 +28,7 @@ const (
 
 type MKDFSigner struct {
 	devPath string
-	port    *serial.Port
+	conn    serial.Port
 	speed   int
 }
 
@@ -61,13 +60,7 @@ func NewMKDFSigner(devPath string, speed int) (*MKDFSigner, error) {
 
 func (s *MKDFSigner) connect() error {
 	var err error
-	s.port, err = serial.OpenPort(&serial.Config{
-		Name: s.devPath,
-		Baud: s.speed,
-		// TODO need to work out timeout/or no timeout for UX (consider
-		// checking for fw-mode, touch, slow verilator, more?)
-		ReadTimeout: 5 * time.Second,
-	})
+	s.conn, err = serial.Open(s.devPath, &serial.Mode{BaudRate: s.speed})
 	if err != nil {
 		return fmt.Errorf("OpenPort: %w", err)
 	}
@@ -75,22 +68,22 @@ func (s *MKDFSigner) connect() error {
 }
 
 func (s *MKDFSigner) disconnect() error {
-	if s.port == nil {
+	if s.conn == nil {
 		return nil
 	}
-	if err := s.port.Close(); err != nil {
+	if err := s.conn.Close(); err != nil {
 		return fmt.Errorf("Close: %w", err)
 	}
 	return nil
 }
 
 func (s *MKDFSigner) isFirmwareMode() bool {
-	_, err := mkdf.GetNameVersion(s.port)
+	_, err := mkdf.GetNameVersion(s.conn)
 	return err == nil
 }
 
 func (s *MKDFSigner) isWantedApp() bool {
-	nameVer, err := mkdfsign.GetAppNameVersion(s.port)
+	nameVer, err := mkdfsign.GetAppNameVersion(s.conn)
 	if err != nil {
 		if !errors.Is(err, io.EOF) {
 			le.Printf("GetAppNameVersion: %s\n", err)
@@ -105,7 +98,7 @@ func (s *MKDFSigner) isWantedApp() bool {
 }
 
 func (s *MKDFSigner) loadApp(bin []byte) error {
-	if err := mkdf.LoadApp(s.port, bin); err != nil {
+	if err := mkdf.LoadApp(s.conn, bin); err != nil {
 		return fmt.Errorf("LoadApp: %w", err)
 	}
 	return nil
@@ -114,7 +107,7 @@ func (s *MKDFSigner) loadApp(bin []byte) error {
 // implementing crypto.Signer below
 
 func (s *MKDFSigner) Public() crypto.PublicKey {
-	pub, err := mkdfsign.GetPubkey(s.port)
+	pub, err := mkdfsign.GetPubkey(s.conn)
 	if err != nil {
 		le.Printf("GetPubKey failed: %s\n", err)
 		return nil
@@ -129,7 +122,7 @@ func (s *MKDFSigner) Sign(rand io.Reader, message []byte, opts crypto.SignerOpts
 		return nil, errors.New("message must not be hashed")
 	}
 
-	signature, err := mkdfsign.Sign(s.port, message)
+	signature, err := mkdfsign.Sign(s.conn, message)
 	if err != nil {
 		return nil, fmt.Errorf("Sign: %w", err)
 	}

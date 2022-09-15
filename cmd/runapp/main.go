@@ -4,29 +4,23 @@ import (
 	"crypto/ed25519"
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/mullvad/mta1-mkdf-signer/mkdf"
 	"github.com/mullvad/mta1-mkdf-signer/mkdfsign"
 	"github.com/spf13/pflag"
-	"github.com/tarm/serial"
+	"go.bug.st/serial"
 )
 
 func main() {
+	// NOTE this serial lib has: serial.GetPortsList()
 	fileName := pflag.String("file", "", "Name of file to be uploaded")
 	port := pflag.String("port", "/dev/ttyACM0", "Serial port path")
 	speed := pflag.Int("speed", 38400, "When talking over the serial port, bits per second")
 	pflag.Parse()
-
 	// mkdf.SilenceLogging()
 
-	conn, err := serial.OpenPort(&serial.Config{
-		Name: *port,
-		Baud: *speed,
-		// TODO need to work out timeout/or no timeout for UX (consider
-		// checking for fw-mode, touch, slow verilator, more?)
-		ReadTimeout: 5 * time.Second,
-	})
+	// default is serial.NoTimeout
+	conn, err := serial.Open(*port, &serial.Mode{BaudRate: *speed})
 	if err != nil {
 		fmt.Printf("Couldn't connect: %v\n", err)
 		os.Exit(1)

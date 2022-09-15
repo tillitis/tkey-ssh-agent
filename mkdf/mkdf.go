@@ -6,8 +6,9 @@ import (
 	"io"
 	"log"
 	"os"
+	"time"
 
-	"github.com/tarm/serial"
+	"go.bug.st/serial"
 	"golang.org/x/crypto/blake2s"
 )
 
@@ -34,11 +35,17 @@ func (n *NameVersion) Unpack(raw []byte) {
 	n.Version = binary.LittleEndian.Uint32(raw[8:12])
 }
 
-func GetNameVersion(c *serial.Port) (*NameVersion, error) {
+func GetNameVersion(conn serial.Port) (*NameVersion, error) {
 	hdr := Frame{
 		ID:       2,
 		Endpoint: DestFW,
 		CmdLen:   CmdLen1,
+	}
+
+	// This sets 2s timeout, see: https://github.com/bugst/go-serial/issues/141
+	err := conn.SetReadTimeout(2_000 / 100 * time.Millisecond)
+	if err != nil {
+		return nil, fmt.Errorf("SetReadTimeout: %w", err)
 	}
 
 	tx, err := packSimple(hdr, fwCmdGetNameVersion)
@@ -47,13 +54,18 @@ func GetNameVersion(c *serial.Port) (*NameVersion, error) {
 	}
 
 	Dump("GetNameVersion tx", tx)
-	if err = Xmit(c, tx); err != nil {
+	if err = Xmit(conn, tx); err != nil {
 		return nil, fmt.Errorf("Xmit: %w", err)
 	}
 
-	rx, err := fwRecv(c, fwRspGetNameVersion, hdr.ID, CmdLen32)
+	rx, err := fwRecv(conn, fwRspGetNameVersion, hdr.ID, CmdLen32)
 	if err != nil {
 		return nil, fmt.Errorf("fwRecv: %w", err)
+	}
+
+	err = conn.SetReadTimeout(serial.NoTimeout)
+	if err != nil {
+		return nil, fmt.Errorf("SetReadTimeout: %w", err)
 	}
 
 	nameVer := &NameVersion{}
@@ -62,7 +74,7 @@ func GetNameVersion(c *serial.Port) (*NameVersion, error) {
 	return nameVer, nil
 }
 
-func LoadAppFromFile(conn *serial.Port, fileName string) error {
+func LoadAppFromFile(conn serial.Port, fileName string) error {
 	content, err := os.ReadFile(fileName)
 	if err != nil {
 		return fmt.Errorf("ReadFile: %w", err)
@@ -70,7 +82,7 @@ func LoadAppFromFile(conn *serial.Port, fileName string) error {
 	return LoadApp(conn, content)
 }
 
-func LoadApp(conn *serial.Port, bin []byte) error {
+func LoadApp(conn serial.Port, bin []byte) error {
 	binLen := len(bin)
 	if binLen > 65536 {
 		return fmt.Errorf("File to big")
@@ -118,7 +130,7 @@ func LoadApp(conn *serial.Port, bin []byte) error {
 	return runApp(conn)
 }
 
-func setAppSize(c *serial.Port, size int) error {
+func setAppSize(conn serial.Port, size int) error {
 	appsize := appSize{
 		hdr: Frame{
 			ID:       2,
@@ -134,11 +146,11 @@ func setAppSize(c *serial.Port, size int) error {
 	}
 
 	Dump("SetAppSize tx", tx)
-	if err = Xmit(c, tx); err != nil {
+	if err = Xmit(conn, tx); err != nil {
 		return fmt.Errorf("Xmit: %w", err)
 	}
 
-	rx, err := fwRecv(c, fwRspLoadAppSize, appsize.hdr.ID, CmdLen4)
+	rx, err := fwRecv(conn, fwRspLoadAppSize, appsize.hdr.ID, CmdLen4)
 	if err != nil {
 		return fmt.Errorf("fwRecv: %w", err)
 	}
@@ -149,7 +161,7 @@ func setAppSize(c *serial.Port, size int) error {
 	return nil
 }
 
-func loadAppData(c *serial.Port, content []byte) (int, error) {
+func loadAppData(conn serial.Port, content []byte) (int, error) {
 	cmdLen := CmdLen128
 	appdata := appData{
 		hdr: Frame{
@@ -169,12 +181,12 @@ func loadAppData(c *serial.Port, content []byte) (int, error) {
 	}
 
 	Dump("LoadAppData tx", tx)
-	if err = Xmit(c, tx); err != nil {
+	if err = Xmit(conn, tx); err != nil {
 		return 0, fmt.Errorf("Xmit: %w", err)
 	}
 
 	// Wait for reply
-	rx, err := fwRecv(c, fwRspLoadAppData, appdata.hdr.ID, CmdLen4)
+	rx, err := fwRecv(conn, fwRspLoadAppData, appdata.hdr.ID, CmdLen4)
 	if err != nil {
 		return 0, err
 	}
@@ -186,7 +198,7 @@ func loadAppData(c *serial.Port, content []byte) (int, error) {
 	return nsent, nil
 }
 
-func getAppDigest(c *serial.Port) ([32]byte, error) {
+func getAppDigest(conn serial.Port) ([32]byte, error) {
 	var md [32]byte
 
 	hdr := Frame{
@@ -202,11 +214,11 @@ func getAppDigest(c *serial.Port) ([32]byte, error) {
 	}
 
 	Dump("GetDigest tx", tx)
-	if err = Xmit(c, tx); err != nil {
+	if err = Xmit(conn, tx); err != nil {
 		return md, fmt.Errorf("Xmit: %w", err)
 	}
 
-	rx, err := fwRecv(c, fwRspGetAppDigest, hdr.ID, CmdLen128)
+	rx, err := fwRecv(conn, fwRspGetAppDigest, hdr.ID, CmdLen128)
 	if err != nil {
 		return md, err
 	}
@@ -216,7 +228,7 @@ func getAppDigest(c *serial.Port) ([32]byte, error) {
 	return md, nil
 }
 
-func runApp(c *serial.Port) error {
+func runApp(conn serial.Port) error {
 	hdr := Frame{
 		ID:       2,
 		Endpoint: DestFW,
@@ -229,11 +241,11 @@ func runApp(c *serial.Port) error {
 	}
 
 	Dump("RunApp tx", tx)
-	if err = Xmit(c, tx); err != nil {
+	if err = Xmit(conn, tx); err != nil {
 		return fmt.Errorf("Xmit: %w", err)
 	}
 
-	rx, err := fwRecv(c, fwRspRunApp, hdr.ID, CmdLen4)
+	rx, err := fwRecv(conn, fwRspRunApp, hdr.ID, CmdLen4)
 	if err != nil {
 		return err
 	}

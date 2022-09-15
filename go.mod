@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/golangci/golangci-lint v1.47.2
 	github.com/spf13/pflag v1.0.5
-	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07
+	go.bug.st/serial v1.4.0
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d
 )
 
@@ -32,6 +32,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/charithe/durationcheck v0.0.9 // indirect
 	github.com/chavacava/garif v0.0.0-20220316182200-5cad0b5181d4 // indirect
+	github.com/creack/goselect v0.1.2 // indirect
 	github.com/daixiang0/gci v0.4.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/denis-tingaikin/go-header v0.4.3 // indirect

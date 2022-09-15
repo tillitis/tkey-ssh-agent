@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/tarm/serial"
+	"go.bug.st/serial"
 )
 
 type Endpoint byte
@@ -248,8 +248,8 @@ func Dump(s string, d []byte) {
 	le.Printf("%s (FrameLen: 1+%d):\n%s", s, hdr.CmdLen.Bytelen(), hex.Dump(d))
 }
 
-func Xmit(c *serial.Port, d []byte) error {
-	b := bufio.NewWriter(c)
+func Xmit(conn serial.Port, d []byte) error {
+	b := bufio.NewWriter(conn)
 	if _, err := b.Write(d); err != nil {
 		return fmt.Errorf("Write: %w", err)
 	}
@@ -259,7 +259,7 @@ func Xmit(c *serial.Port, d []byte) error {
 	return nil
 }
 
-func fwRecv(conn *serial.Port, expectedRsp fwCmd, id byte, expectedLen CmdLen) ([]byte, error) {
+func fwRecv(conn serial.Port, expectedRsp fwCmd, id byte, expectedLen CmdLen) ([]byte, error) {
 	// Blocking
 	rx, err := Recv(conn)
 	if err != nil {
@@ -295,8 +295,8 @@ func fwRecv(conn *serial.Port, expectedRsp fwCmd, id byte, expectedLen CmdLen) (
 	return rx[2:], nil
 }
 
-func Recv(c *serial.Port) ([]byte, error) {
-	r := bufio.NewReader(c)
+func Recv(conn serial.Port) ([]byte, error) {
+	r := bufio.NewReader(conn)
 	b, err := r.Peek(1)
 	if err != nil {
 		return nil, fmt.Errorf("Peek: %w", err)

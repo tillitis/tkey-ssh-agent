@@ -2,9 +2,10 @@ package mkdfsign
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/mullvad/mta1-mkdf-signer/mkdf"
-	"github.com/tarm/serial"
+	"go.bug.st/serial"
 )
 
 type appCmd byte
@@ -20,14 +21,18 @@ const (
 	appCmdGetNameVersion appCmd = 0x05
 )
 
-func GetAppNameVersion(c *serial.Port) (*mkdf.NameVersion, error) {
+func GetAppNameVersion(conn serial.Port) (*mkdf.NameVersion, error) {
 	hdr := mkdf.Frame{
 		ID:       2,
 		Endpoint: mkdf.DestApp,
 		CmdLen:   mkdf.CmdLen1,
 	}
 
-	var err error
+	// This sets 2s timeout, see: https://github.com/bugst/go-serial/issues/141
+	err := conn.SetReadTimeout(2_000 / 100 * time.Millisecond)
+	if err != nil {
+		return nil, fmt.Errorf("SetReadTimeout: %w", err)
+	}
 
 	tx := make([]byte, hdr.FrameLen())
 
@@ -39,13 +44,18 @@ func GetAppNameVersion(c *serial.Port) (*mkdf.NameVersion, error) {
 	tx[1] = byte(appCmdGetNameVersion)
 
 	mkdf.Dump("GetAppNameVersion tx", tx)
-	if err = mkdf.Xmit(c, tx); err != nil {
+	if err = mkdf.Xmit(conn, tx); err != nil {
 		return nil, fmt.Errorf("Xmit: %w", err)
 	}
 
-	rx, err := appRecv(c, appCmd(tx[1]), hdr.ID, mkdf.CmdLen32)
+	rx, err := appRecv(conn, appCmd(tx[1]), hdr.ID, mkdf.CmdLen32)
 	if err != nil {
 		return nil, fmt.Errorf("appRecv: %w", err)
+	}
+
+	err = conn.SetReadTimeout(serial.NoTimeout)
+	if err != nil {
+		return nil, fmt.Errorf("SetReadTimeout: %w", err)
 	}
 
 	nameVer := &mkdf.NameVersion{}
@@ -55,7 +65,7 @@ func GetAppNameVersion(c *serial.Port) (*mkdf.NameVersion, error) {
 	return nameVer, nil
 }
 
-func GetPubkey(c *serial.Port) ([]byte, error) {
+func GetPubkey(conn serial.Port) ([]byte, error) {
 	hdr := mkdf.Frame{
 		ID:       2,
 		Endpoint: mkdf.DestApp,
@@ -74,11 +84,11 @@ func GetPubkey(c *serial.Port) ([]byte, error) {
 	tx[1] = byte(appCmdGetPubkey)
 
 	mkdf.Dump("GetPubkey tx", tx)
-	if err = mkdf.Xmit(c, tx); err != nil {
+	if err = mkdf.Xmit(conn, tx); err != nil {
 		return nil, fmt.Errorf("Xmit: %w", err)
 	}
 
-	rx, err := appRecv(c, appCmd(tx[1]), hdr.ID, mkdf.CmdLen128)
+	rx, err := appRecv(conn, appCmd(tx[1]), hdr.ID, mkdf.CmdLen128)
 	if err != nil {
 		return nil, fmt.Errorf("appRecv: %w", err)
 	}
@@ -87,7 +97,7 @@ func GetPubkey(c *serial.Port) ([]byte, error) {
 	return rx[2 : 2+32], nil
 }
 
-func Sign(conn *serial.Port, data []byte) ([]byte, error) {
+func Sign(conn serial.Port, data []byte) ([]byte, error) {
 	err := signSetSize(conn, len(data))
 	if err != nil {
 		return nil, fmt.Errorf("signSetSize: %w", err)
@@ -139,7 +149,7 @@ func (a *signSize) pack() ([]byte, error) {
 	return tx, nil
 }
 
-func signSetSize(c *serial.Port, size int) error {
+func signSetSize(conn serial.Port, size int) error {
 	signsize := signSize{
 		hdr: mkdf.Frame{
 			ID:       2,
@@ -155,11 +165,11 @@ func signSetSize(c *serial.Port, size int) error {
 	}
 
 	mkdf.Dump("SignSetSize tx", tx)
-	if err = mkdf.Xmit(c, tx); err != nil {
+	if err = mkdf.Xmit(conn, tx); err != nil {
 		return fmt.Errorf("Xmit: %w", err)
 	}
 
-	rx, err := appRecv(c, appCmd(tx[1]), signsize.hdr.ID, mkdf.CmdLen4)
+	rx, err := appRecv(conn, appCmd(tx[1]), signsize.hdr.ID, mkdf.CmdLen4)
 	if err != nil {
 		return fmt.Errorf("appRecv: %w", err)
 	}
@@ -203,7 +213,7 @@ func (a *signData) pack() ([]byte, error) {
 	return tx, nil
 }
 
-func signLoad(c *serial.Port, data []byte) (int, error) {
+func signLoad(conn serial.Port, data []byte) (int, error) {
 	cmdLen := mkdf.CmdLen128
 	signdata := signData{
 		hdr: mkdf.Frame{
@@ -223,11 +233,11 @@ func signLoad(c *serial.Port, data []byte) (int, error) {
 	}
 
 	mkdf.Dump("SignData tx", tx)
-	if err = mkdf.Xmit(c, tx); err != nil {
+	if err = mkdf.Xmit(conn, tx); err != nil {
 		return 0, fmt.Errorf("Xmit: %w", err)
 	}
 
-	rx, err := appRecv(c, appCmd(tx[1]), signdata.hdr.ID, mkdf.CmdLen4)
+	rx, err := appRecv(conn, appCmd(tx[1]), signdata.hdr.ID, mkdf.CmdLen4)
 	if err != nil {
 		return 0, fmt.Errorf("appRecv: %w", err)
 	}
@@ -239,7 +249,7 @@ func signLoad(c *serial.Port, data []byte) (int, error) {
 	return nsent, nil
 }
 
-func getSig(c *serial.Port) ([]byte, error) {
+func getSig(conn serial.Port) ([]byte, error) {
 	hdr := mkdf.Frame{
 		ID:       2,
 		Endpoint: mkdf.DestApp,
@@ -258,11 +268,11 @@ func getSig(c *serial.Port) ([]byte, error) {
 	tx[1] = byte(appCmdGetSig)
 
 	mkdf.Dump("GetSig tx", tx)
-	if err = mkdf.Xmit(c, tx); err != nil {
+	if err = mkdf.Xmit(conn, tx); err != nil {
 		return nil, fmt.Errorf("Xmit: %w", err)
 	}
 
-	rx, err := appRecv(c, appCmd(tx[1]), hdr.ID, mkdf.CmdLen128)
+	rx, err := appRecv(conn, appCmd(tx[1]), hdr.ID, mkdf.CmdLen128)
 	if err != nil {
 		return nil, fmt.Errorf("appRecv: %w", err)
 	}
@@ -271,7 +281,7 @@ func getSig(c *serial.Port) ([]byte, error) {
 	return rx[2 : 2+64], nil
 }
 
-func appRecv(conn *serial.Port, expectedRsp appCmd, id byte, expectedLen mkdf.CmdLen) ([]byte, error) {
+func appRecv(conn serial.Port, expectedRsp appCmd, id byte, expectedLen mkdf.CmdLen) ([]byte, error) {
 	rx, err := mkdf.Recv(conn)
 	if err != nil {
 		return nil, fmt.Errorf("Recv: %w", err)

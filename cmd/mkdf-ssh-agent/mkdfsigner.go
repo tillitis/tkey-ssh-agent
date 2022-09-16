@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/mullvad/mta1-mkdf-signer/mkdf"
-	"github.com/mullvad/mta1-mkdf-signer/mkdfsign"
+	"github.com/tillitis/tillitis-key1-apps/mkdf"
+	"github.com/tillitis/tillitis-key1-apps/mkdfsign"
 	"go.bug.st/serial"
 )
 

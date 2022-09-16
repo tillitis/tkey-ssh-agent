@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mullvad/mta1-mkdf-signer/mkdf"
-	"github.com/mullvad/mta1-mkdf-signer/mkdfsign"
+	"github.com/tillitis/tillitis-key1-apps/mkdf"
+	"github.com/tillitis/tillitis-key1-apps/mkdfsign"
 	"github.com/spf13/pflag"
 	"go.bug.st/serial"
 )

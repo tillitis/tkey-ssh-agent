@@ -1,4 +1,4 @@
-module github.com/mullvad/mta1-mkdf-signer
+module github.com/tillitis/tillitis-key1-apps
 
 go 1.18
 

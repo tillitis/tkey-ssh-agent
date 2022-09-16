@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/mullvad/mta1-mkdf-signer/mkdf"
+	"github.com/tillitis/tillitis-key1-apps/mkdf"
 	"go.bug.st/serial"
 )
 

@@ -12,17 +12,16 @@ import (
 )
 
 func main() {
-	// NOTE this serial lib has: serial.GetPortsList()
 	fileName := pflag.String("file", "", "Name of file to be uploaded")
 	port := pflag.String("port", "/dev/ttyACM0", "Serial port path")
 	speed := pflag.Int("speed", 38400, "When talking over the serial port, bits per second")
 	pflag.Parse()
 	// mkdf.SilenceLogging()
 
-	// default is serial.NoTimeout
+	fmt.Printf("Connecting to device on serial port %s ...\n", *port)
 	conn, err := serial.Open(*port, &serial.Mode{BaudRate: *speed})
 	if err != nil {
-		fmt.Printf("Couldn't connect: %v\n", err)
+		fmt.Printf("Could not open %s: %v\n", *port, err)
 		os.Exit(1)
 	}
 	exit := func(code int) {

@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"github.com/spf13/pflag"
+	"go.bug.st/serial"
 )
 
 // Use when printing err/diag msgs
@@ -22,22 +23,31 @@ func main() {
 
 	var sockPath, devPath string
 	var speed int
-	var onlyKeyOutput bool
+	var showPubkeyOnly, listPortsOnly bool
 	pflag.CommandLine.SetOutput(os.Stderr)
 	pflag.StringVarP(&sockPath, "agent-socket", "a", "", "Path to bind agent's UNIX domain socket at")
-	pflag.BoolVarP(&onlyKeyOutput, "show-pubkey", "k", false, "Don't start the agent, just output the ssh-ed25519 pubkey")
+	pflag.BoolVarP(&listPortsOnly, "list-ports", "", false, "List possible serial ports for --port")
 	pflag.StringVar(&devPath, "port", "/dev/ttyACM0", "Path to serial port device")
+	pflag.BoolVarP(&showPubkeyOnly, "show-pubkey", "k", false, "Don't start the agent, just output the ssh-ed25519 pubkey")
 	pflag.IntVar(&speed, "speed", 38400, "When talking over the serial port, bits per second")
 
 	pflag.Parse()
 
-	if onlyKeyOutput && sockPath != "" {
+	if listPortsOnly {
+		if err := listPorts(); err != nil {
+			le.Printf("Failed to list ports: %v\n", err)
+			exit(1)
+		}
+		exit(0)
+	}
+
+	if showPubkeyOnly && sockPath != "" {
 		le.Printf("Can't combine -a and -k.\n\n")
 		pflag.Usage()
 		exit(2)
 	}
 
-	if !onlyKeyOutput && sockPath == "" {
+	if !showPubkeyOnly && sockPath == "" {
 		le.Printf("Please pass at least -a or -k.\n\n")
 		pflag.Usage()
 		exit(2)
@@ -80,7 +90,7 @@ func main() {
 	le.Printf("Your ssh pubkey (on stdout):\n")
 	fmt.Fprintf(os.Stdout, "%s", authorizedKey)
 
-	if !onlyKeyOutput {
+	if !showPubkeyOnly {
 		if err = agent.Serve(sockPath); err != nil {
 			le.Printf("%s\n", err)
 			exit(1)
@@ -88,4 +98,15 @@ func main() {
 	}
 
 	exit(0)
+}
+
+func listPorts() error {
+	ports, err := serial.GetPortsList()
+	if err != nil {
+		return fmt.Errorf("GetPortsList: %w", err)
+	}
+	for _, port := range ports {
+		fmt.Printf("%s\n", port)
+	}
+	return nil
 }

@@ -62,7 +62,7 @@ func (s *MKDFSigner) connect() error {
 	var err error
 	s.conn, err = serial.Open(s.devPath, &serial.Mode{BaudRate: s.speed})
 	if err != nil {
-		return fmt.Errorf("OpenPort: %w", err)
+		return fmt.Errorf("Could not open %s: %w", s.devPath, err)
 	}
 	return nil
 }

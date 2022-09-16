@@ -1,3 +1,16 @@
+# TODO
+
+My goal is that this READMe contains details on how to get the sinerapp
+running/tested both on Key1 and in QEMU. And then how to use `mkdf-ssh-agent`
+towards either Key1 or QEMU.
+
+Getting it up on QEMU will involve building the firmware.
+
+We assume that Key1 is blank, so to get the signerapp running there we firts
+need to flash the firmware. *This* flashing should be described in the
+tillitis/tillitis-key1 repository (to be). And referenced from here.
+
+---
 
 # signerapp
 
@@ -11,23 +24,47 @@ Build everything:
 make
 ```
 
-Build our [qemu](https://github.com/tillitis/qemu). Use
-the `mta1` branch:
+## Running on Tillitis Key1
+
+Plug the Key1 into your computer. `lsusb` should list it as `1207:8887 Tillitis
+MTA1-USB-V1`. On Linux, the Key1's serial device path is typically
+`/dev/ttyACM0`. This is also the path that the host programs (running on your
+computer) use by default. You can list the possible paths using `mkdf-ssh-agent
+--list-ports`.
+
+You also need to be able to access the device path as your regular user. One
+way is by becoming a member of the group that owns the device. You can do this
+using something like:
 
 ```
-% git clone -b mta1 https://github.com/tillitis/qemu
-% mkdir qemu/build
-% cd qemu/build
-% ../configure --target-list=riscv32-softmmu
-% make -j $(nproc)
+$ id -un
+exampleuser
+$ ls -l /dev/ttyACM0
+crw-rw---- 1 root dialout 166, 0 Sep 16 08:20 /dev/ttyACM0
+$ sudo usermod -a -G dialout exampleuser
 ```
 
-Build [the firmware](https://github.com/mullvad/mta1-mkdf-firmware-priv).
+Then logout from your system and log in again, for the change to take effect.
+You can also run `newgrp dialout` in the terminal that you're working in.
+
+## Running in QEMU
+
+Build our [qemu](https://github.com/tillitis/qemu). Use the `mta1` branch:
+
+```
+$ git clone -b mta1 https://github.com/tillitis/qemu
+$ mkdir qemu/build
+$ cd qemu/build
+$ ../configure --target-list=riscv32-softmmu
+$ make -j $(nproc)
+```
+
+Build the [firmware](https://github.com/mullvad/mta1-mkdf-firmware-priv).
 
 Then run the emulator:
 
 ```
-% <path-to-qemu>/build/qemu-system-riscv32 -nographic -M mta1_mkdf,fifo=chrid -bios firmware \
+$ <path-to-qemu>/build/qemu-system-riscv32 -nographic -M mta1_mkdf,fifo=chrid -bios firmware \
        -chardev pty,id=chrid
 ```
 
@@ -37,7 +74,7 @@ Then run the host program, specifying both the serial device from QEMU and the
 raw binary app you want to run:
 
 ```
-% ./runapp --port /dev/pts/0 --file signerapp/app.bin
+$ ./runapp --port /dev/pts/0 --file signerapp/app.bin
 ```
 
 which should give you a signature on the output.
@@ -49,18 +86,13 @@ The mta1 guest machine running in QEMU (which in turn runs the firmware and
 then the app) outputs some memory access (and other) logging. To make QEMU send
 these to stderr, add `-d guest_errors` to the qemu commandline.
 
-# fooapp
-
-In `fooapp/` there is also a very, very simple app written in assembler,
-foo.bin (foo.S) that blinks the LED.
-
-# Using mkdf-ssh-agent
+## Using mkdf-ssh-agent
 
 The signer app gets build into mkdf-ssh-agent, which will upload it to the
 device when started. You can start it like this:
 
 ```
-% ./mkdf-ssh-agent -a ./agent.sock --port /dev/pts/0
+$ ./mkdf-ssh-agent -a ./agent.sock --port /dev/pts/0
 ```
 
 This will start the ssh-agent, listening on the specified socket. It will also
@@ -69,14 +101,15 @@ the app binary, or the physical device changes, then the private key will also
 change -- and thus also the public key displayed!
 
 If you copy-paste the public key into your `~/.ssh/authorized_keys` you can try
-to log onto your local machine (if sshd is running there). Also note the
-listening socket path in the output above, which ssh needs in `SSH_AUTH_SOCK`:
+to log onto your local computer (if sshd is running there). The socket path
+set/output above is also needed by ssh in `SSH_AUTH_SOCK`:
 
 ```
-% SSH_AUTH_SOCK=/path/to/agent.sock ssh -F /dev/null localhost
+$ SSH_AUTH_SOCK=/path/to/agent.sock ssh -F /dev/null localhost
 ```
 
-(`-F /dev/null` is to not have any of your ~/.ssh/config interfere)
+`-F /dev/null` is used to ignore your ~/.ssh/config which could interfere with
+this test.
 
 The message `agent 27: ssh: parse error in message type 27` coming from
 mkdf-ssh-agent is due to https://github.com/golang/go/issues/51689 and will
@@ -85,11 +118,18 @@ eventually be fixed by https://go-review.googlesource.com/c/crypto/+/412154/
 restrictions https://www.openssh.com/agent-restrict.html).
 
 You can use `-k` (long option: `--show-pubkey`) to only output the pubkey (on
-stdout, some message are still present on stderr), which can be practical.
+stdout, some message are still present on stderr), which can be useful:
 
-% ./mkdf-ssh-agent -k --port /dev/pts/0
+```
+$ ./mkdf-ssh-agent -k --port /dev/pts/0
+```
 
-# Developing the app
+# fooapp
+
+In `fooapp/` there is also a very, very simple app written in assembler,
+foo.bin (foo.S) that blinks the LED.
+
+# Developing apps
 
 ## Memory
 

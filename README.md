@@ -18,11 +18,11 @@ system.
 
 The signerapp can be run both on the hardware Tillitis Key1, and on a QEMU
 machine that emulates the platform. In both cases, the host program (`runapp`
-or `mkdf-ssh-agent` that is running on your computer) will talk to the app over
-a serial port, virtual or real. Please continue below in the hardware or QEMU
+or `mkdf-ssh-agent` running on your computer) will talk to the app over a
+serial port, virtual or real. Please continue below in the hardware or QEMU
 section.
 
-### Running on hardware, the Tillitis Key1
+### Running on hardware device -- Tillitis Key1
 
 Plug the Key1 into your computer. `lsusb` should list it as `1207:8887 Tillitis
 MTA1-USB-V1`. On Linux, the Key1's serial port path is typically

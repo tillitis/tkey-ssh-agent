@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/spf13/pflag"
 	"github.com/tillitis/tillitis-key1-apps/mkdf"
 	"github.com/tillitis/tillitis-key1-apps/mkdfsign"
-	"github.com/spf13/pflag"
 	"go.bug.st/serial"
 )
 

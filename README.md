@@ -10,8 +10,9 @@ Build everything:
 $ make
 ```
 
-If your available `objcopy` the default `llvm-objcopy-14`, then define
-`OBJCOPY` to whatever they're called on your system.
+If your available `objcopy` is anything other than the default
+`llvm-objcopy-14`, then define `OBJCOPY` to whatever they're called on your
+system.
 
 ## Real hardware or QEMU platform
 

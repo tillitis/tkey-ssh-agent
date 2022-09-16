@@ -45,16 +45,14 @@ Then logout from your system and log in again, for the change to take effect.
 You can also run `newgrp dialout` in the terminal that you're working in.
 
 Now you're ready to build the FPGA bitstream (including the firmware) and
-program it into the flash of the device.
-
-- TODO refer to https://github.com/tillitis/tillitis-key1 README.md which
-  should explain how to plug in for programming, and getting all built and the
-  flash programmed. Note, we also talk above about plugging in the device ^
+program it into the flash of the device. Please refer to
+[quickstart.md](https://github.com/mullvad/mta1_mkdf/blob/main/doc/quickstart.md)
+in the mullvad/mta1_mkdf repository for instructions.
 
 Your Key1 device should now be running the firmware and its LED should flash
-white. You should also have learned what serial port path to use for accessing
-it. You may need to pass this as `--port` when running the host programs.
-Continue in the section below, "Using runapp".
+white. You have also learned what serial port path to use for accessing it. You
+may need to pass this as `--port` when running the host programs. Continue in
+the section below, "Using runapp".
 
 ### Running on QEMU
 

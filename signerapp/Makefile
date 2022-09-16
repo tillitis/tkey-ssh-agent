@@ -5,7 +5,7 @@ CC=clang -target riscv32-unknown-none-elf -march=rv32imc -mabi=ilp32 -mcmodel=me
    -fno-builtin-putchar -static -nostdlib -mno-relax -Wall -flto
 
 CFLAGS=-DNODEBUG
-LDFLAGS=-T app.ld
+LDFLAGS=-T app.lds
 
 RM=/bin/rm
 
@@ -17,7 +17,7 @@ all: app.bin
 app.bin: app
 	$(OBJCOPY) --input-target=elf32-littleriscv --output-target=binary app app.bin
 
-app: $(OBJS) app.ld
+app: $(OBJS) app.lds
 	$(CC) $(CFLAGS) $(OBJS) $(LDFLAGS) -o $@
 
 $(OBJS): ../common/mta1_mkdf_mem.h \

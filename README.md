@@ -102,8 +102,9 @@ $ ./runapp --port /dev/pts/1 --file signerapp/app.bin
 
 If you're on hardware, the LED on the device is a steady green while the app is
 receiving data to sign. The LED then flashes green, indicating that you're
-required to touch the device for the signing to complete. If running on QEMU,
-the virtual device is always touched automatically.
+required to touch the device for the signing to complete. The touch sensor is
+located next to the flashing led -- touch and release. If running on QEMU, the
+virtual device is always touched automatically.
 
 The program should eventually output a signature and say that it was verified.
 

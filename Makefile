@@ -21,7 +21,7 @@ clean:
 
 .PHONY: update-mem-include
 update-mem-include:
-	cp -af ../mta1_mkdf/hw/application_fpga/mta1_mkdf_mem.h common/mta1_mkdf_mem.h
+	cp -af ../mta1_mkdf/hw/application_fpga/fw/mta1_mkdf_mem.h common/mta1_mkdf_mem.h
 
 .PHONY: lint
 lint: golangci-lint

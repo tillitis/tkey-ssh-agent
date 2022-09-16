@@ -18,12 +18,14 @@
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// clang-format off
+
 #ifndef HW_MTA1_MKDF_MEM_H
 #define HW_MTA1_MKDF_MEM_H
 
 // The canonical location of this file is:
-// repo: mta1_mkdf
-// path: hw/application_fpga/mta1_mkdf_mem.h
+// repo: https://github.com/mullvad/mta1_mkdf
+// path: /hw/application_fpga/fw/mta1_mkdf_mem.h
 
 // The contents are derived from the Verilog code. For use by QEMU model,
 // firmware, and apps.

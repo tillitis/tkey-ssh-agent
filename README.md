@@ -1,17 +1,3 @@
-# TODO
-
-My goal is that this READMe contains details on how to get the sinerapp
-running/tested both on Key1 and in QEMU. And then how to use `mkdf-ssh-agent`
-towards either Key1 or QEMU.
-
-Getting it up on QEMU will involve building the firmware.
-
-We assume that Key1 is blank, so to get the signerapp running there we firts
-need to flash the firmware. *This* flashing should be described in the
-tillitis/tillitis-key1 repository (to be). And referenced from here.
-
----
-
 # signerapp
 
 An ed25519 signer app written in C to run on MTA1-MKDF.
@@ -21,20 +7,30 @@ need to have risc32 support, check this with `llc --version | grep riscv32`.
 Build everything:
 
 ```
-make
+$ make
 ```
 
-## Running on Tillitis Key1
+If your available `objcopy` the default `llvm-objcopy-14`, then define
+`OBJCOPY` to whatever they're called on your system.
+
+## Real hardware or QEMU platform
+
+The signerapp can be run both on the hardware Tillitis Key1, and on a QEMU
+machine that emulates the platform. In both cases, the host program (`runapp`
+or `mkdf-ssh-agent` that is running on your computer) will talk to the app over
+a serial port, virtual or real. Please continue below in the hardware or QEMU
+section.
+
+### Running on hardware, the Tillitis Key1
 
 Plug the Key1 into your computer. `lsusb` should list it as `1207:8887 Tillitis
-MTA1-USB-V1`. On Linux, the Key1's serial device path is typically
-`/dev/ttyACM0`. This is also the path that the host programs (running on your
-computer) use by default. You can list the possible paths using `mkdf-ssh-agent
---list-ports`.
+MTA1-USB-V1`. On Linux, the Key1's serial port path is typically
+`/dev/ttyACM0`. This is also the path that the host programs use by default.
+You can list the possible paths using `mkdf-ssh-agent --list-ports`.
 
-You also need to be able to access the device path as your regular user. One
-way is by becoming a member of the group that owns the device. You can do this
-using something like:
+You also need to be able to access the serial port path as your regular user.
+One way is by becoming a member of the group that owns the serial port. You can
+do this using something like:
 
 ```
 $ id -un
@@ -47,7 +43,19 @@ $ sudo usermod -a -G dialout exampleuser
 Then logout from your system and log in again, for the change to take effect.
 You can also run `newgrp dialout` in the terminal that you're working in.
 
-## Running in QEMU
+Now you're ready to build the FPGA bitstream (including the firmware) and
+program it into the flash of the device.
+
+- TODO refer to https://github.com/tillitis/tillitis-key1 README.md which
+  should explain how to plug in for programming, and getting all built and the
+  flash programmed. Note, we also talk above about plugging in the device ^
+
+Your Key1 device should now be running the firmware and its LED should flash
+white. You should also have learned what serial port path to use for accessing
+it. You may need to pass this as `--port` when running the host programs.
+Continue in the section below, "Using runapp".
+
+### Running on QEMU
 
 Build our [qemu](https://github.com/tillitis/qemu). Use the `mta1` branch:
 
@@ -68,37 +76,61 @@ $ <path-to-qemu>/build/qemu-system-riscv32 -nographic -M mta1_mkdf,fifo=chrid -b
        -chardev pty,id=chrid
 ```
 
-It tells you what serial device it is using, for instance `/dev/pts/0`.
+It tells you what serial port it is using, for instance `/dev/pts/1`. This is
+what you need to use as `--port` when running the host programs. Continue in
+the section below, "Using runapp".
 
-Then run the host program, specifying both the serial device from QEMU and the
-raw binary app you want to run:
+The the MTA1 machine running on QEMU (which in turn runs the firmware, and then
+the app) can output some memory access (and other) logging. You can add `-d
+guest_errors` to the qemu commandline To make QEMU send these to stderr.
+
+## Using runapp
+
+By now you should have learned which serial port to use from one of the
+"Running on"-sections. If you're running on hardware, the LED on the device is
+expected to be flashing white, indicating that firmware is ready to receive an
+app to run.
+
+The host program `runapp` performs a complete, verbose signing. To run the
+program you need to specify both the serial port and the raw app binary that
+should be run. The port used below is just an example.
 
 ```
-$ ./runapp --port /dev/pts/0 --file signerapp/app.bin
+$ ./runapp --port /dev/pts/1 --file signerapp/app.bin
 ```
 
-which should give you a signature on the output.
+If you're on hardware, the LED on the device is a steady green while the app is
+receiving data to sign. The LED then flashes green, indicating that you're
+required to touch the device for the signing to complete. If running on QEMU,
+the virtual device is always touched automatically.
 
-If `--file` is not passed, the app is assumed to be loaded and running on the
-emulated device, and signing is attempted.
+The program should eventually output a signature and say that it was verified.
 
-The mta1 guest machine running in QEMU (which in turn runs the firmware and
-then the app) outputs some memory access (and other) logging. To make QEMU send
-these to stderr, add `-d guest_errors` to the qemu commandline.
+When all is done, the hardware device will flash a nice blue, indicating that
+it is ready to make (another) signature.
+
+If `--file` is not passed, the app is assumed to be loaded and running already,
+and signing is attempted right away.
+
+That was fun, now let's try the ssh-agent!
 
 ## Using mkdf-ssh-agent
 
-The signer app gets build into mkdf-ssh-agent, which will upload it to the
-device when started. You can start it like this:
+This host program for the signerapp is a complete, alternative ssh-agent with
+practical use. The signerapp binary gets built into the mkdf-ssh-agent, which
+will upload it to the device when started. If the serial port path is not the
+default, you need to pass it as `--port`. An example:
 
 ```
-$ ./mkdf-ssh-agent -a ./agent.sock --port /dev/pts/0
+$ ./mkdf-ssh-agent -a ./agent.sock --port /dev/pts/1
 ```
 
-This will start the ssh-agent, listening on the specified socket. It will also
-output the ed25519 public key for this instance of the app on this device. If
-the app binary, or the physical device changes, then the private key will also
-change -- and thus also the public key displayed!
+This will start the ssh-agent and tell it to listen on the specified socket
+`./agent.sock`.
+
+It will also output the ed25519 public key for this instance of the app on this
+key device. If the app binary, or the physical key device changes, then the
+private key will also change -- and thus also the public key displayed!
 
 If you copy-paste the public key into your `~/.ssh/authorized_keys` you can try
 to log onto your local computer (if sshd is running there). The socket path
@@ -121,7 +153,7 @@ You can use `-k` (long option: `--show-pubkey`) to only output the pubkey (on
 stdout, some message are still present on stderr), which can be useful:
 
 ```
-$ ./mkdf-ssh-agent -k --port /dev/pts/0
+$ ./mkdf-ssh-agent -k --port /dev/pts/1
 ```
 
 # fooapp

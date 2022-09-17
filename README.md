@@ -4,6 +4,11 @@ An ed25519 signer app written in C to run on MTA1-MKDF.
 
 To build you need the `clang`, `llvm` and `lld` packages installed. And they
 need to have risc32 support, check this with `llc --version | grep riscv32`.
+Please see
+[toolchain_setup.md](https://github.com/mullvad/mta1_mkdf/blob/main/doc/toolchain_setup.md)
+(in the tillitis-key1 repository) for information on the currently supported
+build and development environment.
+
 Build everything:
 
 ```
@@ -24,14 +29,22 @@ section.
 
 ### Running on hardware device -- Tillitis Key1
 
-Plug the Key1 into your computer. `lsusb` should list it as `1207:8887 Tillitis
-MTA1-USB-V1`. On Linux, the Key1's serial port path is typically
-`/dev/ttyACM0`. This is also the path that the host programs use by default.
-You can list the possible paths using `mkdf-ssh-agent --list-ports`.
+Plug Key1 into your computer. If the LED at in one of the outer corners of the
+device is flashing white, then it has been programmed with the standard FPGA
+bitstream (including the firmware). If it is not then please refer to
+[quickstart.md](https://github.com/mullvad/mta1_mkdf/blob/main/doc/quickstart.md)
+(in the tillitis-key1 repository) for instructions on initial programming of
+the device.
 
-You also need to be able to access the serial port path as your regular user.
-One way is by becoming a member of the group that owns the serial port. You can
-do this using something like:
+Running `lsusb` should list the device as `1207:8887 Tillitis MTA1-USB-V1`. On
+Linux, the Key1's serial port path is typically `/dev/ttyACM0` (but it may end
+with another digit, if you have other devices plugged in). This is also the
+default path that the host programs use to talk to it. You can list the
+possible paths using `mkdf-ssh-agent --list-ports`.
+
+You also need to be sure that you can access the serial port as your regular
+user. One way to do that is by becoming a member of the group that owns the
+serial port. You can do that like this:
 
 ```
 $ id -un
@@ -41,18 +54,15 @@ crw-rw---- 1 root dialout 166, 0 Sep 16 08:20 /dev/ttyACM0
 $ sudo usermod -a -G dialout exampleuser
 ```
 
-Then logout from your system and log in again, for the change to take effect.
-You can also run `newgrp dialout` in the terminal that you're working in.
+For the change to take effect everywhere you need to logout from your system,
+and then log back in again. Then logout from your system and log back in
+again. You can also (following the above example) run `newgrp dialout` in the
+terminal that you're working in.
 
-Now you're ready to build the FPGA bitstream (including the firmware) and
-program it into the flash of the device. Please refer to
-[quickstart.md](https://github.com/mullvad/mta1_mkdf/blob/main/doc/quickstart.md)
-in the mullvad/mta1_mkdf repository for instructions.
-
-Your Key1 device should now be running the firmware and its LED should flash
-white. You have also learned what serial port path to use for accessing it. You
-may need to pass this as `--port` when running the host programs. Continue in
-the section below, "Using runapp".
+Your Key1 is now running the firmware. Its LED flashing white, indicating that
+it is ready to receive an app to run. You have also learned what serial port
+path to use for accessing it. You may need to pass this as `--port` when
+running the host programs. Continue in the section below, "Using runapp".
 
 ### Running on QEMU
 
@@ -79,9 +89,9 @@ It tells you what serial port it is using, for instance `/dev/pts/1`. This is
 what you need to use as `--port` when running the host programs. Continue in
 the section below, "Using runapp".
 
-The the MTA1 machine running on QEMU (which in turn runs the firmware, and then
-the app) can output some memory access (and other) logging. You can add `-d
-guest_errors` to the qemu commandline To make QEMU send these to stderr.
+The the MTA1 machine running on QEMU (which in turn runs the firmware, and
+then the app) can output some memory access (and other) logging. You can add
+`-d guest_errors` to the qemu commandline To make QEMU send these to stderr.
 
 ## Using runapp
 
@@ -98,10 +108,10 @@ should be run. The port used below is just an example.
 $ ./runapp --port /dev/pts/1 --file signerapp/app.bin
 ```
 
-If you're on hardware, the LED on the device is a steady green while the app is
-receiving data to sign. The LED then flashes green, indicating that you're
+If you're on hardware, the LED on the device is a steady green while the app
+is receiving data to sign. The LED then flashes green, indicating that you're
 required to touch the device for the signing to complete. The touch sensor is
-located next to the flashing led -- touch and release. If running on QEMU, the
+located next to the flashing LED -- touch and release. If running on QEMU, the
 virtual device is always touched automatically.
 
 The program should eventually output a signature and say that it was verified.
@@ -109,8 +119,8 @@ The program should eventually output a signature and say that it was verified.
 When all is done, the hardware device will flash a nice blue, indicating that
 it is ready to make (another) signature.
 
-If `--file` is not passed, the app is assumed to be loaded and running already,
-and signing is attempted right away.
+If `--file` is not passed, the app is assumed to be loaded and running
+already, and signing is attempted right away.
 
 That was fun, now let's try the ssh-agent!
 
@@ -128,13 +138,13 @@ $ ./mkdf-ssh-agent -a ./agent.sock --port /dev/pts/1
 This will start the ssh-agent and tell it to listen on the specified socket
 `./agent.sock`.
 
-It will also output the ed25519 public key for this instance of the app on this
-key device. If the app binary, or the physical key device changes, then the
-private key will also change -- and thus also the public key displayed!
+It will also output the ed25519 public key for this instance of the app on
+this key device. If the app binary, or the physical key device changes, then
+the private key will also change -- and thus also the public key displayed!
 
-If you copy-paste the public key into your `~/.ssh/authorized_keys` you can try
-to log onto your local computer (if sshd is running there). The socket path
-set/output above is also needed by ssh in `SSH_AUTH_SOCK`:
+If you copy-paste the public key into your `~/.ssh/authorized_keys` you can
+try to log onto your local computer (if sshd is running there). The socket
+path set/output above is also needed by ssh in `SSH_AUTH_SOCK`:
 
 ```
 $ SSH_AUTH_SOCK=/path/to/agent.sock ssh -F /dev/null localhost
@@ -165,24 +175,24 @@ foo.bin (foo.S) that blinks the LED.
 
 ## Memory
 
-RAM starts at 0x4000\_0000 and ends at 0x4002\_0000. Your program
-will be loaded by firmware at 0x4001\_0000 which means a maximum size
-including `.data` and `.bss` of 64 kiB. In this app (see `crt0.S`) you
-have 64 kiB of stack from 0x4000\_ffff down to where RAM starts.
+RAM starts at 0x4000\_0000 and ends at 0x4002\_0000. Your program will be
+loaded by firmware at 0x4001\_0000 which means a maximum size including
+`.data` and `.bss` of 64 kiB. In this app (see `crt0.S`) you have 64 kiB of
+stack from 0x4000\_ffff down to where RAM starts.
 
 There are no heap allocation functions, no `malloc()` and friends.
 
-Special memory areas for memory mapped hardware functions are
-available at base 0xc000\_0000 and an offset. See [MTA1-MKDF
+Special memory areas for memory mapped hardware functions are available at
+base 0xc000\_0000 and an offset. See [MTA1-MKDF
 software](https://github.com/mullvad/mta1_mkdf/blob/main/doc/system_description/software.md)
 and the include file `mta1_mkdf_mem.h`.
 
 ### Debugging
 
-If you're running the app on our qemu emulator we have added a debug
-port on 0xfe00\_1000 (MTA1_MKDF_MMIO_QEMU_DEBUG). Anything written
-there will be printed as a character by qemu on the console.
+If you're running the app on our qemu emulator we have added a debug port on
+0xfe00\_1000 (MTA1_MKDF_MMIO_QEMU_DEBUG). Anything written there will be
+printed as a character by qemu on the console.
 
 `putchar()`, `puts()`, `putinthex()`, `hexdump()` and friends (see
-`signerapp/lib.[ch]`) use this debug port to print stuff. If you compile
-with `-DNODEBUG` all these are no-ops.
+`signerapp/lib.[ch]`) use this debug port to print stuff. If you compile with
+`-DNODEBUG` all these are no-ops.

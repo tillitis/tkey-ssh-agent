@@ -1,3 +1,6 @@
+// Copyright (C) 2022 - Tillitis AB
+// SPDX-License-Identifier: GPL-2.0-only
+
 #include "app_proto.h"
 
 // Send app reply with frame header, response code, and LEN_X-1 bytes from buf

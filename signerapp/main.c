@@ -1,3 +1,6 @@
+// Copyright (C) 2022 - Tillitis AB
+// SPDX-License-Identifier: GPL-2.0-only
+
 #include "app_proto.h"
 #include "monocypher-ed25519.h"
 

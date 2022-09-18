@@ -1,3 +1,6 @@
+// Copyright (C) 2022 - Tillitis AB
+// SPDX-License-Identifier: GPL-2.0-only
+
         li a0, 0xff000024
         li a1, 0x1
 loop:

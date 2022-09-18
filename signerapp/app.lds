@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2022 - Tillitis AB
+ * SPDX-License-Identifier: GPL-2.0-only
+ */
+
 OUTPUT_ARCH( "riscv" )
 ENTRY(_start)
 

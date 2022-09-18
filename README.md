@@ -208,3 +208,8 @@ printed as a character by qemu on the console.
 `putchar()`, `puts()`, `putinthex()`, `hexdump()` and friends (see
 `signerapp/lib.[ch]`) use this debug port to print stuff. If you compile with
 `-DNODEBUG` all these are no-ops.
+
+# Licensing
+
+See [LICENSES](./LICENSES/README.md) for more information about the projects'
+licenses.

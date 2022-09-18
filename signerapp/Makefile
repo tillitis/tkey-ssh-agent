@@ -9,7 +9,7 @@ LDFLAGS=-T app.lds
 
 RM=/bin/rm
 
-OBJS=crt0.o ../common/lib.o ../common/proto.o app_proto.o main.o monocypher.o monocypher-ed25519.o
+OBJS=crt0.o ../common/lib.o ../common/proto.o app_proto.o main.o monocypher/monocypher.o monocypher/monocypher-ed25519.o
 
 .PHONY:all
 all: app.bin
@@ -21,7 +21,7 @@ app: $(OBJS) app.lds
 	$(CC) $(CFLAGS) $(OBJS) $(LDFLAGS) -o $@
 
 $(OBJS): ../common/mta1_mkdf_mem.h \
-         ../common/types.h ../common/lib.h ../common/proto.h app_proto.h monocypher.h monocypher-ed25519.h
+         ../common/types.h ../common/lib.h ../common/proto.h app_proto.h monocypher/monocypher.h monocypher/monocypher-ed25519.h
 
 .PHONY:clean
 clean:

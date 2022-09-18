@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 
 #include "app_proto.h"
-#include "monocypher-ed25519.h"
+#include "monocypher/monocypher-ed25519.h"
 
 #include "../common/mta1_mkdf_mem.h"
 

@@ -21,25 +21,26 @@ system.
 
 ## Real hardware or QEMU platform
 
-The signerapp can be run both on the hardware Tillitis Key1, and on a QEMU
+The signerapp can be run both on the hardware Tillitis Key 1, and on a QEMU
 machine that emulates the platform. In both cases, the host program (`runapp`
 or `mkdf-ssh-agent` running on your computer) will talk to the app over a
 serial port, virtual or real. Please continue below in the hardware or QEMU
 section.
 
-### Running on hardware device -- Tillitis Key1
+### Running on hardware device -- Tillitis Key 1
 
-Plug Key1 into your computer. If the LED at in one of the outer corners of the
-device is flashing white, then it has been programmed with the standard FPGA
-bitstream (including the firmware). If it is not then please refer to
+Plug the USB device into your computer. If the LED at in one of the outer
+corners of the device is flashing white, then it has been programmed with the
+standard FPGA bitstream (including the firmware). If it is not then please
+refer to
 [quickstart.md](https://github.com/mullvad/mta1_mkdf/blob/main/doc/quickstart.md)
 (in the tillitis-key1 repository) for instructions on initial programming of
 the device.
 
 Running `lsusb` should list the device as `1207:8887 Tillitis MTA1-USB-V1`. On
-Linux, the Key1's serial port path is typically `/dev/ttyACM0` (but it may end
-with another digit, if you have other devices plugged in). This is also the
-default path that the host programs use to talk to it. You can list the
+Linux, Tillitis Key 1's serial port path is typically `/dev/ttyACM0` (but it
+may end with another digit, if you have other devices plugged in). This is also
+the default path that the host programs use to talk to it. You can list the
 possible paths using `mkdf-ssh-agent --list-ports`.
 
 You also need to be sure that you can access the serial port as your regular
@@ -59,10 +60,11 @@ and then log back in again. Then logout from your system and log back in
 again. You can also (following the above example) run `newgrp dialout` in the
 terminal that you're working in.
 
-Your Key1 is now running the firmware. Its LED flashing white, indicating that
-it is ready to receive an app to run. You have also learned what serial port
-path to use for accessing it. You may need to pass this as `--port` when
-running the host programs. Continue in the section below, "Using runapp".
+Your Tillitis Key 1 is now running the firmware. Its LED flashing white,
+indicating that it is ready to receive an app to run. You have also learned
+what serial port path to use for accessing it. You may need to pass this as
+`--port` when running the host programs. Continue in the section below, "Using
+runapp".
 
 ### Running on QEMU
 
@@ -76,12 +78,22 @@ $ ../configure --target-list=riscv32-softmmu
 $ make -j $(nproc)
 ```
 
-Build the [firmware](https://github.com/mullvad/mta1-mkdf-firmware-priv).
-
-Then run the emulator:
+You also need to build the firmware:
 
 ```
-$ <path-to-qemu>/build/qemu-system-riscv32 -nographic -M mta1_mkdf,fifo=chrid -bios firmware \
+$ git clone https://github.com/mullvad/mta1_mkdf
+$ cd mta1_mkdf/hw/application_fpga
+$ make firmware.elf
+```
+
+Please refer to the mentioned
+[toolchain_setup.md](https://github.com/mullvad/mta1_mkdf/blob/main/doc/toolchain_setup.md)
+if you have any issues building.
+
+Then run the emulator, passing using the built firmware to "-bios":
+
+```
+$ <path-to-qemu>/build/qemu-system-riscv32 -nographic -M mta1_mkdf,fifo=chrid -bios firmware.elf \
        -chardev pty,id=chrid
 ```
 

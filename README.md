@@ -126,7 +126,7 @@ It tells you what serial port it is using, for instance `/dev/pts/1`. This is
 what you need to use as `--port` when running the host programs. Continue in
 the section below, "Using runapp".
 
-The the MTA1 machine running on QEMU (which in turn runs the firmware, and
+The MTA1 machine running on QEMU (which in turn runs the firmware, and
 then the app) can output some memory access (and other) logging. You can add
 `-d guest_errors` to the qemu commandline To make QEMU send these to stderr.
 

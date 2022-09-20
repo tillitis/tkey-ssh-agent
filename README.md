@@ -1,6 +1,16 @@
-# signerapp
 
-An ed25519 signer app written in C to run on the Tillitis Key 1.
+This repository contains applications to run on the Tillitis Key 1. So far
+there is one app of real use. For more information see the [main
+repository](https://github.com/tillitis/tillitis-key1) (with hardware designs,
+gateware, firmware etc), and [Tillitis web site](https://www.tillitis.se).
+
+# The ed25519 signerapp
+
+An ed25519 signer app written in C. There are two host programs which can
+communicate with the app. `runapp` just performs a complete test signing.
+`mkdf-ssh-agent` is an ssh-agent with practical use.
+
+## Building
 
 To build you need the `clang`, `llvm` and `lld` packages installed. And they
 need to have risc32 support, check this with `llc --version | grep riscv32`.
@@ -19,15 +29,13 @@ If your available `objcopy` is anything other than the default
 `llvm-objcopy-14`, then define `OBJCOPY` to whatever they're called on your
 system.
 
-## Real hardware or QEMU platform
-
 The signerapp can be run both on the hardware Tillitis Key 1, and on a QEMU
 machine that emulates the platform. In both cases, the host program (`runapp`
 or `mkdf-ssh-agent` running on your computer) will talk to the app over a
-serial port, virtual or real. Please continue below in the hardware or QEMU
-section.
+serial port, virtual or real. Please continue below in the suitable "Running
+apps on ..." section.
 
-### Running on hardware device -- Tillitis Key 1
+### Running apps on Tillitis Key 1
 
 Plug the USB device into your computer. If the LED at in one of the outer
 corners of the device is flashing white, then it has been programmed with the
@@ -36,6 +44,8 @@ refer to
 [quickstart.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/quickstart.md)
 (in the tillitis-key1 repository) for instructions on initial programming of
 the device.
+
+#### Users on Linux users
 
 Running `lsusb` should list the device as `1207:8887 Tillitis MTA1-USB-V1`. On
 Linux, Tillitis Key 1's serial port path is typically `/dev/ttyACM0` (but it
@@ -66,10 +76,7 @@ what serial port path to use for accessing it. You may need to pass this as
 `--port` when running the host programs. Continue in the section below, "Using
 runapp".
 
-
-### Running on MacOS
-After building the tillitis-key1-apps (see above) and connected a Tillitis Key 1
-device with the firmware, you should be able to use the device.
+#### Users on MacOS
 
 You can check that the OS has found and enumerated the device by running:
 
@@ -77,26 +84,14 @@ You can check that the OS has found and enumerated the device by running:
 ioreg -p IOUSB -w0 -l
 ```
 
-There should be an entry with:
-```
-"USB Vendor Name" = "Tillitis"
-```
+There should be an entry with `"USB Vendor Name" = "Tillitis"`.
 
-Looking in the dev directory, there should be a device:
-```
-/dev/tty.usbmodemXYZ
-```
-Where XYZ is a number, for example 101.
+Looking in the `/dev` directory, there should be a device named like
+`/dev/tty.usbmodemXYZ`. Where XYZ is a number, for example 101. This is the
+device path that needs to be passed as `--port` when running the host programs.
+Continue in the section below, "Using runapp".
 
-You should now be able to load and run an application
-on the device. For example:
-
-```
- ./runapp --port /dev/tty.usbmodem101 --file signerapp/app.bin
-```
-
-
-### Running on QEMU
+### Running apps on QEMU
 
 Build our [qemu](https://github.com/tillitis/qemu). Use the `mta1` branch:
 

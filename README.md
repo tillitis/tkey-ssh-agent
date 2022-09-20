@@ -66,6 +66,41 @@ what serial port path to use for accessing it. You may need to pass this as
 `--port` when running the host programs. Continue in the section below, "Using
 runapp".
 
+
+### Running on MacOS
+After building the tillitis-key1-apps (see above) and connected a Tillitis Key 1
+device with the firmware, you should be able to use the device.
+
+You can check that the OS has found and enumerated the device by running:
+Kommando för att lista USB devices in MacOS:
+
+```
+ioreg -p IOUSB -w0 -l
+
+```
+
+There should be an entry with:
+
+```
+"USB Vendor Name" = "Tillitis"
+```
+
+Looking in the dev directory, there should be a device:
+
+```
+/dev/tty.usbmodemXYZ
+```
+
+Where XYZ is a number, for example 101.
+
+You should now be able to load and run an application
+on the device. For example:
+
+```
+ ./runapp --port /dev/tty.usbmodem101 --file signerapp/app.bin
+```
+
+
 ### Running on QEMU
 
 Build our [qemu](https://github.com/tillitis/qemu). Use the `mta1` branch:

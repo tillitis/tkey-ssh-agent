@@ -9,7 +9,6 @@ import (
 
 	"github.com/spf13/pflag"
 	"github.com/tillitis/tillitis-key1-apps/mkdf"
-	"go.bug.st/serial"
 )
 
 func main() {
@@ -30,17 +29,20 @@ func main() {
 	}
 
 	fmt.Printf("Connecting to device on serial port %s ...\n", *port)
-	conn, err := serial.Open(*port, &serial.Mode{BaudRate: *speed})
+
+	tk, err := mkdf.New(*port, *speed)
 	if err != nil {
 		fmt.Printf("Could not open %s: %v\n", *port, err)
 		os.Exit(1)
 	}
 	exit := func(code int) {
-		conn.Close()
+		if err := tk.Close(); err != nil {
+			fmt.Printf("Close: %v\n", err)
+		}
 		os.Exit(code)
 	}
 
-	nameVer, err := mkdf.GetNameVersion(conn)
+	nameVer, err := tk.GetNameVersion()
 	if err != nil {
 		fmt.Printf("GetNameVersion failed: %v\n", err)
 		fmt.Printf("If the serial port device is correct, then the device might not be in\n" +
@@ -50,7 +52,7 @@ func main() {
 	fmt.Printf("Firmware has name0:%s name1:%s version:%d\n",
 		nameVer.Name0, nameVer.Name1, nameVer.Version)
 	fmt.Printf("Loading app from %v onto device\n", *fileName)
-	err = mkdf.LoadAppFromFile(conn, *fileName)
+	err = tk.LoadAppFromFile(*fileName)
 	if err != nil {
 		fmt.Printf("LoadAppFromFile failed: %v\n", err)
 		exit(1)

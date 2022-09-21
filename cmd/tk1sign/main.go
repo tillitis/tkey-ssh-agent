@@ -27,7 +27,7 @@ func main() {
 
 	message, err := os.ReadFile(*fileName)
 	if err != nil {
-		fmt.Errorf("ReadFile: %w", err)
+		fmt.Printf("Could not read %s: %v\n", *fileName, err)
 		os.Exit(1)
 	}
 
@@ -37,12 +37,15 @@ func main() {
 		fmt.Printf("Could not open %s: %v\n", *port, err)
 		os.Exit(1)
 	}
-	defer conn.Close()
+	exit := func(code int) {
+		conn.Close()
+		os.Exit(code)
+	}
 
 	pubkey, err := mkdfsign.GetPubkey(conn)
 	if err != nil {
 		fmt.Printf("GetPubKey failed: %v\n", err)
-		os.Exit(1)
+		exit(1)
 	}
 	fmt.Printf("Public Key from device: %x\n", pubkey)
 
@@ -50,16 +53,16 @@ func main() {
 	signature, err := mkdfsign.Sign(conn, message)
 	if err != nil {
 		fmt.Printf("Sign failed: %v\n", err)
-		os.Exit(1)
+		exit(1)
 	}
 	fmt.Printf("Signature over message by device: %x\n", signature)
 
 	if !ed25519.Verify(pubkey, message, signature) {
 		fmt.Printf("Signature did NOT verify.\n")
-		os.Exit(1)
+		exit(1)
 	} else {
 		fmt.Printf("Signature verified.\n")
 	}
 
-	os.Exit(0)
+	exit(0)
 }

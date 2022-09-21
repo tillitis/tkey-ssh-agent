@@ -13,10 +13,10 @@ import (
 )
 
 func main() {
-	fileName := pflag.String("file", "", "Name of file to be uploaded")
+	fileName := pflag.String("file", "", "App binary to be uploaded and started")
 	port := pflag.String("port", "/dev/ttyACM0", "Serial port path")
 	speed := pflag.Int("speed", 38400, "When talking over the serial port, bits per second")
-	verbose := pflag.Bool("verbose", false, "")
+	verbose := pflag.Bool("verbose", false, "Enable verbose output")
 
 	pflag.Parse()
 	if !*verbose {
@@ -24,8 +24,9 @@ func main() {
 	}
 
 	if *fileName == "" {
-		fmt.Printf("Usage: Please specify --file path-to-raw-binary\n")
-		os.Exit(1)
+		fmt.Printf("Please pass at least --file\n")
+		pflag.Usage()
+		os.Exit(2)
 	}
 
 	fmt.Printf("Connecting to device on serial port %s ...\n", *port)

@@ -45,7 +45,7 @@ refer to
 (in the tillitis-key1 repository) for instructions on initial programming of
 the device.
 
-#### Users on Linux users
+#### Users on Linux
 
 Running `lsusb` should list the device as `1207:8887 Tillitis MTA1-USB-V1`. On
 Linux, Tillitis Key 1's serial port path is typically `/dev/ttyACM0` (but it
@@ -73,8 +73,8 @@ terminal that you're working in.
 Your Tillitis Key 1 is now running the firmware. Its LED flashing white,
 indicating that it is ready to receive an app to run. You have also learned
 what serial port path to use for accessing it. You may need to pass this as
-`--port` when running the host programs. Continue in the section below, "Using
-runapp".
+`--port` when running the host programs. Continue in the section "Using
+runapp" below.
 
 #### Users on MacOS
 
@@ -87,9 +87,9 @@ ioreg -p IOUSB -w0 -l
 There should be an entry with `"USB Vendor Name" = "Tillitis"`.
 
 Looking in the `/dev` directory, there should be a device named like
-`/dev/tty.usbmodemXYZ`. Where XYZ is a number, for example 101. This is the
-device path that needs to be passed as `--port` when running the host programs.
-Continue in the section below, "Using runapp".
+`/dev/tty.usbmodemXYZ`. Where XYZ is a number, for example 101. This
+is the device path that needs to be passed as `--port` when running
+the host programs. Continue in the section "Using runsign..." below.
 
 ### Running apps on QEMU
 
@@ -122,9 +122,9 @@ $ <path-to-qemu>/build/qemu-system-riscv32 -nographic -M mta1_mkdf,fifo=chrid -b
        -chardev pty,id=chrid
 ```
 
-It tells you what serial port it is using, for instance `/dev/pts/1`. This is
-what you need to use as `--port` when running the host programs. Continue in
-the section below, "Using runapp".
+It tells you what serial port it is using, for instance `/dev/pts/1`.
+This is what you need to use as `--port` when running the host
+programs. Continue in the section "Using runsign..." below.
 
 The MTA1 machine running on QEMU (which in turn runs the firmware, and
 then the app) can output some memory access (and other) logging. You can add
@@ -137,7 +137,7 @@ By now you should have learned which serial port to use from one of the
 expected to be flashing white, indicating that firmware is ready to receive an
 app to run.
 
-There's a script called `runsign` which loads and runs an ed25519
+There's a script called `runsign.sh` which loads and runs an ed25519
 signer app, then asks the app to sign a message and verifies it. You
 can use it like this:
 

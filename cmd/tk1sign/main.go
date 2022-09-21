@@ -11,7 +11,6 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/tillitis/tillitis-key1-apps/mkdf"
 	"github.com/tillitis/tillitis-key1-apps/mkdfsign"
-	"go.bug.st/serial"
 )
 
 func main() {
@@ -32,17 +31,19 @@ func main() {
 	}
 
 	fmt.Printf("Connecting to device on serial port %s ...\n", *port)
-	conn, err := serial.Open(*port, &serial.Mode{BaudRate: *speed})
+	tk, err := mkdf.New(*port, *speed)
 	if err != nil {
-		fmt.Printf("Could not open %s: %v\n", *port, err)
+		fmt.Printf("Couldn't open...\n")
 		os.Exit(1)
 	}
+
+	signer := mkdfsign.New(tk)
 	exit := func(code int) {
-		conn.Close()
+		signer.Close()
 		os.Exit(code)
 	}
 
-	pubkey, err := mkdfsign.GetPubkey(conn)
+	pubkey, err := signer.GetPubkey()
 	if err != nil {
 		fmt.Printf("GetPubKey failed: %v\n", err)
 		exit(1)
@@ -51,7 +52,7 @@ func main() {
 
 	fmt.Printf("Sending a %v bytes message for signing.\n", len(message))
 	fmt.Printf("Device will flash green when touch is required ...\n")
-	signature, err := mkdfsign.Sign(conn, message)
+	signature, err := signer.Sign(message)
 	if err != nil {
 		fmt.Printf("Sign failed: %v\n", err)
 		exit(1)

@@ -1,6 +1,21 @@
 // Copyright (C) 2022 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
+// Packade mkdfsign provides a connection the the ed25519 signerapp
+// running on the Tillitis Key 1. You're expected to pass an existing
+// TK1 connection to it, so use it like this:
+//
+//   tk, err := mkdf.New(*port, *speed)
+//   signer := mkdfsign.New(tk)
+//
+// Then use it like this to get the public key of the TK1:
+//
+//   pubkey, err := signer.GetPubkey()
+//
+// And like this to sign a message:
+//
+//   signature, err := signer.Sign(message)
+//
 package mkdfsign
 
 import (
@@ -8,7 +23,6 @@ import (
 	"time"
 
 	"github.com/tillitis/tillitis-key1-apps/mkdf"
-	"go.bug.st/serial"
 )
 
 type appCmd byte
@@ -17,98 +31,110 @@ type appCmd byte
 // protocol does). The cmd code is used as response code, if it was successful.
 // Separate response codes for errors could be added though.
 const (
-	appCmdGetPubkey      appCmd = 0x01
-	appCmdSetSize        appCmd = 0x02
-	appCmdSignData       appCmd = 0x03
-	appCmdGetSig         appCmd = 0x04
-	appCmdGetNameVersion appCmd = 0x05
+	cmdGetPubkey      appCmd = 0x01
+	cmdSetSize        appCmd = 0x02
+	cmdSignData       appCmd = 0x03
+	cmdGetSig         appCmd = 0x04
+	cmdGetNameVersion appCmd = 0x05
 )
 
-func GetAppNameVersion(conn serial.Port) (*mkdf.NameVersion, error) {
-	hdr := mkdf.Frame{
-		ID:       2,
-		Endpoint: mkdf.DestApp,
-		CmdLen:   mkdf.CmdLen1,
-	}
+type Signer struct {
+	tk mkdf.TillitisKey // A connection to a Tillitis Key 1
+}
 
+// New() gets you a connection to a ed25519 signerapp running on the
+// Tillitis Key 1. You're expected to pass an existing TK1 connection
+// to it, so use it like this:
+//   tk, err := mkdf.New(port, speed)
+//   signer := mkdfsign.New(tk)
+func New(tk mkdf.TillitisKey) Signer {
+	var signer Signer
+
+	signer.tk = tk
+
+	return signer
+}
+
+// Close closes the connection to the TK1
+func (s Signer) Close() {
+	s.tk.Close()
+}
+
+// GetAppNameVersion gets the name and version of the running app in
+// the same style as the stick itself.
+func (s Signer) GetAppNameVersion() (*mkdf.NameVersion, error) {
 	// This sets 2s timeout, see: https://github.com/bugst/go-serial/issues/141
-	err := conn.SetReadTimeout(2_000 / 100 * time.Millisecond)
+	err := s.tk.SetReadTimeout(2_000 / 100 * time.Millisecond)
 	if err != nil {
 		return nil, fmt.Errorf("SetReadTimeout: %w", err)
 	}
 
-	tx := make([]byte, hdr.FrameLen())
-
-	// Frame header
-	tx[0], err = hdr.Pack()
-	if err != nil {
-		return nil, fmt.Errorf("Pack: %w", err)
-	}
-	tx[1] = byte(appCmdGetNameVersion)
+	tx, err := mkdf.GenFrameBuf(2, mkdf.DestApp, mkdf.CmdLen1)
+	// Set command code
+	tx[1] = byte(cmdGetNameVersion)
 
 	mkdf.Dump("GetAppNameVersion tx", tx)
-	if err = mkdf.Xmit(conn, tx); err != nil {
-		return nil, fmt.Errorf("Xmit: %w", err)
+	if err = s.tk.Write(tx); err != nil {
+		return nil, fmt.Errorf("Write: %w", err)
 	}
 
-	rx, err := appRecv(conn, appCmd(tx[1]), hdr.ID, mkdf.CmdLen32)
+	_, rx, err := s.tk.ReadFrame(mkdf.CmdLen32, mkdf.DestApp)
 	if err != nil {
-		return nil, fmt.Errorf("appRecv: %w", err)
+		return nil, fmt.Errorf("read frame: %w", err)
 	}
 
-	err = conn.SetReadTimeout(serial.NoTimeout)
+	if rx[0] != byte(cmdGetNameVersion) {
+		return nil, fmt.Errorf("")
+	}
+
+	err = s.tk.SetReadTimeout(mkdf.NoTimeout)
 	if err != nil {
 		return nil, fmt.Errorf("SetReadTimeout: %w", err)
 	}
 
 	nameVer := &mkdf.NameVersion{}
-	// Skip frame header & app header
-	nameVer.Unpack(rx[2:])
+	nameVer.Unpack(rx[1:])
 
 	return nameVer, nil
 }
 
-func GetPubkey(conn serial.Port) ([]byte, error) {
-	hdr := mkdf.Frame{
-		ID:       2,
-		Endpoint: mkdf.DestApp,
-		CmdLen:   mkdf.CmdLen1,
-	}
+// GetPubkey fetches the public key of the signer.
+func (s Signer) GetPubkey() ([]byte, error) {
+	tx, err := mkdf.GenFrameBuf(2, mkdf.DestApp, mkdf.CmdLen1)
 
-	var err error
-
-	tx := make([]byte, hdr.FrameLen())
-
-	// Frame header
-	tx[0], err = hdr.Pack()
-	if err != nil {
-		return nil, fmt.Errorf("Pack: %w", err)
-	}
-	tx[1] = byte(appCmdGetPubkey)
+	// Set command code
+	tx[1] = byte(cmdGetPubkey)
 
 	mkdf.Dump("GetPubkey tx", tx)
-	if err = mkdf.Xmit(conn, tx); err != nil {
-		return nil, fmt.Errorf("Xmit: %w", err)
+	if err = s.tk.Write(tx); err != nil {
+		return nil, fmt.Errorf("Write: %w", err)
 	}
 
-	rx, err := appRecv(conn, appCmd(tx[1]), hdr.ID, mkdf.CmdLen128)
+	_, rx, err := s.tk.ReadFrame(mkdf.CmdLen128, mkdf.DestApp)
 	if err != nil {
-		return nil, fmt.Errorf("appRecv: %w", err)
+		return nil, fmt.Errorf("read frame: %w", err)
+	}
+
+	mkdf.Dump("GetPubKey rx", rx)
+
+	if rx[0] != byte(cmdGetPubkey) {
+		return nil, fmt.Errorf("Expected appCmdGetPubkey, got %v", rx[0])
 	}
 
 	// Skip frame header & app header, returning size of ed25519 pubkey
-	return rx[2 : 2+32], nil
+	return rx[1 : 1+32], nil
 }
 
-func Sign(conn serial.Port, data []byte) ([]byte, error) {
-	err := signSetSize(conn, len(data))
+// Sign signs the message in data and returns an ed25519 signature.
+func (s Signer) Sign(data []byte) ([]byte, error) {
+	err := s.setSize(len(data))
 	if err != nil {
-		return nil, fmt.Errorf("signSetSize: %w", err)
+		return nil, fmt.Errorf("SetSize: %w", err)
 	}
 
 	var offset int
 	for nsent := 0; offset < len(data); offset += nsent {
-		nsent, err = signLoad(conn, data[offset:])
+		nsent, err = s.signLoad(data[offset:])
 		if err != nil {
 			return nil, fmt.Errorf("signLoad: %w", err)
 		}
@@ -117,7 +143,7 @@ func Sign(conn serial.Port, data []byte) ([]byte, error) {
 		return nil, fmt.Errorf("transmitted more than expected")
 	}
 
-	signature, err := getSig(conn)
+	signature, err := s.getSig()
 	if err != nil {
 		return nil, fmt.Errorf("getSig: %w", err)
 	}
@@ -125,192 +151,104 @@ func Sign(conn serial.Port, data []byte) ([]byte, error) {
 	return signature, nil
 }
 
-type signSize struct {
-	hdr  mkdf.Frame
-	size int
-}
+// SetSize sets the size of the data to sign.
+func (s Signer) setSize(size int) error {
+	tx, err := mkdf.GenFrameBuf(2, mkdf.DestApp, mkdf.CmdLen32)
 
-func (a *signSize) pack() ([]byte, error) {
-	tx := make([]byte, a.hdr.FrameLen())
-	var err error
+	// Set command code
+	tx[1] = byte(cmdSetSize)
 
-	// Frame header
-	tx[0], err = a.hdr.Pack()
-	if err != nil {
-		return nil, fmt.Errorf("Pack: %w", err)
-	}
-
-	// Append command code
-	tx[1] = byte(appCmdSetSize)
-
-	// Append size
-	tx[2] = byte(a.size)
-	tx[3] = byte(a.size >> 8)
-	tx[4] = byte(a.size >> 16)
-	tx[5] = byte(a.size >> 24)
-
-	return tx, nil
-}
-
-func signSetSize(conn serial.Port, size int) error {
-	signsize := signSize{
-		hdr: mkdf.Frame{
-			ID:       2,
-			Endpoint: mkdf.DestApp,
-			CmdLen:   mkdf.CmdLen32,
-		},
-		size: size,
-	}
-
-	tx, err := signsize.pack()
-	if err != nil {
-		return err
-	}
-
-	mkdf.Dump("SignSetSize tx", tx)
-	if err = mkdf.Xmit(conn, tx); err != nil {
+	// Set size
+	tx[2] = byte(size)
+	tx[3] = byte(size >> 8)
+	tx[4] = byte(size >> 16)
+	tx[5] = byte(size >> 24)
+	mkdf.Dump("SetAppSize tx", tx)
+	if err = s.tk.Write(tx); err != nil {
 		return fmt.Errorf("Xmit: %w", err)
 	}
 
-	rx, err := appRecv(conn, appCmd(tx[1]), signsize.hdr.ID, mkdf.CmdLen4)
-	if err != nil {
-		return fmt.Errorf("appRecv: %w", err)
+	_, rx, err := s.tk.ReadFrame(mkdf.CmdLen4, mkdf.DestApp)
+
+	mkdf.Dump("SetAppSize rx", rx)
+	if rx[0] != byte(cmdSetSize) {
+		return fmt.Errorf("Expected appCmdSetSize, got 0x%x", rx[0])
 	}
 
-	if rx[2] != mkdf.StatusOK {
-		return fmt.Errorf("signSetSize NOK (%d)", rx[2])
+	if rx[1] != mkdf.StatusOK {
+		return fmt.Errorf("SetSignSize NOK")
 	}
 
 	return nil
 }
 
-type signData struct {
-	hdr  mkdf.Frame
-	data []byte
-}
-
-func (a *signData) copy(content []byte) int {
-	copied := copy(a.data, content)
-	// Add padding if not filling the payload buf.
-	if copied < len(a.data) {
-		padding := make([]byte, len(a.data)-copied)
-		copy(a.data[copied:], padding)
-	}
-	return copied
-}
-
-func (a *signData) pack() ([]byte, error) {
-	tx := make([]byte, a.hdr.FrameLen())
-	var err error
-
-	// Frame header
-	tx[0], err = a.hdr.Pack()
-	if err != nil {
-		return nil, fmt.Errorf("Pack: %w", err)
-	}
-
-	tx[1] = byte(appCmdSignData)
-
-	copy(tx[2:], a.data)
-
-	return tx, nil
-}
-
-func signLoad(conn serial.Port, data []byte) (int, error) {
-	cmdLen := mkdf.CmdLen128
-	signdata := signData{
-		hdr: mkdf.Frame{
-			ID:       2,
-			Endpoint: mkdf.DestApp,
-			CmdLen:   cmdLen,
-		},
-		// Payload len is cmdlen minus the app cmd byte
-		data: make([]byte, cmdLen.Bytelen()-1),
-	}
-
-	nsent := signdata.copy(data)
-
-	tx, err := signdata.pack()
+// signload loads a chunk of a message to sign and waits for a
+// response from the signer.
+func (s Signer) signLoad(content []byte) (int, error) {
+	tx, err := mkdf.GenFrameBuf(2, mkdf.DestApp, mkdf.CmdLen128)
 	if err != nil {
 		return 0, err
 	}
 
-	mkdf.Dump("SignData tx", tx)
-	if err = mkdf.Xmit(conn, tx); err != nil {
-		return 0, fmt.Errorf("Xmit: %w", err)
+	// Set the command
+	tx[1] = byte(cmdSignData)
+
+	payload := make([]byte, mkdf.CmdLen128.Bytelen()-1)
+	copied := copy(payload, content)
+
+	// Add padding if not filling the payload buffer.
+	if copied < len(payload) {
+		padding := make([]byte, len(payload)-copied)
+		copy(payload[copied:], padding)
 	}
 
-	rx, err := appRecv(conn, appCmd(tx[1]), signdata.hdr.ID, mkdf.CmdLen4)
+	copy(tx[2:], payload)
+
+	mkdf.Dump("LoadSignData tx", tx)
+
+	if err = s.tk.Write(tx); err != nil {
+		return 0, fmt.Errorf("Write: %w", err)
+	}
+
+	// Wait for reply
+	_, rx, err := s.tk.ReadFrame(mkdf.CmdLen4, mkdf.DestApp)
 	if err != nil {
-		return 0, fmt.Errorf("appRecv: %w", err)
+		return 0, fmt.Errorf("read frame: %w", err)
 	}
 
-	if rx[2] != mkdf.StatusOK {
-		return 0, fmt.Errorf("signData NOK (%d)", rx[2])
+	if rx[0] != byte(cmdSignData) {
+		return 0, fmt.Errorf("Expected appCmdSignData, got %v", rx[0])
 	}
 
-	return nsent, nil
+	if rx[1] != mkdf.StatusOK {
+		return 0, fmt.Errorf("SignData NOK")
+	}
+
+	return copied, nil
 }
 
-func getSig(conn serial.Port) ([]byte, error) {
-	hdr := mkdf.Frame{
-		ID:       2,
-		Endpoint: mkdf.DestApp,
-		CmdLen:   mkdf.CmdLen1,
+// getSig gets the ed25519 signature from the signer app, if
+// available.
+func (s Signer) getSig() ([]byte, error) {
+	tx, err := mkdf.GenFrameBuf(2, mkdf.DestApp, mkdf.CmdLen1)
+
+	// Set command code
+	tx[1] = byte(cmdGetSig)
+
+	mkdf.Dump("getSig tx", tx)
+	if err = s.tk.Write(tx); err != nil {
+		return nil, fmt.Errorf("Write: %w", err)
 	}
 
-	var err error
-
-	tx := make([]byte, hdr.FrameLen())
-
-	// Frame header
-	tx[0], err = hdr.Pack()
+	_, rx, err := s.tk.ReadFrame(mkdf.CmdLen128, mkdf.DestApp)
 	if err != nil {
-		return nil, fmt.Errorf("Pack: %w", err)
-	}
-	tx[1] = byte(appCmdGetSig)
-
-	mkdf.Dump("GetSig tx", tx)
-	if err = mkdf.Xmit(conn, tx); err != nil {
-		return nil, fmt.Errorf("Xmit: %w", err)
+		return nil, fmt.Errorf("read frame: %w", err)
 	}
 
-	rx, err := appRecv(conn, appCmd(tx[1]), hdr.ID, mkdf.CmdLen128)
-	if err != nil {
-		return nil, fmt.Errorf("appRecv: %w", err)
+	if rx[0] != byte(cmdGetSig) {
+		return nil, fmt.Errorf("Expected appCmdGetSig, got %v", rx[0])
 	}
 
-	// Skip frame header & app header, returning size of ed25519 signature
-	return rx[2 : 2+64], nil
-}
-
-func appRecv(conn serial.Port, expectedRsp appCmd, id byte, expectedLen mkdf.CmdLen) ([]byte, error) {
-	rx, err := mkdf.Recv(conn)
-	if err != nil {
-		return nil, fmt.Errorf("Recv: %w", err)
-	}
-
-	mkdf.Dump(" rx", rx)
-
-	var hdr mkdf.Frame
-
-	err = hdr.Unpack(rx[0])
-	if err != nil {
-		return nil, fmt.Errorf("Unpack: %w", err)
-	}
-
-	rsp := appCmd(rx[1])
-	if rsp != expectedRsp {
-		return nil, fmt.Errorf("incorrect response code %v != expected %v", rsp, expectedRsp)
-	}
-
-	if hdr.CmdLen != expectedLen {
-		return nil, fmt.Errorf("incorrect length %v != expected %v", hdr.CmdLen, expectedLen)
-	}
-
-	if hdr.ID != id {
-		return nil, fmt.Errorf("incorrect id %v != expected %v", hdr.ID, id)
-	}
-
-	return rx, nil
+	// Skip app header, returning size of ed25519 signature
+	return rx[1 : 1+64], nil
 }

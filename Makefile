@@ -5,13 +5,19 @@ all: signerapp runapp tk1sign mkdf-ssh-agent
 signerapp:
 	$(MAKE) -C signerapp
 
-runapp: ./cmd/runapp/*.go
+# .PHONY to let go-build handle deps and rebuilds
+.PHONY: runapp
+runapp:
 	go build ./cmd/runapp
 
-tk1sign: signerapp ./cmd/tk1sign/*.go
+# .PHONY to let go-build handle deps and rebuilds
+.PHONY: tk1sign
+tk1sign:
 	go build ./cmd/tk1sign
 
-mkdf-ssh-agent: signerapp ./cmd/mkdf-ssh-agent/*.go
+# .PHONY to let go-build handle deps and rebuilds
+.PHONY: mkdf-ssh-agent
+mkdf-ssh-agent:
 	cp -af signerapp/app.bin cmd/mkdf-ssh-agent/app.bin
 	go build ./cmd/mkdf-ssh-agent
 
@@ -28,5 +34,7 @@ update-mem-include:
 lint: golangci-lint
 	./golangci-lint run
 
-golangci-lint: go.mod go.sum
+# .PHONY to let go-build handle deps and rebuilds
+.PHONY: golangci-lint
+golangci-lint:
 	go build github.com/golangci/golangci-lint/cmd/golangci-lint

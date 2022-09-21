@@ -29,11 +29,11 @@ If your available `objcopy` is anything other than the default
 `llvm-objcopy-14`, then define `OBJCOPY` to whatever they're called on your
 system.
 
-The signerapp can be run both on the hardware Tillitis Key 1, and on a QEMU
-machine that emulates the platform. In both cases, the host program (`runapp`
-or `mkdf-ssh-agent` running on your computer) will talk to the app over a
-serial port, virtual or real. Please continue below in the suitable "Running
-apps on ..." section.
+The signerapp can be run both on the hardware Tillitis Key 1, and on a
+QEMU machine that emulates the platform. In both cases, the host
+program (`runapp`, `tk1sign` or `mkdf-ssh-agent` running on your
+computer) will talk to the app over a serial port, virtual or real.
+Please continue below in the suitable "Running apps on ..." section.
 
 ### Running apps on Tillitis Key 1
 
@@ -130,26 +130,47 @@ The MTA1 machine running on QEMU (which in turn runs the firmware, and
 then the app) can output some memory access (and other) logging. You can add
 `-d guest_errors` to the qemu commandline To make QEMU send these to stderr.
 
-## Using runapp
+## Using runsign and runapp
 
 By now you should have learned which serial port to use from one of the
-"Running on"-sections. If you're running on hardware, the LED on the device is
+"Running on" sections. If you're running on hardware, the LED on the device is
 expected to be flashing white, indicating that firmware is ready to receive an
 app to run.
 
-The host program `runapp` performs a complete, verbose signing. To run the
-program you need to specify both the serial port and the raw app binary that
+There's a script called `runsign` which loads and runs an ed25519
+signer app, then asks the app to sign a message and verifies it. You
+can use it like this:
+
+```
+./runsign.sh /dev/pts/19 file-with-message
+```
+
+The file with the message can currently be at most 4096 bytes long.
+
+The host program `runapp` only loads and starts an app. Then you will
+have to switch to a different program to speak your specific app
+protocol, for instance the `tk1sign` program provided here.
+
+To run `runapp` you need to specify both the serial port (unless
+you're using the default `/dev/ttyACM0`) and the raw app binary that
 should be run. The port used below is just an example.
 
 ```
 $ ./runapp --port /dev/pts/1 --file signerapp/app.bin
 ```
 
-If you're on hardware, the LED on the device is a steady green while the app
-is receiving data to sign. The LED then flashes green, indicating that you're
-required to touch the device for the signing to complete. The touch sensor is
-located next to the flashing LED -- touch and release. If running on QEMU, the
-virtual device is always touched automatically.
+`tk1sign` is used in a similar way:
+
+```
+./tk1sign --port /dev/pts/1 --file file-with-message-to-sign
+```
+
+If you're using real hardware, the LED on the device is a steady green
+while the app is receiving data to sign. The LED then flashes green,
+indicating that you're required to touch the device for the signing to
+complete. The touch sensor is located next to the flashing LED --
+touch and release. If running on QEMU, the virtual device is always
+touched automatically.
 
 The program should eventually output a signature and say that it was verified.
 

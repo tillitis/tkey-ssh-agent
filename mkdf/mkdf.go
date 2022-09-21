@@ -157,7 +157,7 @@ func setAppSize(conn serial.Port, size int) error {
 	if err != nil {
 		return fmt.Errorf("fwRecv: %w", err)
 	}
-	if rx[2] != StatusOK {
+	if rx[0] != StatusOK {
 		return fmt.Errorf("SetAppSize NOK")
 	}
 
@@ -194,7 +194,7 @@ func loadAppData(conn serial.Port, content []byte) (int, error) {
 		return 0, err
 	}
 
-	if rx[2] != StatusOK {
+	if rx[0] != StatusOK {
 		return 0, fmt.Errorf("LoadAppData NOK")
 	}
 
@@ -253,7 +253,7 @@ func runApp(conn serial.Port) error {
 		return err
 	}
 
-	if rx[2] != StatusOK {
+	if rx[0] != StatusOK {
 		return fmt.Errorf("RunApp NOK")
 	}
 

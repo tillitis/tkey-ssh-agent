@@ -27,7 +27,10 @@ $(OBJS): ../common/mta1_mkdf_mem.h \
 clean:
 	$(RM) -f app.bin app $(OBJS)
 
+FMTFILES=main.c app_proto.h app_proto.c
 .PHONY: fmt
 fmt:
 	make -C ../common fmt
-	clang-format -i main.c app_proto.h app_proto.c
+	# Uses ../.clang-format
+	clang-format --dry-run --ferror-limit=0 $(FMTFILES)
+	clang-format --verbose -i $(FMTFILES)

@@ -1,22 +1,23 @@
 .PHONY: all
-all: signerapp runapp mkdf-ssh-agent
+all: signerapp runapp tk1sign mkdf-ssh-agent
 
 .PHONY: signerapp
 signerapp:
 	$(MAKE) -C signerapp
 
-.PHONY: runapp
-runapp:
+runapp: ./cmd/runapp/*.go
 	go build ./cmd/runapp
 
-.PHONY: mkdf-ssh-agent
-mkdf-ssh-agent: signerapp
+tk1sign: signerapp ./cmd/tk1sign/*.go
+	go build ./cmd/tk1sign
+
+mkdf-ssh-agent: signerapp ./cmd/mkdf-ssh-agent/*.go
 	cp -af signerapp/app.bin cmd/mkdf-ssh-agent/app.bin
 	go build ./cmd/mkdf-ssh-agent
 
 .PHONY: clean
 clean:
-	rm -f runapp mkdf-ssh-agent cmd/mkdf-ssh-agent/app.bin
+	rm -f runapp tk1sign mkdf-ssh-agent cmd/mkdf-ssh-agent/app.bin
 	$(MAKE) -C signerapp clean
 
 .PHONY: update-mem-include

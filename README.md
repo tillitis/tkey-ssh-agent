@@ -29,11 +29,11 @@ If your available `objcopy` is anything other than the default
 `llvm-objcopy-14`, then define `OBJCOPY` to whatever they're called on your
 system.
 
-The signerapp can be run both on the hardware Tillitis Key 1, and on a QEMU
-machine that emulates the platform. In both cases, the host program (`runapp`
-or `mkdf-ssh-agent` running on your computer) will talk to the app over a
-serial port, virtual or real. Please continue below in the suitable "Running
-apps on ..." section.
+The signerapp can be run both on the hardware Tillitis Key 1, and on a
+QEMU machine that emulates the platform. In both cases, the host
+program (`runapp`, `tk1sign` or `mkdf-ssh-agent` running on your
+computer) will talk to the app over a serial port, virtual or real.
+Please continue below in the suitable "Running apps on ..." section.
 
 ### Running apps on Tillitis Key 1
 
@@ -45,7 +45,7 @@ refer to
 (in the tillitis-key1 repository) for instructions on initial programming of
 the device.
 
-#### Users on Linux users
+#### Users on Linux
 
 Running `lsusb` should list the device as `1207:8887 Tillitis MTA1-USB-V1`. On
 Linux, Tillitis Key 1's serial port path is typically `/dev/ttyACM0` (but it
@@ -73,8 +73,8 @@ terminal that you're working in.
 Your Tillitis Key 1 is now running the firmware. Its LED flashing white,
 indicating that it is ready to receive an app to run. You have also learned
 what serial port path to use for accessing it. You may need to pass this as
-`--port` when running the host programs. Continue in the section below, "Using
-runapp".
+`--port` when running the host programs. Continue in the section "Using
+runapp" below.
 
 #### Users on MacOS
 
@@ -87,9 +87,9 @@ ioreg -p IOUSB -w0 -l
 There should be an entry with `"USB Vendor Name" = "Tillitis"`.
 
 Looking in the `/dev` directory, there should be a device named like
-`/dev/tty.usbmodemXYZ`. Where XYZ is a number, for example 101. This is the
-device path that needs to be passed as `--port` when running the host programs.
-Continue in the section below, "Using runapp".
+`/dev/tty.usbmodemXYZ`. Where XYZ is a number, for example 101. This
+is the device path that needs to be passed as `--port` when running
+the host programs. Continue in the section "Using runsign..." below.
 
 ### Running apps on QEMU
 
@@ -122,34 +122,55 @@ $ <path-to-qemu>/build/qemu-system-riscv32 -nographic -M mta1_mkdf,fifo=chrid -b
        -chardev pty,id=chrid
 ```
 
-It tells you what serial port it is using, for instance `/dev/pts/1`. This is
-what you need to use as `--port` when running the host programs. Continue in
-the section below, "Using runapp".
+It tells you what serial port it is using, for instance `/dev/pts/1`.
+This is what you need to use as `--port` when running the host
+programs. Continue in the section "Using runsign..." below.
 
 The MTA1 machine running on QEMU (which in turn runs the firmware, and
 then the app) can output some memory access (and other) logging. You can add
 `-d guest_errors` to the qemu commandline To make QEMU send these to stderr.
 
-## Using runapp
+## Using runsign and runapp
 
 By now you should have learned which serial port to use from one of the
-"Running on"-sections. If you're running on hardware, the LED on the device is
+"Running on" sections. If you're running on hardware, the LED on the device is
 expected to be flashing white, indicating that firmware is ready to receive an
 app to run.
 
-The host program `runapp` performs a complete, verbose signing. To run the
-program you need to specify both the serial port and the raw app binary that
+There's a script called `runsign.sh` which loads and runs an ed25519
+signer app, then asks the app to sign a message and verifies it. You
+can use it like this:
+
+```
+./runsign.sh /dev/pts/19 file-with-message
+```
+
+The file with the message can currently be at most 4096 bytes long.
+
+The host program `runapp` only loads and starts an app. Then you will
+have to switch to a different program to speak your specific app
+protocol, for instance the `tk1sign` program provided here.
+
+To run `runapp` you need to specify both the serial port (unless
+you're using the default `/dev/ttyACM0`) and the raw app binary that
 should be run. The port used below is just an example.
 
 ```
 $ ./runapp --port /dev/pts/1 --file signerapp/app.bin
 ```
 
-If you're on hardware, the LED on the device is a steady green while the app
-is receiving data to sign. The LED then flashes green, indicating that you're
-required to touch the device for the signing to complete. The touch sensor is
-located next to the flashing LED -- touch and release. If running on QEMU, the
-virtual device is always touched automatically.
+`tk1sign` is used in a similar way:
+
+```
+./tk1sign --port /dev/pts/1 --file file-with-message-to-sign
+```
+
+If you're using real hardware, the LED on the device is a steady green
+while the app is receiving data to sign. The LED then flashes green,
+indicating that you're required to touch the device for the signing to
+complete. The touch sensor is located next to the flashing LED --
+touch and release. If running on QEMU, the virtual device is always
+touched automatically.
 
 The program should eventually output a signature and say that it was verified.
 

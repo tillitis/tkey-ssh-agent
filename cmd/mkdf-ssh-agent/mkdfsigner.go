@@ -35,8 +35,7 @@ type MKDFSigner struct {
 }
 
 func NewMKDFSigner(devPath string, speed int) (*MKDFSigner, error) {
-	// TODO keep
-	// mkdf.SilenceLogging()
+	mkdf.SilenceLogging()
 	le.Printf("Connecting to device on serial port %s ...\n", devPath)
 	tk, err := mkdf.New(devPath, speed)
 	if err != nil {

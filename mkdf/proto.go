@@ -195,15 +195,18 @@ func (tk TillitisKey) Write(d []byte) error {
 func (tk TillitisKey) ReadFrame(len CmdLen, expectedDest Endpoint) (FramingHdr, []byte, error) {
 	var hdr FramingHdr
 
-	// Create a buffer covering frame header + firmware payload
-	rx := make([]byte, 1+len.Bytelen())
-
-	_, err := io.ReadFull(tk.conn, rx)
+	// Try to read the single header byte; the Read() will any set
+	// timeout. The io.ReadFull() below overrides any timeout.
+	rxHdr := make([]byte, 1)
+	n, err := tk.conn.Read(rxHdr)
 	if err != nil {
-		return hdr, nil, fmt.Errorf("ReadFull: %w", err)
+		return hdr, nil, fmt.Errorf("Read: %w", err)
+	}
+	if n == 0 {
+		return hdr, nil, fmt.Errorf("Read timeout")
 	}
 
-	hdr, err = parseframe(rx[0])
+	hdr, err = parseframe(rxHdr[0])
 	if err != nil {
 		return hdr, nil, fmt.Errorf("Couldn't parse framing header: %w", err)
 	}
@@ -216,5 +219,10 @@ func (tk TillitisKey) ReadFrame(len CmdLen, expectedDest Endpoint) (FramingHdr, 
 		return hdr, nil, fmt.Errorf("Message not meant for us: dest %v", hdr.Endpoint)
 	}
 
-	return hdr, rx[1:], nil
+	rxPayload := make([]byte, len.Bytelen())
+	if _, err = io.ReadFull(tk.conn, rxPayload); err != nil {
+		return hdr, nil, fmt.Errorf("ReadFull: %w", err)
+	}
+
+	return hdr, rxPayload, nil
 }

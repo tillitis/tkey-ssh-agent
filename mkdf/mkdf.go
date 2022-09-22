@@ -75,18 +75,16 @@ func (tk TillitisKey) Close() error {
 	return nil
 }
 
-// SetReadTimeout sets the timeout of the underlying serial connection
-// to the TK1. Pass 0 seconds for no timeout.
+// SetReadTimeout sets the timeout of the underlying serial connection to the
+// TK1. Pass 0 seconds to not have any timeout. Note that the timeout
+// implemented in the serial lib only works for simple Read(). E.g.
+// io.ReadFull() will Read() until the buffer is full.
 func (tk TillitisKey) SetReadTimeout(seconds int) error {
-	le.Printf("settimeout: %d", seconds)
 	var t time.Duration = -1
 	if seconds > 0 {
-		// This sets `seconds` seconds timeout, see:
-		// https://github.com/bugst/go-serial/issues/141
-		t = 2_000 / 100 * time.Millisecond
+		t = time.Duration(seconds) * time.Second
 	}
-	err := tk.conn.SetReadTimeout(t)
-	if err != nil {
+	if err := tk.conn.SetReadTimeout(t); err != nil {
 		return fmt.Errorf("SetReadTimeout: %w", err)
 	}
 	return nil

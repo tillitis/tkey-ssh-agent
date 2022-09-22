@@ -68,16 +68,24 @@ func New(port string, speed int) (TillitisKey, error) {
 }
 
 // Close the connection to the TK1
-func (tk TillitisKey) Close() {
-	tk.conn.Close()
+func (tk TillitisKey) Close() error {
+	if err := tk.conn.Close(); err != nil {
+		return fmt.Errorf("conn.Close: %w", err)
+	}
+	return nil
 }
 
 // SetReadTimeout sets the timeout of the underlying serial connection
 // to the TK1. Pass 0 seconds for no timeout.
 func (tk TillitisKey) SetReadTimeout(seconds int) error {
-	// This sets `seconds` seconds timeout, see:
-	// https://github.com/bugst/go-serial/issues/141
-	err := tk.conn.SetReadTimeout(time.Duration(seconds*1_000/100) * time.Millisecond)
+	le.Printf("settimeout: %d", seconds)
+	var t time.Duration = -1
+	if seconds > 0 {
+		// This sets `seconds` seconds timeout, see:
+		// https://github.com/bugst/go-serial/issues/141
+		t = 2_000 / 100 * time.Millisecond
+	}
+	err := tk.conn.SetReadTimeout(t)
 	if err != nil {
 		return fmt.Errorf("SetReadTimeout: %w", err)
 	}

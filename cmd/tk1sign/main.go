@@ -33,13 +33,15 @@ func main() {
 	fmt.Printf("Connecting to device on serial port %s ...\n", *port)
 	tk, err := mkdf.New(*port, *speed)
 	if err != nil {
-		fmt.Printf("Couldn't open...\n")
+		fmt.Printf("Could not open %s: %v\n", *port, err)
 		os.Exit(1)
 	}
 
 	signer := mkdfsign.New(tk)
 	exit := func(code int) {
-		signer.Close()
+		if err := signer.Close(); err != nil {
+			fmt.Printf("%v\n", err)
+		}
 		os.Exit(code)
 	}
 

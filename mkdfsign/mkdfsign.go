@@ -55,8 +55,11 @@ func New(tk mkdf.TillitisKey) Signer {
 }
 
 // Close closes the connection to the TK1
-func (s Signer) Close() {
-	s.tk.Close()
+func (s Signer) Close() error {
+	if err := s.tk.Close(); err != nil {
+		return fmt.Errorf("tk.Close: %w", err)
+	}
+	return nil
 }
 
 // GetAppNameVersion gets the name and version of the running app in

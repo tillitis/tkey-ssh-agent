@@ -1,26 +1,24 @@
 // Copyright (C) 2022 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
-// Packade mkdfsign provides a connection the the ed25519 signerapp
+// Package mkdfsign provides a connection the the ed25519 signerapp
 // running on the Tillitis Key 1. You're expected to pass an existing
 // TK1 connection to it, so use it like this:
 //
-//   tk, err := mkdf.New(*port, *speed)
-//   signer := mkdfsign.New(tk)
+//	tk, err := mkdf.New(*port, *speed)
+//	signer := mkdfsign.New(tk)
 //
 // Then use it like this to get the public key of the TK1:
 //
-//   pubkey, err := signer.GetPubkey()
+//	pubkey, err := signer.GetPubkey()
 //
 // And like this to sign a message:
 //
-//   signature, err := signer.Sign(message)
-//
+//	signature, err := signer.Sign(message)
 package mkdfsign
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/tillitis/tillitis-key1-apps/mkdf"
 )
@@ -45,8 +43,9 @@ type Signer struct {
 // New() gets you a connection to a ed25519 signerapp running on the
 // Tillitis Key 1. You're expected to pass an existing TK1 connection
 // to it, so use it like this:
-//   tk, err := mkdf.New(port, speed)
-//   signer := mkdfsign.New(tk)
+//
+//	tk, err := mkdf.New(port, speed)
+//	signer := mkdfsign.New(tk)
 func New(tk mkdf.TillitisKey) Signer {
 	var signer Signer
 
@@ -63,13 +62,16 @@ func (s Signer) Close() {
 // GetAppNameVersion gets the name and version of the running app in
 // the same style as the stick itself.
 func (s Signer) GetAppNameVersion() (*mkdf.NameVersion, error) {
-	// This sets 2s timeout, see: https://github.com/bugst/go-serial/issues/141
-	err := s.tk.SetReadTimeout(2_000 / 100 * time.Millisecond)
+	err := s.tk.SetReadTimeout(2)
 	if err != nil {
 		return nil, fmt.Errorf("SetReadTimeout: %w", err)
 	}
 
 	tx, err := mkdf.GenFrameBuf(2, mkdf.DestApp, mkdf.CmdLen1)
+	if err != nil {
+		return nil, fmt.Errorf("GenFrameBuf: %w", err)
+	}
+
 	// Set command code
 	tx[1] = byte(cmdGetNameVersion)
 
@@ -80,14 +82,14 @@ func (s Signer) GetAppNameVersion() (*mkdf.NameVersion, error) {
 
 	_, rx, err := s.tk.ReadFrame(mkdf.CmdLen32, mkdf.DestApp)
 	if err != nil {
-		return nil, fmt.Errorf("read frame: %w", err)
+		return nil, fmt.Errorf("ReadFrame: %w", err)
 	}
 
 	if rx[0] != byte(cmdGetNameVersion) {
 		return nil, fmt.Errorf("")
 	}
 
-	err = s.tk.SetReadTimeout(mkdf.NoTimeout)
+	err = s.tk.SetReadTimeout(0)
 	if err != nil {
 		return nil, fmt.Errorf("SetReadTimeout: %w", err)
 	}
@@ -101,6 +103,9 @@ func (s Signer) GetAppNameVersion() (*mkdf.NameVersion, error) {
 // GetPubkey fetches the public key of the signer.
 func (s Signer) GetPubkey() ([]byte, error) {
 	tx, err := mkdf.GenFrameBuf(2, mkdf.DestApp, mkdf.CmdLen1)
+	if err != nil {
+		return nil, fmt.Errorf("GenFrameBuf: %w", err)
+	}
 
 	// Set command code
 	tx[1] = byte(cmdGetPubkey)
@@ -112,11 +117,10 @@ func (s Signer) GetPubkey() ([]byte, error) {
 
 	_, rx, err := s.tk.ReadFrame(mkdf.CmdLen128, mkdf.DestApp)
 	if err != nil {
-		return nil, fmt.Errorf("read frame: %w", err)
+		return nil, fmt.Errorf("ReadFrame: %w", err)
 	}
 
 	mkdf.Dump("GetPubKey rx", rx)
-
 	if rx[0] != byte(cmdGetPubkey) {
 		return nil, fmt.Errorf("Expected appCmdGetPubkey, got %v", rx[0])
 	}
@@ -129,7 +133,7 @@ func (s Signer) GetPubkey() ([]byte, error) {
 func (s Signer) Sign(data []byte) ([]byte, error) {
 	err := s.setSize(len(data))
 	if err != nil {
-		return nil, fmt.Errorf("SetSize: %w", err)
+		return nil, fmt.Errorf("setSize: %w", err)
 	}
 
 	var offset int
@@ -154,6 +158,9 @@ func (s Signer) Sign(data []byte) ([]byte, error) {
 // SetSize sets the size of the data to sign.
 func (s Signer) setSize(size int) error {
 	tx, err := mkdf.GenFrameBuf(2, mkdf.DestApp, mkdf.CmdLen32)
+	if err != nil {
+		return fmt.Errorf("GenFrameBuf: %w", err)
+	}
 
 	// Set command code
 	tx[1] = byte(cmdSetSize)
@@ -165,10 +172,13 @@ func (s Signer) setSize(size int) error {
 	tx[5] = byte(size >> 24)
 	mkdf.Dump("SetAppSize tx", tx)
 	if err = s.tk.Write(tx); err != nil {
-		return fmt.Errorf("Xmit: %w", err)
+		return fmt.Errorf("Write: %w", err)
 	}
 
 	_, rx, err := s.tk.ReadFrame(mkdf.CmdLen4, mkdf.DestApp)
+	if err != nil {
+		return fmt.Errorf("ReadFrame: %w", err)
+	}
 
 	mkdf.Dump("SetAppSize rx", rx)
 	if rx[0] != byte(cmdSetSize) {
@@ -187,7 +197,7 @@ func (s Signer) setSize(size int) error {
 func (s Signer) signLoad(content []byte) (int, error) {
 	tx, err := mkdf.GenFrameBuf(2, mkdf.DestApp, mkdf.CmdLen128)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("GenFrameBuf: %w", err)
 	}
 
 	// Set the command
@@ -213,7 +223,7 @@ func (s Signer) signLoad(content []byte) (int, error) {
 	// Wait for reply
 	_, rx, err := s.tk.ReadFrame(mkdf.CmdLen4, mkdf.DestApp)
 	if err != nil {
-		return 0, fmt.Errorf("read frame: %w", err)
+		return 0, fmt.Errorf("ReadFrame: %w", err)
 	}
 
 	if rx[0] != byte(cmdSignData) {
@@ -231,6 +241,9 @@ func (s Signer) signLoad(content []byte) (int, error) {
 // available.
 func (s Signer) getSig() ([]byte, error) {
 	tx, err := mkdf.GenFrameBuf(2, mkdf.DestApp, mkdf.CmdLen1)
+	if err != nil {
+		return nil, fmt.Errorf("GenFrameBuf: %w", err)
+	}
 
 	// Set command code
 	tx[1] = byte(cmdGetSig)
@@ -242,7 +255,7 @@ func (s Signer) getSig() ([]byte, error) {
 
 	_, rx, err := s.tk.ReadFrame(mkdf.CmdLen128, mkdf.DestApp)
 	if err != nil {
-		return nil, fmt.Errorf("read frame: %w", err)
+		return nil, fmt.Errorf("ReadFrame: %w", err)
 	}
 
 	if rx[0] != byte(cmdGetSig) {

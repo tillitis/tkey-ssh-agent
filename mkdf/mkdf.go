@@ -47,8 +47,6 @@ const (
 	StatusBad = 0x01
 )
 
-const NoTimeout time.Duration = -1 // No timeout for serial connection
-
 // TillitisKey is a serial connection to a Tillitis Key 1 and the
 // commands that the firmware supports.
 type TillitisKey struct {
@@ -63,7 +61,7 @@ func New(port string, speed int) (TillitisKey, error) {
 
 	tk.conn, err = serial.Open(port, &serial.Mode{BaudRate: speed})
 	if err != nil {
-		return tk, fmt.Errorf("Could not open %s: %v\n", port, err)
+		return tk, fmt.Errorf("serial.Open %s: %w", port, err)
 	}
 
 	return tk, nil
@@ -75,9 +73,15 @@ func (tk TillitisKey) Close() {
 }
 
 // SetReadTimeout sets the timeout of the underlying serial connection
-// to the TK1.
-func (tk TillitisKey) SetReadTimeout(timeout time.Duration) error {
-	return tk.conn.SetReadTimeout(timeout)
+// to the TK1. Pass 0 seconds for no timeout.
+func (tk TillitisKey) SetReadTimeout(seconds int) error {
+	// This sets `seconds` seconds timeout, see:
+	// https://github.com/bugst/go-serial/issues/141
+	err := tk.conn.SetReadTimeout(time.Duration(seconds*1_000/100) * time.Millisecond)
+	if err != nil {
+		return fmt.Errorf("SetReadTimeout: %w", err)
+	}
+	return nil
 }
 
 type NameVersion struct {
@@ -92,6 +96,18 @@ func (n *NameVersion) Unpack(raw []byte) {
 	n.Version = binary.LittleEndian.Uint32(raw[8:12])
 }
 
+// GenFrameBuf could take CmdCode as param, and set it in TX. It would
+// then not need to take CmdLen as param, but instead know every the
+// CmdLen for every CmdCode.
+
+// ReadFrame could take the expected ResponseCode as param. It could
+// then do the check, since this is always done by the caller. It
+// would then not need to take expected CmdLen of the response, but
+// could know about them all (as above).
+
+// I think these changes would work in all current cases, but could it
+// limit the use of GenFrameBuf/ReadFrame in some way?
+
 // GetNameVersion() gets the name and version from the TK1 firmware
 func (tk TillitisKey) GetNameVersion() (*NameVersion, error) {
 	tx, err := GenFrameBuf(2, DestFW, CmdLen1)
@@ -99,10 +115,8 @@ func (tk TillitisKey) GetNameVersion() (*NameVersion, error) {
 		return nil, err
 	}
 
-	// This sets 2s timeout, see: https://github.com/bugst/go-serial/issues/141
-	//err = tk.SetReadTimeout(2_000 / 100 * time.Millisecond)
-	if err != nil {
-		return nil, fmt.Errorf("SetReadTimeout: %w", err)
+	if err = tk.SetReadTimeout(2); err != nil {
+		return nil, err
 	}
 
 	// Set command code
@@ -110,20 +124,19 @@ func (tk TillitisKey) GetNameVersion() (*NameVersion, error) {
 
 	Dump("GetNameVersion tx", tx)
 	if err = tk.Write(tx); err != nil {
-		return nil, fmt.Errorf("Xmit: %w", err)
+		return nil, err
 	}
 
 	_, rx, err := tk.ReadFrame(CmdLen32, DestFW)
 	if err != nil {
-		return nil, fmt.Errorf("read frame: %w", err)
+		return nil, fmt.Errorf("ReadFrame: %w", err)
 	}
 
 	if rx[0] != byte(rspGetNameVersion) {
-		return nil, fmt.Errorf("")
+		return nil, fmt.Errorf("Expected rspGetNameVersion, got 0x%x", rx[0])
 	}
 
-	err = tk.conn.SetReadTimeout(serial.NoTimeout)
-	if err != nil {
+	if err = tk.SetReadTimeout(0); err != nil {
 		return nil, fmt.Errorf("SetReadTimeout: %w", err)
 	}
 
@@ -191,8 +204,6 @@ func (tk TillitisKey) LoadApp(bin []byte) error {
 	// Run the app
 	le.Printf("Running the app\n")
 	return tk.runApp()
-
-	return nil
 }
 
 // setAppSize() sets the size of the app to be loaded into the TK1.
@@ -213,13 +224,16 @@ func (tk TillitisKey) setAppSize(size int) error {
 
 	Dump("SetAppSize tx", tx)
 	if err = tk.Write(tx); err != nil {
-		return fmt.Errorf("Xmit: %w", err)
+		return err
 	}
 
 	_, rx, err := tk.ReadFrame(CmdLen4, DestFW)
+	if err != nil {
+		return fmt.Errorf("ReadFrame: %w", err)
+	}
 
 	if rx[0] != byte(rspLoadAppSize) {
-		return fmt.Errorf("Expected fwRspLoadAppSize, got 0x%x", rx[0])
+		return fmt.Errorf("Expected rspLoadAppSize, got 0x%x", rx[0])
 	}
 	if rx[1] != StatusOK {
 		return fmt.Errorf("SetAppSize NOK")
@@ -252,17 +266,17 @@ func (tk TillitisKey) loadAppData(content []byte) (int, error) {
 	Dump("LoadAppData tx", tx)
 
 	if err = tk.Write(tx); err != nil {
-		return 0, fmt.Errorf("Write: %w", err)
+		return 0, err
 	}
 
 	// Wait for reply
 	_, rx, err := tk.ReadFrame(CmdLen4, DestFW)
 	if err != nil {
-		return 0, fmt.Errorf("read frame: %w", err)
+		return 0, fmt.Errorf("ReadFrame: %w", err)
 	}
 
 	if rx[0] != byte(rspLoadAppData) {
-		return 0, fmt.Errorf("Expected fwRspLoadAppData, got %v", rx[0])
+		return 0, fmt.Errorf("Expected rspLoadAppData, got %v", rx[0])
 	}
 
 	if rx[1] != StatusOK {
@@ -285,17 +299,17 @@ func (tk TillitisKey) getAppDigest() ([32]byte, error) {
 	Dump("GetDigest tx", tx)
 
 	if err = tk.Write(tx); err != nil {
-		return md, fmt.Errorf("Write: %w", err)
+		return md, err
 	}
 
 	// Wait for reply
 	_, rx, err := tk.ReadFrame(CmdLen128, DestFW)
 	if err != nil {
-		return md, fmt.Errorf("read frame: %w", err)
+		return md, fmt.Errorf("ReadFrame: %w", err)
 	}
 
 	if rx[0] != byte(rspGetAppDigest) {
-		return md, fmt.Errorf("Expected fwRspGetAppDigest, got %v", rx[0])
+		return md, fmt.Errorf("Expected rspGetAppDigest, got %v", rx[0])
 	}
 
 	copy(md[:], rx[1:])
@@ -313,17 +327,17 @@ func (tk TillitisKey) runApp() error {
 	tx[1] = byte(cmdRunApp)
 
 	if err = tk.Write(tx); err != nil {
-		return fmt.Errorf("Write: %w", err)
+		return err
 	}
 
 	// Wait for reply
 	_, rx, err := tk.ReadFrame(CmdLen4, DestFW)
 	if err != nil {
-		return fmt.Errorf("read frame: %w", err)
+		return fmt.Errorf("ReadFrame: %w", err)
 	}
 
 	if rx[0] != byte(rspRunApp) {
-		return fmt.Errorf("Expected fwRspRunApp, got %v", rx[0])
+		return fmt.Errorf("Expected rspRunApp, got %v", rx[0])
 	}
 
 	if rx[1] != StatusOK {

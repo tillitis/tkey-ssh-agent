@@ -61,34 +61,34 @@ const (
 func (f fwCmd) String() string {
 	switch f {
 	case cmdGetNameVersion:
-		return "fwCmdGetNameVersion"
+		return "cmdGetNameVersion"
 
 	case rspGetNameVersion:
-		return "fwRspGetNameVersion"
+		return "rspGetNameVersion"
 
 	case cmdLoadAppSize:
-		return "fwCmdLoadAppSize"
+		return "cmdLoadAppSize"
 
 	case rspLoadAppSize:
-		return "fwRspLoadAppSize"
+		return "rspLoadAppSize"
 
 	case cmdLoadAppData:
-		return "fwCmdLoadAppData"
+		return "cmdLoadAppData"
 
 	case rspLoadAppData:
-		return "fwRspLoadAppData"
+		return "rspLoadAppData"
 
 	case cmdRunApp:
-		return "fwCmdRunApp"
+		return "cmdRunApp"
 
 	case rspRunApp:
-		return "fwRspRunApp"
+		return "rspRunApp"
 
 	case cmdGetAppDigest:
-		return "fwCmdGetAppDigest"
+		return "cmdGetAppDigest"
 
 	case rspGetAppDigest:
-		return "fwRspGetAppDigest"
+		return "rspGetAppDigest"
 
 	default:
 		return "Unknown FW code"
@@ -96,12 +96,12 @@ func (f fwCmd) String() string {
 }
 
 type FramingHdr struct {
-	Id       byte
+	ID       byte
 	Endpoint Endpoint
 	CmdLen   CmdLen
 }
 
-// FrameLen returns lenght in bytes of a complete frame, including
+// FrameLen returns length in bytes of a complete frame, including
 // header byte and cmdlen bytes.
 func (f *FramingHdr) FrameLen() int {
 	// XXX Could try GenframeBuf() first to ensure valid
@@ -118,7 +118,7 @@ func parseframe(b byte) (FramingHdr, error) {
 		return f, fmt.Errorf("must be zero")
 	}
 
-	f.Id = byte((uint32(b) & 0x60) >> 5)
+	f.ID = byte((uint32(b) & 0x60) >> 5)
 	f.Endpoint = Endpoint((b & 0x18) >> 3)
 	f.CmdLen = CmdLen(b & 0x3)
 
@@ -183,15 +183,15 @@ func Dump(s string, d []byte) {
 func (tk TillitisKey) Write(d []byte) error {
 	_, err := tk.conn.Write(d)
 	if err != nil {
-		return err
+		return fmt.Errorf("Write: %w", err)
 	}
 
 	return nil
 }
 
-// ReadFrame() reads a response in the framing protocol . of expected
-// length len and endpoint as in expectedDest. It returns the payload
-// without the framing protocol header.
+// ReadFrame() reads a response in the framing protocol of expected
+// length len and endpoint as in expectedDest. It returns the framing
+// protocol header, payload, and any error separately.
 func (tk TillitisKey) ReadFrame(len CmdLen, expectedDest Endpoint) (FramingHdr, []byte, error) {
 	var hdr FramingHdr
 

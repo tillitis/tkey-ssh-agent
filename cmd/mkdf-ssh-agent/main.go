@@ -65,7 +65,7 @@ func main() {
 		}
 	}
 
-	signer, err := NewMKDFSigner(devPath, speed)
+	signer, err := NewSigner(devPath, speed)
 	if err != nil {
 		if errors.Is(err, ErrMaybeWrongDevice) {
 			le.Printf("If the serial port is correct for the device, then it might not be it\n" +

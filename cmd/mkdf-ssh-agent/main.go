@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"syscall"
 
 	"github.com/spf13/pflag"
@@ -81,6 +82,7 @@ func main() {
 		}
 		os.Exit(code)
 	}
+	handleSignals(func() { exit(1) }, os.Interrupt, syscall.SIGTERM)
 
 	agent := NewSSHAgent(signer)
 
@@ -112,4 +114,15 @@ func listPorts() error {
 		fmt.Printf("%s\n", port)
 	}
 	return nil
+}
+
+func handleSignals(action func(), sig ...os.Signal) {
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, sig...)
+	go func() {
+		for {
+			<-ch
+			action()
+		}
+	}()
 }

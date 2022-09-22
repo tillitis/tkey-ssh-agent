@@ -7,6 +7,8 @@ import (
 	"crypto/ed25519"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/spf13/pflag"
 	"github.com/tillitis/tillitis-key1-apps/mkdf"
@@ -44,6 +46,7 @@ func main() {
 		}
 		os.Exit(code)
 	}
+	handleSignals(func() { exit(1) }, os.Interrupt, syscall.SIGTERM)
 
 	pubkey, err := signer.GetPubkey()
 	if err != nil {
@@ -69,4 +72,15 @@ func main() {
 	}
 
 	exit(0)
+}
+
+func handleSignals(action func(), sig ...os.Signal) {
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, sig...)
+	go func() {
+		for {
+			<-ch
+			action()
+		}
+	}()
 }

@@ -105,7 +105,7 @@ int main(void)
 		case APP_CMD_GET_PUBKEY:
 			puts("APP_CMD_GET_PUBKEY\n");
 			memcpy(rsp, pubkey, 32);
-			appreply(hdr, APP_CMD_GET_PUBKEY, rsp);
+			appreply(hdr, APP_RSP_GET_PUBKEY, rsp);
 			break;
 
 		case APP_CMD_SET_SIZE:
@@ -123,7 +123,7 @@ int main(void)
 			if (message_size > MAX_SIGN_SIZE) {
 				puts("Message too big!\n");
 				rsp[0] = STATUS_BAD;
-				appreply(hdr, APP_CMD_SET_SIZE, rsp);
+				appreply(hdr, APP_RSP_SET_SIZE, rsp);
 				break;
 			}
 
@@ -132,7 +132,7 @@ int main(void)
 			msg_idx = 0;
 
 			rsp[0] = STATUS_OK;
-			appreply(hdr, APP_CMD_SET_SIZE, rsp);
+			appreply(hdr, APP_RSP_SET_SIZE, rsp);
 			led_steady = LED_GREEN;
 			break;
 
@@ -144,7 +144,7 @@ int main(void)
 			// not been called
 			if (hdr.len != cmdBytelen || message_size == 0) {
 				rsp[0] = STATUS_BAD;
-				appreply(hdr, APP_CMD_SIGN_DATA, rsp);
+				appreply(hdr, APP_RSP_SIGN_DATA, rsp);
 				break;
 			}
 
@@ -170,7 +170,7 @@ int main(void)
 			}
 
 			rsp[0] = STATUS_OK;
-			appreply(hdr, APP_CMD_SIGN_DATA, rsp);
+			appreply(hdr, APP_RSP_SIGN_DATA, rsp);
 			led_steady = LED_GREEN;
 			break;
 
@@ -178,11 +178,11 @@ int main(void)
 			puts("APP_CMD_GET_SIG\n");
 			if (signature_done == 0) {
 				rsp[0] = STATUS_BAD;
-				appreply(hdr, APP_CMD_GET_SIG, rsp);
+				appreply(hdr, APP_RSP_GET_SIG, rsp);
 				break;
 			}
 			memcpy(rsp, signature, 64);
-			appreply(hdr, APP_CMD_GET_SIG, rsp);
+			appreply(hdr, APP_RSP_GET_SIG, rsp);
 			led_steady = LED_GREEN;
 			break;
 
@@ -194,7 +194,7 @@ int main(void)
 				memcpy(rsp + 4, app_name1, 4);
 				memcpy(rsp + 8, &app_version, 4);
 			}
-			appreply(hdr, APP_CMD_GET_NAMEVERSION, rsp);
+			appreply(hdr, APP_RSP_GET_NAMEVERSION, rsp);
 			break;
 
 		default:

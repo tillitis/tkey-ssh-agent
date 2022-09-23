@@ -20,7 +20,7 @@
 // specific protocol.
 //
 // When writing your app specific protocol you might still want to use
-// the framing protocol provided here. See GenFrameBuf() and
+// the framing protocol provided here. See NewFrameBuf() and
 // ReadFrame().
 package mkdf
 
@@ -102,22 +102,16 @@ func (n *NameVersion) Unpack(raw []byte) {
 	n.Version = binary.LittleEndian.Uint32(raw[8:12])
 }
 
-// GenFrameBuf could take CmdCode as param, and set it in TX. It would
-// then not need to take CmdLen as param, but instead know every the
-// CmdLen for every CmdCode.
-
-// ReadFrame could take the expected ResponseCode as param. It could
-// then do the check, since this is always done by the caller. It
-// would then not need to take expected CmdLen of the response, but
-// could know about them all (as above).
-
-// I think these changes would work in all current cases, but could it
-// limit the use of GenFrameBuf/ReadFrame in some way?
-
 // GetNameVersion() gets the name and version from the TK1 firmware
 func (tk TillitisKey) GetNameVersion() (*NameVersion, error) {
-	tx, err := GenFrameBuf(2, DestFW, CmdLen1)
+	id := 2
+	tx, err := NewFrameBuf(cmdGetNameVersion, id)
 	if err != nil {
+		return nil, err
+	}
+
+	Dump("GetNameVersion tx", tx)
+	if err = tk.Write(tx); err != nil {
 		return nil, err
 	}
 
@@ -125,21 +119,9 @@ func (tk TillitisKey) GetNameVersion() (*NameVersion, error) {
 		return nil, err
 	}
 
-	// Set command code
-	tx[1] = byte(cmdGetNameVersion)
-
-	Dump("GetNameVersion tx", tx)
-	if err = tk.Write(tx); err != nil {
-		return nil, err
-	}
-
-	_, rx, err := tk.ReadFrame(CmdLen32, DestFW)
+	_, rx, err := tk.ReadFrame(rspGetNameVersion, id)
 	if err != nil {
 		return nil, fmt.Errorf("ReadFrame: %w", err)
-	}
-
-	if rx[0] != byte(rspGetNameVersion) {
-		return nil, fmt.Errorf("Expected rspGetNameVersion, got 0x%x", rx[0])
 	}
 
 	if err = tk.SetReadTimeout(0); err != nil {
@@ -214,13 +196,11 @@ func (tk TillitisKey) LoadApp(bin []byte) error {
 
 // setAppSize() sets the size of the app to be loaded into the TK1.
 func (tk TillitisKey) setAppSize(size int) error {
-	tx, err := GenFrameBuf(2, DestFW, CmdLen32)
+	id := 2
+	tx, err := NewFrameBuf(cmdLoadAppSize, id)
 	if err != nil {
 		return err
 	}
-
-	// Set command code
-	tx[1] = byte(cmdLoadAppSize)
 
 	// Set size
 	tx[2] = byte(size)
@@ -233,14 +213,11 @@ func (tk TillitisKey) setAppSize(size int) error {
 		return err
 	}
 
-	_, rx, err := tk.ReadFrame(CmdLen4, DestFW)
+	_, rx, err := tk.ReadFrame(rspLoadAppSize, id)
 	if err != nil {
 		return fmt.Errorf("ReadFrame: %w", err)
 	}
 
-	if rx[0] != byte(rspLoadAppSize) {
-		return fmt.Errorf("Expected rspLoadAppSize, got 0x%x", rx[0])
-	}
 	if rx[1] != StatusOK {
 		return fmt.Errorf("SetAppSize NOK")
 	}
@@ -251,12 +228,11 @@ func (tk TillitisKey) setAppSize(size int) error {
 // loadAppData() loads a chunk of the raw app binary into the TK1 and
 // waits for a reply.
 func (tk TillitisKey) loadAppData(content []byte) (int, error) {
-	tx, err := GenFrameBuf(2, DestFW, CmdLen128)
+	id := 2
+	tx, err := NewFrameBuf(cmdLoadAppData, id)
 	if err != nil {
 		return 0, err
 	}
-
-	tx[1] = byte(cmdLoadAppData)
 
 	payload := make([]byte, CmdLen128.Bytelen()-1)
 	copied := copy(payload, content)
@@ -276,13 +252,9 @@ func (tk TillitisKey) loadAppData(content []byte) (int, error) {
 	}
 
 	// Wait for reply
-	_, rx, err := tk.ReadFrame(CmdLen4, DestFW)
+	_, rx, err := tk.ReadFrame(rspLoadAppData, id)
 	if err != nil {
 		return 0, fmt.Errorf("ReadFrame: %w", err)
-	}
-
-	if rx[0] != byte(rspLoadAppData) {
-		return 0, fmt.Errorf("Expected rspLoadAppData, got %v", rx[0])
 	}
 
 	if rx[1] != StatusOK {
@@ -295,13 +267,12 @@ func (tk TillitisKey) loadAppData(content []byte) (int, error) {
 // getAppDigest() asks for an app digest from the TK1.
 func (tk TillitisKey) getAppDigest() ([32]byte, error) {
 	var md [32]byte
-
-	tx, err := GenFrameBuf(2, DestFW, CmdLen1)
+	id := 2
+	tx, err := NewFrameBuf(cmdGetAppDigest, id)
 	if err != nil {
 		return md, err
 	}
 
-	tx[1] = byte(cmdGetAppDigest)
 	Dump("GetDigest tx", tx)
 
 	if err = tk.Write(tx); err != nil {
@@ -309,13 +280,9 @@ func (tk TillitisKey) getAppDigest() ([32]byte, error) {
 	}
 
 	// Wait for reply
-	_, rx, err := tk.ReadFrame(CmdLen128, DestFW)
+	_, rx, err := tk.ReadFrame(rspGetAppDigest, id)
 	if err != nil {
 		return md, fmt.Errorf("ReadFrame: %w", err)
-	}
-
-	if rx[0] != byte(rspGetAppDigest) {
-		return md, fmt.Errorf("Expected rspGetAppDigest, got %v", rx[0])
 	}
 
 	copy(md[:], rx[1:])
@@ -325,25 +292,20 @@ func (tk TillitisKey) getAppDigest() ([32]byte, error) {
 
 // runApp() runs the loaded app, if any, in the TK1.
 func (tk TillitisKey) runApp() error {
-	tx, err := GenFrameBuf(2, DestFW, CmdLen1)
+	id := 2
+	tx, err := NewFrameBuf(cmdRunApp, id)
 	if err != nil {
 		return err
 	}
-
-	tx[1] = byte(cmdRunApp)
 
 	if err = tk.Write(tx); err != nil {
 		return err
 	}
 
 	// Wait for reply
-	_, rx, err := tk.ReadFrame(CmdLen4, DestFW)
+	_, rx, err := tk.ReadFrame(rspRunApp, id)
 	if err != nil {
 		return fmt.Errorf("ReadFrame: %w", err)
-	}
-
-	if rx[0] != byte(rspRunApp) {
-		return fmt.Errorf("Expected rspRunApp, got %v", rx[0])
 	}
 
 	if rx[1] != StatusOK {

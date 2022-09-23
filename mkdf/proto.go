@@ -43,56 +43,67 @@ func (l CmdLen) Bytelen() int {
 	return 0
 }
 
-type fwCmd byte
+type Cmd interface {
+	Code() byte
+	String() string
 
-const (
-	cmdGetNameVersion fwCmd = 0x01
-	rspGetNameVersion fwCmd = 0x02
-	cmdLoadAppSize    fwCmd = 0x03
-	rspLoadAppSize    fwCmd = 0x04
-	cmdLoadAppData    fwCmd = 0x05
-	rspLoadAppData    fwCmd = 0x06
-	cmdRunApp         fwCmd = 0x07
-	rspRunApp         fwCmd = 0x08
-	cmdGetAppDigest   fwCmd = 0x09
-	rspGetAppDigest   fwCmd = 0x10
+	CmdLen() CmdLen
+	Endpoint() Endpoint
+}
+
+var (
+	cmdGetNameVersion = fwCmd{
+		code: 0x01, cmdLen: CmdLen1, str: "cmdGetNameVersion",
+	}
+	rspGetNameVersion = fwCmd{
+		code: 0x02, cmdLen: CmdLen32, str: "rspGetNameVersion",
+	}
+	cmdLoadAppSize = fwCmd{
+		code: 0x03, cmdLen: CmdLen32, str: "cmdLoadAppSize",
+	}
+	rspLoadAppSize = fwCmd{
+		code: 0x04, cmdLen: CmdLen4, str: "rspLoadAppSize",
+	}
+	cmdLoadAppData = fwCmd{
+		code: 0x05, cmdLen: CmdLen128, str: "cmdLoadAppData",
+	}
+	rspLoadAppData = fwCmd{
+		code: 0x06, cmdLen: CmdLen4, str: "rspLoadAppData",
+	}
+	cmdRunApp = fwCmd{
+		code: 0x07, cmdLen: CmdLen1, str: "cmdRunApp",
+	}
+	rspRunApp = fwCmd{
+		code: 0x08, cmdLen: CmdLen4, str: "rspRunApp",
+	}
+	cmdGetAppDigest = fwCmd{
+		code: 0x09, cmdLen: CmdLen1, str: "cmdGetAppDigest",
+	}
+	rspGetAppDigest = fwCmd{
+		code: 0x10, cmdLen: CmdLen128, str: "rspGetAppDigest",
+	}
 )
 
-func (f fwCmd) String() string {
-	switch f {
-	case cmdGetNameVersion:
-		return "cmdGetNameVersion"
+type fwCmd struct {
+	code   byte
+	str    string
+	cmdLen CmdLen
+}
 
-	case rspGetNameVersion:
-		return "rspGetNameVersion"
+func (c fwCmd) Code() byte {
+	return c.code
+}
 
-	case cmdLoadAppSize:
-		return "cmdLoadAppSize"
+func (c fwCmd) CmdLen() CmdLen {
+	return c.cmdLen
+}
 
-	case rspLoadAppSize:
-		return "rspLoadAppSize"
+func (c fwCmd) Endpoint() Endpoint {
+	return DestFW
+}
 
-	case cmdLoadAppData:
-		return "cmdLoadAppData"
-
-	case rspLoadAppData:
-		return "rspLoadAppData"
-
-	case cmdRunApp:
-		return "cmdRunApp"
-
-	case rspRunApp:
-		return "rspRunApp"
-
-	case cmdGetAppDigest:
-		return "cmdGetAppDigest"
-
-	case rspGetAppDigest:
-		return "rspGetAppDigest"
-
-	default:
-		return "Unknown FW code"
-	}
+func (c fwCmd) String() string {
+	return c.str
 }
 
 type FramingHdr struct {
@@ -125,8 +136,12 @@ func parseframe(b byte) (FramingHdr, error) {
 	return f, nil
 }
 
-// GenFrameBuf() generates a framing protocol header and allocates a
-// buffer with the appropriate size for the command.
+// NewFrameBuf() allocates a buffer with the appropriate size for the
+// command in cmd, including the framing protocol header. The header
+// byte is generated and placed in the first byte of the returned
+// buffer. The cmd parameter is also used to get the endpoint and
+// command length for the header. The command code from cmd is also
+// placed in the second byte in the buffer.
 //
 // Header:
 // Bit [7] (1 bit). Reserved - possible protocol version.
@@ -146,24 +161,27 @@ func parseframe(b byte) (FramingHdr, error) {
 //	32 bytes
 //	128 bytes
 //
-// Note that the number of bytes indicated by the command data length field
-// does **not** include the command header byte. This means that a complete
-// command frame, with a header indicating a data length of 128 bytes, is 129
-// bytes in length.
-func GenFrameBuf(id byte, endpoint Endpoint, cmdlen CmdLen) ([]byte, error) {
+// Note that the number of bytes indicated by the command data length
+// field does **not** include the command header byte. This means that
+// a complete command frame, with a header indicating a data length of
+// 128 bytes, is 129 bytes in length.
+func NewFrameBuf(cmd Cmd, id int) ([]byte, error) {
 	if id > 3 {
 		return nil, fmt.Errorf("bad id")
 	}
-	if endpoint > 3 {
+	if cmd.Endpoint() > 3 {
 		return nil, fmt.Errorf("bad endpoint")
 	}
-	if cmdlen > 3 {
+	if cmd.CmdLen() > 3 {
 		return nil, fmt.Errorf("bad cmdlen")
 	}
 
 	// Make a buffer with frame header + cmdLen payload
-	tx := make([]byte, 1+cmdlen.Bytelen())
-	tx[0] = (id << 5) | (byte(endpoint) << 3) | byte(cmdlen)
+	tx := make([]byte, 1+cmd.CmdLen().Bytelen())
+	tx[0] = (byte(id) << 5) | (byte(cmd.Endpoint()) << 3) | byte(cmd.CmdLen())
+
+	// Set command code
+	tx[1] = cmd.Code()
 
 	return tx, nil
 }
@@ -189,11 +207,23 @@ func (tk TillitisKey) Write(d []byte) error {
 	return nil
 }
 
-// ReadFrame() reads a response in the framing protocol of expected
-// length len and endpoint as in expectedDest. It returns the framing
-// protocol header, payload, and any error separately.
-func (tk TillitisKey) ReadFrame(len CmdLen, expectedDest Endpoint) (FramingHdr, []byte, error) {
+// ReadFrame() reads a response in the framing protocol. Using
+// expectedResp it checks that the header's response code, length, and
+// endpoint is what's expected. The expectedID is also checked against
+// the ID in the header. It returns the framing protocol header,
+// payload, and any error separately.
+func (tk TillitisKey) ReadFrame(expectedResp Cmd, expectedID int) (FramingHdr, []byte, error) {
 	var hdr FramingHdr
+
+	if expectedID > 3 {
+		return hdr, nil, fmt.Errorf("bad expected ID")
+	}
+	if expectedResp.Endpoint() > 3 {
+		return hdr, nil, fmt.Errorf("bad expected endpoint")
+	}
+	if expectedResp.CmdLen() > 3 {
+		return hdr, nil, fmt.Errorf("bad expected cmdlen")
+	}
 
 	// Try to read the single header byte; the Read() will any set
 	// timeout. The io.ReadFull() below overrides any timeout.
@@ -211,17 +241,24 @@ func (tk TillitisKey) ReadFrame(len CmdLen, expectedDest Endpoint) (FramingHdr, 
 		return hdr, nil, fmt.Errorf("Couldn't parse framing header: %w", err)
 	}
 
-	if hdr.CmdLen != len {
-		return hdr, nil, fmt.Errorf("Framing: Expected len %v, got %v", len, hdr.CmdLen)
+	if hdr.CmdLen != expectedResp.CmdLen() {
+		return hdr, nil, fmt.Errorf("Framing: Expected len %v, got %v", expectedResp.CmdLen(), hdr.CmdLen)
 	}
 
-	if hdr.Endpoint != expectedDest {
+	if hdr.Endpoint != expectedResp.Endpoint() {
 		return hdr, nil, fmt.Errorf("Message not meant for us: dest %v", hdr.Endpoint)
 	}
+	if hdr.ID != byte(expectedID) {
+		return hdr, nil, fmt.Errorf("Expected ID %d, got %d", expectedID, hdr.ID)
+	}
 
-	rxPayload := make([]byte, len.Bytelen())
+	rxPayload := make([]byte, expectedResp.CmdLen().Bytelen())
 	if _, err = io.ReadFull(tk.conn, rxPayload); err != nil {
 		return hdr, nil, fmt.Errorf("ReadFull: %w", err)
+	}
+
+	if rxPayload[0] != expectedResp.Code() {
+		return hdr, nil, fmt.Errorf("Expected %s, got 0x%x", expectedResp, rxPayload[0])
 	}
 
 	return hdr, rxPayload, nil

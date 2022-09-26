@@ -1,23 +1,24 @@
 
-This repository contains applications to run on the Tillitis Key 1. So far
-there is one app of real use. For more information see the [main
-repository](https://github.com/tillitis/tillitis-key1) (with hardware designs,
-gateware, firmware etc), and [Tillitis web site](https://www.tillitis.se).
+This repository contains applications to run on the Tillitis Key 1. So
+far there is one app of real use. For more information see the [main
+repository](https://github.com/tillitis/tillitis-key1) (with hardware
+designs, gateware, firmware etc), and [Tillitis web
+site](https://www.tillitis.se).
 
 # The ed25519 signerapp
 
-An ed25519 signer app written in C. There are two host programs which can
-communicate with the app. `runapp` just performs a complete test signing.
-`mkdf-ssh-agent` is an ssh-agent with practical use.
+An ed25519 signer app written in C. There are two host programs which
+can communicate with the app. `runapp` just performs a complete test
+signing. `mkdf-ssh-agent` is an ssh-agent with practical use.
 
 ## Building
 
-To build you need the `clang`, `llvm` and `lld` packages installed. And they
-need to have risc32 support, check this with `llc --version | grep riscv32`.
-Please see
+To build you need the `clang`, `llvm` and `lld` packages installed.
+And they need to have risc32 support, check this with `llc --version |
+grep riscv32`. Please see
 [toolchain_setup.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/toolchain_setup.md)
-(in the tillitis-key1 repository) for information on the currently supported
-build and development environment.
+(in the tillitis-key1 repository) for information on the currently
+supported build and development environment.
 
 Build everything:
 
@@ -26,8 +27,8 @@ $ make
 ```
 
 If your available `objcopy` is anything other than the default
-`llvm-objcopy-14`, then define `OBJCOPY` to whatever they're called on your
-system.
+`llvm-objcopy-14`, then define `OBJCOPY` to whatever they're called on
+your system.
 
 The signerapp can be run both on the hardware Tillitis Key 1, and on a
 QEMU machine that emulates the platform. In both cases, the host
@@ -37,25 +38,26 @@ Please continue below in the suitable "Running apps on ..." section.
 
 ### Running apps on Tillitis Key 1
 
-Plug the USB device into your computer. If the LED at in one of the outer
-corners of the device is flashing white, then it has been programmed with the
-standard FPGA bitstream (including the firmware). If it is not then please
-refer to
+Plug the USB stick into your computer. If the LED at in one of the
+outer corners of the USB stick is flashing white, then it has been
+programmed with the standard FPGA bitstream (including the firmware).
+If it is not then please refer to
 [quickstart.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/quickstart.md)
-(in the tillitis-key1 repository) for instructions on initial programming of
-the device.
+(in the tillitis-key1 repository) for instructions on initial
+programming of the USB stick.
 
 #### Users on Linux
 
-Running `lsusb` should list the device as `1207:8887 Tillitis MTA1-USB-V1`. On
-Linux, Tillitis Key 1's serial port path is typically `/dev/ttyACM0` (but it
-may end with another digit, if you have other devices plugged in). This is also
-the default path that the host programs use to talk to it. You can list the
-possible paths using `mkdf-ssh-agent --list-ports`.
+Running `lsusb` should list the USB stick as `1207:8887 Tillitis
+MTA1-USB-V1`. On Linux, Tillitis Key 1's serial port device path is
+typically `/dev/ttyACM0` (but it may end with another digit, if you
+have other devices plugged in). This is also the default path that the
+host programs use to talk to it. You can list the possible paths using
+`mkdf-ssh-agent --list-ports`.
 
-You also need to be sure that you can access the serial port as your regular
-user. One way to do that is by becoming a member of the group that owns the
-serial port. You can do that like this:
+You also need to be sure that you can access the serial port as your
+regular user. One way to do that is by becoming a member of the group
+that owns the serial port. You can do that like this:
 
 ```
 $ id -un
@@ -65,20 +67,21 @@ crw-rw---- 1 root dialout 166, 0 Sep 16 08:20 /dev/ttyACM0
 $ sudo usermod -a -G dialout exampleuser
 ```
 
-For the change to take effect everywhere you need to logout from your system,
-and then log back in again. Then logout from your system and log back in
-again. You can also (following the above example) run `newgrp dialout` in the
-terminal that you're working in.
+For the change to take effect everywhere you need to logout from your
+system, and then log back in again. Then logout from your system and
+log back in again. You can also (following the above example) run
+`newgrp dialout` in the terminal that you're working in.
 
-Your Tillitis Key 1 is now running the firmware. Its LED flashing white,
-indicating that it is ready to receive an app to run. You have also learned
-what serial port path to use for accessing it. You may need to pass this as
-`--port` when running the host programs. Continue in the section "Using
-runapp" below.
+Your Tillitis Key 1 is now running the firmware. Its LED flashing
+white, indicating that it is ready to receive an app to run. You have
+also learned what serial port path to use for accessing it. You may
+need to pass this as `--port` when running the host programs. Continue
+in the section "Using runapp" below.
 
 #### Users on MacOS
 
-You can check that the OS has found and enumerated the device by running:
+You can check that the OS has found and enumerated the USB stick by
+running:
 
 ```
 ioreg -p IOUSB -w0 -l
@@ -127,15 +130,16 @@ This is what you need to use as `--port` when running the host
 programs. Continue in the section "Using runsign..." below.
 
 The MTA1 machine running on QEMU (which in turn runs the firmware, and
-then the app) can output some memory access (and other) logging. You can add
-`-d guest_errors` to the qemu commandline To make QEMU send these to stderr.
+then the app) can output some memory access (and other) logging. You
+can add `-d guest_errors` to the qemu commandline To make QEMU send
+these to stderr.
 
 ## Using runsign and runapp
 
-By now you should have learned which serial port to use from one of the
-"Running on" sections. If you're running on hardware, the LED on the device is
-expected to be flashing white, indicating that firmware is ready to receive an
-app to run.
+By now you should have learned which serial port to use from one of
+the "Running on" sections. If you're running on hardware, the LED on
+the UBS stick is expected to be flashing white, indicating that
+firmware is ready to receive an app to run.
 
 There's a script called `runsign.sh` which loads and runs an ed25519
 signer app, then asks the app to sign a message and verifies it. You
@@ -165,17 +169,18 @@ $ ./runapp --port /dev/pts/1 --file signerapp/app.bin
 ./tk1sign --port /dev/pts/1 --file file-with-message-to-sign
 ```
 
-If you're using real hardware, the LED on the device is a steady green
-while the app is receiving data to sign. The LED then flashes green,
-indicating that you're required to touch the device for the signing to
-complete. The touch sensor is located next to the flashing LED --
-touch and release. If running on QEMU, the virtual device is always
-touched automatically.
+If you're using real hardware, the LED on the USB stick is a steady
+green while the app is receiving data to sign. The LED then flashes
+green, indicating that you're required to touch the USB stick for the
+signing to complete. The touch sensor is located next to the flashing
+LED -- touch it and release. If running on QEMU, the virtual device is
+always touched automatically.
 
-The program should eventually output a signature and say that it was verified.
+The program should eventually output a signature and say that it was
+verified.
 
-When all is done, the hardware device will flash a nice blue, indicating that
-it is ready to make (another) signature.
+When all is done, the hardware USB stick will flash a nice blue,
+indicating that it is ready to make (another) signature.
 
 If `--file` is not passed, the app is assumed to be loaded and running
 already, and signing is attempted right away.
@@ -184,41 +189,46 @@ That was fun, now let's try the ssh-agent!
 
 ## Using mkdf-ssh-agent
 
-This host program for the signerapp is a complete, alternative ssh-agent with
-practical use. The signerapp binary gets built into the mkdf-ssh-agent, which
-will upload it to the device when started. If the serial port path is not the
-default, you need to pass it as `--port`. An example:
+This host program for the signerapp is a complete, alternative
+ssh-agent with practical use. The signerapp binary gets built into the
+mkdf-ssh-agent, which will upload it to the USB stick when started. If
+the serial port path is not the default, you need to pass it as
+`--port`. An example:
 
 ```
 $ ./mkdf-ssh-agent -a ./agent.sock --port /dev/pts/1
 ```
 
-This will start the ssh-agent and tell it to listen on the specified socket
-`./agent.sock`.
+This will start the ssh-agent and tell it to listen on the specified
+socket `./agent.sock`.
 
-It will also output the ed25519 public key for this instance of the app on
-this key device. If the app binary, or the physical key device changes, then
-the private key will also change -- and thus also the public key displayed!
+It will also output the ed25519 public key for this instance of the
+app on this specific Tillitis Key USB stick. If the app binary, or the
+physical USB stick changes, then the private key will also change --
+and thus also the public key displayed!
 
-If you copy-paste the public key into your `~/.ssh/authorized_keys` you can
-try to log onto your local computer (if sshd is running there). The socket
-path set/output above is also needed by ssh in `SSH_AUTH_SOCK`:
+If you copy-paste the public key into your `~/.ssh/authorized_keys`
+you can try to log onto your local computer (if sshd is running
+there). The socket path set/output above is also needed by ssh in
+`SSH_AUTH_SOCK`:
 
 ```
 $ SSH_AUTH_SOCK=/path/to/agent.sock ssh -F /dev/null localhost
 ```
 
-`-F /dev/null` is used to ignore your ~/.ssh/config which could interfere with
-this test.
+`-F /dev/null` is used to ignore your ~/.ssh/config which could
+interfere with this test.
 
-The message `agent 27: ssh: parse error in message type 27` coming from
-mkdf-ssh-agent is due to https://github.com/golang/go/issues/51689 and will
-eventually be fixed by https://go-review.googlesource.com/c/crypto/+/412154/
-(until then it's also not possible to implement the upcoming SSH agent
+The message `agent 27: ssh: parse error in message type 27` coming
+from mkdf-ssh-agent is due to
+https://github.com/golang/go/issues/51689 and will eventually be fixed
+by https://go-review.googlesource.com/c/crypto/+/412154/ (until then
+it's also not possible to implement the upcoming SSH agent
 restrictions https://www.openssh.com/agent-restrict.html).
 
-You can use `-k` (long option: `--show-pubkey`) to only output the pubkey (on
-stdout, some message are still present on stderr), which can be useful:
+You can use `-k` (long option: `--show-pubkey`) to only output the
+pubkey (on stdout, some message are still present on stderr), which
+can be useful:
 
 ```
 $ ./mkdf-ssh-agent -k --port /dev/pts/1
@@ -226,34 +236,36 @@ $ ./mkdf-ssh-agent -k --port /dev/pts/1
 
 # fooapp
 
-In `fooapp/` there is also a very, very simple app written in assembler,
-foo.bin (foo.S) that blinks the LED.
+In `fooapp/` there is also a very, very simple app written in
+assembler, foo.bin (foo.S) that blinks the LED.
 
 # Developing apps
 
 ## Memory
 
-RAM starts at 0x4000\_0000 and ends at 0x4002\_0000. Your program will be
-loaded by firmware at 0x4001\_0000 which means a maximum size including
-`.data` and `.bss` of 64 kiB. In this app (see `crt0.S`) you have 64 kiB of
-stack from 0x4000\_ffff down to where RAM starts.
+RAM starts at 0x4000\_0000 and ends at 0x4002\_0000. Your program will
+be loaded by firmware at 0x4001\_0000 which means a maximum size
+including `.data` and `.bss` of 64 kiB. In this app (see `crt0.S`) you
+have 64 kiB of stack from 0x4000\_ffff down to where RAM starts.
 
 There are no heap allocation functions, no `malloc()` and friends.
 
-Special memory areas for memory mapped hardware functions are available at
-base 0xc000\_0000 and an offset. See
+Special memory areas for memory mapped hardware functions are
+available at base 0xc000\_0000 and an offset. See
 [software.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/system_description/software.md)
-(in the tillitis-key1 repository), and the include file `mta1_mkdf_mem.h`.
+(in the tillitis-key1 repository), and the include file
+`mta1_mkdf_mem.h`.
 
 ### Debugging
 
-If you're running the app on our qemu emulator we have added a debug port on
-0xfe00\_1000 (MTA1_MKDF_MMIO_QEMU_DEBUG). Anything written there will be
-printed as a character by qemu on the console.
+If you're running the app on our qemu emulator we have added a debug
+port on 0xfe00\_1000 (MTA1_MKDF_MMIO_QEMU_DEBUG). Anything written
+there will be printed as a character by qemu on the console.
 
 `putchar()`, `puts()`, `putinthex()`, `hexdump()` and friends (see
-`signerapp/lib.[ch]`) use this debug port to print stuff. If you compile with
-`-DNODEBUG` all these are no-ops.
+`common/lib.[ch]`) use this debug port to print stuff. Though by
+default the [`signerapp/Makefile`](signerapp/Makefile) compiles with
+`-DNODEBUG` which makes these functions no-ops (do nothing).
 
 # Licensing
 

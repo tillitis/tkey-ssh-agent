@@ -134,6 +134,40 @@ func (tk TillitisKey) GetNameVersion() (*NameVersion, error) {
 	return nameVer, nil
 }
 
+// LoadUSS loads the User Supplied Secret into TK1. The USS is a
+// 32 bytes digest hashed from the secretPhrase supplied by the user.
+// LoadUSS must be called before setting the app size and loading the
+// app. If LoadUSS is not called, the effective USS in TK1 will be 32
+// bytes of zeroes.
+func (tk TillitisKey) LoadUSS(secretPhrase []byte) error {
+	id := 2
+	tx, err := NewFrameBuf(cmdLoadUSS, id)
+	if err != nil {
+		return err
+	}
+
+	// Hash user's phrase as USS
+	uss := blake2s.Sum256([]byte(secretPhrase))
+	copy(tx[2:], uss[:])
+
+	// Not running Dump() on the secret USS
+	le.Printf("LoadUSS tx len:%d contents omitted\n", len(tx))
+	if err = tk.Write(tx); err != nil {
+		return err
+	}
+
+	_, rx, err := tk.ReadFrame(rspLoadUSS, id)
+	if err != nil {
+		return fmt.Errorf("ReadFrame: %w", err)
+	}
+
+	if rx[1] != StatusOK {
+		return fmt.Errorf("LoadUSS NOK")
+	}
+
+	return nil
+}
+
 // LoadAppFromFile() loads and runs a raw binary file from fileName into the TK1
 func (tk TillitisKey) LoadAppFromFile(fileName string) error {
 	content, err := os.ReadFile(fileName)

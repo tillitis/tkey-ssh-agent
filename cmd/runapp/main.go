@@ -4,6 +4,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"os/signal"
@@ -11,15 +12,20 @@ import (
 
 	"github.com/spf13/pflag"
 	"github.com/tillitis/tillitis-key1-apps/mkdf"
+	"golang.org/x/term"
 )
 
 func main() {
 	fileName := pflag.String("file", "", "App binary to be uploaded and started")
 	port := pflag.String("port", "/dev/ttyACM0", "Serial port path")
 	speed := pflag.Int("speed", 38400, "When talking over the serial port, bits per second")
+	typeUSS := pflag.Bool("uss", false, "Enable typing of a phrase for the User Supplied Secret. The phrase\n"+
+		"is hashed using BLAKE2 to a digest. The USS digest is used by the\n"+
+		"firmware, together with other material, for deriving secrets for the\n"+
+		"application.")
 	verbose := pflag.Bool("verbose", false, "Enable verbose output")
-
 	pflag.Parse()
+
 	if !*verbose {
 		mkdf.SilenceLogging()
 	}
@@ -54,6 +60,20 @@ func main() {
 	}
 	fmt.Printf("Firmware has name0:%s name1:%s version:%d\n",
 		nameVer.Name0, nameVer.Name1, nameVer.Version)
+
+	if *typeUSS {
+		uss, err := inputUSS()
+		if err != nil {
+			fmt.Printf("Failed: %v\n", err)
+			exit(1)
+		}
+		fmt.Printf("Loading USS onto device\n")
+		if err = tk.LoadUSS(uss); err != nil {
+			fmt.Printf("LoadUSS failed: %v\n", err)
+			exit(1)
+		}
+	}
+
 	fmt.Printf("Loading app from %v onto device\n", *fileName)
 	err = tk.LoadAppFromFile(*fileName)
 	if err != nil {
@@ -73,4 +93,25 @@ func handleSignals(action func(), sig ...os.Signal) {
 			action()
 		}
 	}()
+}
+
+func inputUSS() ([]byte, error) {
+	fmt.Printf("Enter phrase for the USS: ")
+	uss, err := term.ReadPassword(int(os.Stdin.Fd()))
+	if err != nil {
+		return nil, fmt.Errorf("ReadPassword: %w", err)
+	}
+	fmt.Printf("\nRepeat the phrase: ")
+	ussAgain, err := term.ReadPassword(0)
+	if err != nil {
+		return nil, fmt.Errorf("ReadPassword: %w", err)
+	}
+	fmt.Printf("\n")
+	if bytes.Compare(uss, ussAgain) != 0 {
+		return nil, fmt.Errorf("phrases did not match")
+	}
+	if len(uss) == 0 {
+		return nil, fmt.Errorf("no phrase entered")
+	}
+	return uss, nil
 }

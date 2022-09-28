@@ -15,6 +15,7 @@ linters:
     - test
     - unused
   disable:
+    - nestif
     - cyclop
     - funlen
     - exhaustruct  # TODO? annoying for now

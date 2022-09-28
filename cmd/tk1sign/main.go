@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	fileName := pflag.String("file", "", "Name of file with data to be signed")
+	fileName := pflag.String("file", "", "Name of file with data to be signed (the \"message\")")
 	port := pflag.String("port", "/dev/ttyACM0", "Serial port path")
 	speed := pflag.Int("speed", 38400, "When talking over the serial port, bits per second")
 	verbose := pflag.Bool("verbose", false, "Enable verbose output")
@@ -24,6 +24,12 @@ func main() {
 
 	if !*verbose {
 		mkdf.SilenceLogging()
+	}
+
+	if *fileName == "" {
+		fmt.Printf("Please pass at least --file\n")
+		pflag.Usage()
+		os.Exit(2)
 	}
 
 	message, err := os.ReadFile(*fileName)

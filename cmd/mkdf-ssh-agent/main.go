@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/signal"
 	"syscall"
 
 	"github.com/spf13/pflag"
@@ -25,16 +24,22 @@ func main() {
 		os.Exit(code)
 	}
 
-	var sockPath, devPath string
+	var sockPath, devPath, fileUSS string
 	var speed int
-	var showPubkeyOnly, listPortsOnly bool
+	var enterUSS, showPubkeyOnly, listPortsOnly bool
 	pflag.CommandLine.SetOutput(os.Stderr)
 	pflag.StringVarP(&sockPath, "agent-socket", "a", "", "Path to bind agent's UNIX domain socket at")
 	pflag.BoolVarP(&listPortsOnly, "list-ports", "", false, "List possible serial ports for --port")
 	pflag.StringVar(&devPath, "port", "/dev/ttyACM0", "Path to serial port device")
 	pflag.BoolVarP(&showPubkeyOnly, "show-pubkey", "k", false, "Don't start the agent, just output the ssh-ed25519 pubkey")
 	pflag.IntVar(&speed, "speed", 38400, "When talking over the serial port, bits per second")
-
+	pflag.BoolVar(&enterUSS, "uss", false, "Enable typing of a phrase to be hashed as the User Supplied Secret.\n"+
+		"The USS is loaded onto the USB stick along with the app itself.\n"+
+		"Every different USS results in different SSH public/private keys,\n"+
+		"meaning a different identity.")
+	pflag.StringVar(&fileUSS, "uss-file", "", "Read a file and hash its contents as the USS. Use --uss-file=-\n"+
+		"for reading from stdin. Note that the all data in file/stdin is\n"+
+		"hashed, newlines are not stripped.")
 	pflag.Parse()
 
 	if listPortsOnly {
@@ -57,6 +62,12 @@ func main() {
 		exit(2)
 	}
 
+	if enterUSS && fileUSS != "" {
+		le.Printf("Can't combine --uss and --uss-file\n\n")
+		pflag.Usage()
+		exit(2)
+	}
+
 	if sockPath != "" {
 		_, err := os.Stat(sockPath)
 		if err == nil || !errors.Is(err, os.ErrNotExist) {
@@ -65,7 +76,7 @@ func main() {
 		}
 	}
 
-	signer, err := NewSigner(devPath, speed)
+	signer, err := NewSigner(devPath, speed, enterUSS, fileUSS)
 	if err != nil {
 		if errors.Is(err, ErrMaybeWrongDevice) {
 			le.Printf("If the serial port is correct for the device, then it might not be it\n" +
@@ -82,7 +93,6 @@ func main() {
 		}
 		os.Exit(code)
 	}
-	handleSignals(func() { exit(1) }, os.Interrupt, syscall.SIGTERM)
 
 	agent := NewSSHAgent(signer)
 
@@ -114,15 +124,4 @@ func listPorts() error {
 		fmt.Printf("%s\n", port)
 	}
 	return nil
-}
-
-func handleSignals(action func(), sig ...os.Signal) {
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, sig...)
-	go func() {
-		for {
-			<-ch
-			action()
-		}
-	}()
 }

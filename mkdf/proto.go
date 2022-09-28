@@ -52,41 +52,21 @@ type Cmd interface {
 }
 
 var (
-	cmdGetNameVersion = fwCmd{
-		code: 0x01, cmdLen: CmdLen1, str: "cmdGetNameVersion",
-	}
-	rspGetNameVersion = fwCmd{
-		code: 0x02, cmdLen: CmdLen32, str: "rspGetNameVersion",
-	}
-	cmdLoadAppSize = fwCmd{
-		code: 0x03, cmdLen: CmdLen32, str: "cmdLoadAppSize",
-	}
-	rspLoadAppSize = fwCmd{
-		code: 0x04, cmdLen: CmdLen4, str: "rspLoadAppSize",
-	}
-	cmdLoadAppData = fwCmd{
-		code: 0x05, cmdLen: CmdLen128, str: "cmdLoadAppData",
-	}
-	rspLoadAppData = fwCmd{
-		code: 0x06, cmdLen: CmdLen4, str: "rspLoadAppData",
-	}
-	cmdRunApp = fwCmd{
-		code: 0x07, cmdLen: CmdLen1, str: "cmdRunApp",
-	}
-	rspRunApp = fwCmd{
-		code: 0x08, cmdLen: CmdLen4, str: "rspRunApp",
-	}
-	cmdGetAppDigest = fwCmd{
-		code: 0x09, cmdLen: CmdLen1, str: "cmdGetAppDigest",
-	}
-	rspGetAppDigest = fwCmd{
-		code: 0x10, cmdLen: CmdLen128, str: "rspGetAppDigest",
-	}
+	cmdGetNameVersion = fwCmd{0x01, "cmdGetNameVersion", CmdLen1}
+	rspGetNameVersion = fwCmd{0x02, "rspGetNameVersion", CmdLen32}
+	cmdLoadAppSize    = fwCmd{0x03, "cmdLoadAppSize", CmdLen32}
+	rspLoadAppSize    = fwCmd{0x04, "rspLoadAppSize", CmdLen4}
+	cmdLoadAppData    = fwCmd{0x05, "cmdLoadAppData", CmdLen128}
+	rspLoadAppData    = fwCmd{0x06, "rspLoadAppData", CmdLen4}
+	cmdRunApp         = fwCmd{0x07, "cmdRunApp", CmdLen1}
+	rspRunApp         = fwCmd{0x08, "rspRunApp", CmdLen4}
+	cmdGetAppDigest   = fwCmd{0x09, "cmdGetAppDigest", CmdLen1}
+	rspGetAppDigest   = fwCmd{0x10, "rspGetAppDigest", CmdLen128}
 )
 
 type fwCmd struct {
 	code   byte
-	str    string
+	name   string
 	cmdLen CmdLen
 }
 
@@ -103,7 +83,7 @@ func (c fwCmd) Endpoint() Endpoint {
 }
 
 func (c fwCmd) String() string {
-	return c.str
+	return c.name
 }
 
 type FramingHdr struct {

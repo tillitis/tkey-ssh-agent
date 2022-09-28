@@ -24,41 +24,21 @@ import (
 )
 
 var (
-	cmdGetPubkey appCmd = appCmd{
-		code: 0x01, cmdLen: mkdf.CmdLen1, str: "cmdGetPubkey",
-	}
-	rspGetPubkey appCmd = appCmd{
-		code: 0x02, cmdLen: mkdf.CmdLen128, str: "rspGetPubkey",
-	}
-	cmdSetSize appCmd = appCmd{
-		code: 0x03, cmdLen: mkdf.CmdLen32, str: "cmdSetSize",
-	}
-	rspSetSize appCmd = appCmd{
-		code: 0x04, cmdLen: mkdf.CmdLen4, str: "rspSetSize",
-	}
-	cmdSignData appCmd = appCmd{
-		code: 0x05, cmdLen: mkdf.CmdLen128, str: "cmdSignData",
-	}
-	rspSignData appCmd = appCmd{
-		code: 0x06, cmdLen: mkdf.CmdLen4, str: "rspSignData",
-	}
-	cmdGetSig appCmd = appCmd{
-		code: 0x07, cmdLen: mkdf.CmdLen1, str: "cmdGetSig",
-	}
-	rspGetSig appCmd = appCmd{
-		code: 0x08, cmdLen: mkdf.CmdLen128, str: "rspGetSig",
-	}
-	cmdGetNameVersion appCmd = appCmd{
-		code: 0x09, cmdLen: mkdf.CmdLen1, str: "cmdGetNameVersion",
-	}
-	rspGetNameVersion appCmd = appCmd{
-		code: 0x0a, cmdLen: mkdf.CmdLen32, str: "rspGetNameVersion",
-	}
+	cmdGetPubkey      = appCmd{0x01, "cmdGetPubkey", mkdf.CmdLen1}
+	rspGetPubkey      = appCmd{0x02, "rspGetPubkey", mkdf.CmdLen128}
+	cmdSetSize        = appCmd{0x03, "cmdSetSize", mkdf.CmdLen32}
+	rspSetSize        = appCmd{0x04, "rspSetSize", mkdf.CmdLen4}
+	cmdSignData       = appCmd{0x05, "cmdSignData", mkdf.CmdLen128}
+	rspSignData       = appCmd{0x06, "rspSignData", mkdf.CmdLen4}
+	cmdGetSig         = appCmd{0x07, "cmdGetSig", mkdf.CmdLen1}
+	rspGetSig         = appCmd{0x08, "rspGetSig", mkdf.CmdLen128}
+	cmdGetNameVersion = appCmd{0x09, "cmdGetNameVersion", mkdf.CmdLen1}
+	rspGetNameVersion = appCmd{0x0a, "rspGetNameVersion", mkdf.CmdLen32}
 )
 
 type appCmd struct {
 	code   byte
-	str    string
+	name   string
 	cmdLen mkdf.CmdLen
 }
 
@@ -75,7 +55,7 @@ func (c appCmd) Endpoint() mkdf.Endpoint {
 }
 
 func (c appCmd) String() string {
-	return c.str
+	return c.name
 }
 
 type Signer struct {

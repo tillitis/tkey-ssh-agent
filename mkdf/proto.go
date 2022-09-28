@@ -112,13 +112,6 @@ type FramingHdr struct {
 	CmdLen   CmdLen
 }
 
-// FrameLen returns length in bytes of a complete frame, including
-// header byte and cmdlen bytes.
-func (f *FramingHdr) FrameLen() int {
-	// XXX Could try GenframeBuf() first to ensure valid
-	return 1 + f.CmdLen.Bytelen()
-}
-
 func parseframe(b byte) (FramingHdr, error) {
 	var f FramingHdr
 

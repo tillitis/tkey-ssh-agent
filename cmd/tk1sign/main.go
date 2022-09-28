@@ -18,7 +18,7 @@ func main() {
 	fileName := pflag.String("file", "", "Name of file with data to be signed")
 	port := pflag.String("port", "/dev/ttyACM0", "Serial port path")
 	speed := pflag.Int("speed", 38400, "When talking over the serial port, bits per second")
-	verbose := pflag.Bool("verbose", false, "")
+	verbose := pflag.Bool("verbose", false, "Enable verbose output")
 	pflag.Parse()
 
 	if !*verbose {
@@ -49,7 +49,8 @@ func main() {
 	}
 	fmt.Printf("Public Key from device: %x\n", pubkey)
 
-	fmt.Printf("Sending %v bytes of message\n", len(message))
+	fmt.Printf("Sending a %v bytes message for signing.\n", len(message))
+	fmt.Printf("Device will flash green when touch is required ...\n")
 	signature, err := mkdfsign.Sign(conn, message)
 	if err != nil {
 		fmt.Printf("Sign failed: %v\n", err)

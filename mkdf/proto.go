@@ -61,7 +61,10 @@ var (
 	cmdRunApp         = fwCmd{0x07, "cmdRunApp", CmdLen1}
 	rspRunApp         = fwCmd{0x08, "rspRunApp", CmdLen4}
 	cmdGetAppDigest   = fwCmd{0x09, "cmdGetAppDigest", CmdLen1}
-	rspGetAppDigest   = fwCmd{0x10, "rspGetAppDigest", CmdLen128}
+	cmdLoadUSS        = fwCmd{0x0a, "cmdLoadUSS", CmdLen128}
+	rspLoadUSS        = fwCmd{0x0b, "rspLoadUSS", CmdLen4}
+	// ...
+	rspGetAppDigest = fwCmd{0x10, "rspGetAppDigest", CmdLen128} // encoded as 0x10 for backwards compatibility
 )
 
 type fwCmd struct {

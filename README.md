@@ -163,6 +163,23 @@ should be run. The port used below is just an example.
 $ ./runapp --port /dev/pts/1 --file signerapp/app.bin
 ```
 
+The `runapp` also supports sending a User Supplied Secret (USS) to the
+firmware when loading the app. By adding the flag `--uss`, you will be
+asked to type a phrase which will be hashed to become the USS digest
+(the final newline is removed from the phrase before hashing).
+
+Alternatively, you may use `--uss-file=filename` to make it read the
+contents of a file, which is then hashed as the USS. The filename can
+be `-` for reading from stdin. Note that all data in file/stdin is
+read and hashed without any modification.
+
+The USS digest is used by the firmware, together with other material,
+for deriving secrets for the application. The practical result for
+signerapp is that the ed25519 public/private keys will change
+depending on what USS (phrase) you entered. To learn more, read the
+[system_description.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/system_description/system_description.md)
+(in the tillitis-key1 repository).
+
 `tk1sign` is used in a similar way:
 
 ```
@@ -219,20 +236,19 @@ $ SSH_AUTH_SOCK=/path/to/agent.sock ssh -F /dev/null localhost
 `-F /dev/null` is used to ignore your ~/.ssh/config which could
 interfere with this test.
 
-The message `agent 27: ssh: parse error in message type 27` coming
+(The message `agent 27: ssh: parse error in message type 27` coming
 from mkdf-ssh-agent is due to
 https://github.com/golang/go/issues/51689 and will eventually be fixed
 by https://go-review.googlesource.com/c/crypto/+/412154/ (until then
 it's also not possible to implement the upcoming SSH agent
-restrictions https://www.openssh.com/agent-restrict.html).
+restrictions https://www.openssh.com/agent-restrict.html).)
+
+The mkdf-ssh-agent also supports the `--uss` and `--uss-file` flags,
+as described for `runapp` above.
 
 You can use `-k` (long option: `--show-pubkey`) to only output the
-pubkey (on stdout, some message are still present on stderr), which
-can be useful:
-
-```
-$ ./mkdf-ssh-agent -k --port /dev/pts/1
-```
+pubkey. The pubkey is printed to stdout for easy redirection, but some
+messages are still present on stderr.
 
 # fooapp
 

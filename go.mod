@@ -7,6 +7,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	go.bug.st/serial v1.4.0
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d
+	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 )
 
 require (

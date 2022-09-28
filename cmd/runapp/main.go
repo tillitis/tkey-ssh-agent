@@ -10,6 +10,7 @@ import (
 	"syscall"
 
 	"github.com/spf13/pflag"
+	"github.com/tillitis/tillitis-key1-apps/internal/uss"
 	"github.com/tillitis/tillitis-key1-apps/mkdf"
 )
 
@@ -17,15 +18,28 @@ func main() {
 	fileName := pflag.String("file", "", "App binary to be uploaded and started")
 	port := pflag.String("port", "/dev/ttyACM0", "Serial port path")
 	speed := pflag.Int("speed", 38400, "When talking over the serial port, bits per second")
+	enterUSS := pflag.Bool("uss", false, "Enable typing of a phrase for the User Supplied Secret. The phrase\n"+
+		"is hashed using BLAKE2 to a digest. The USS digest is used by the\n"+
+		"firmware, together with other material, for deriving secrets for the\n"+
+		"application.")
+	fileUSS := pflag.String("uss-file", "", "Read a file and hash its contents as the USS. Use --uss-file=-\n"+
+		"for reading from stdin. Note that the all data in file/stdin is\n"+
+		"hashed, newlines are not stripped.")
 	verbose := pflag.Bool("verbose", false, "Enable verbose output")
-
 	pflag.Parse()
+
 	if !*verbose {
 		mkdf.SilenceLogging()
 	}
 
 	if *fileName == "" {
 		fmt.Printf("Please pass at least --file\n")
+		pflag.Usage()
+		os.Exit(2)
+	}
+
+	if *enterUSS && *fileUSS != "" {
+		fmt.Printf("Can't combine --uss and --uss-file\n\n")
 		pflag.Usage()
 		os.Exit(2)
 	}
@@ -54,6 +68,30 @@ func main() {
 	}
 	fmt.Printf("Firmware has name0:%s name1:%s version:%d\n",
 		nameVer.Name0, nameVer.Name1, nameVer.Version)
+
+	var secret []byte
+	if *enterUSS {
+		secret, err = uss.InputUSS()
+		if err != nil {
+			fmt.Printf("Failed to get USS: %v\n", err)
+			exit(1)
+		}
+	} else if *fileUSS != "" {
+		secret, err = uss.ReadUSS(*fileUSS)
+		if err != nil {
+			fmt.Printf("Failed to read uss-file %s: %v", *fileUSS, err)
+			exit(1)
+		}
+	}
+
+	if len(secret) > 0 {
+		fmt.Printf("Loading USS onto device\n")
+		if err = tk.LoadUSS(secret); err != nil {
+			fmt.Printf("LoadUSS failed: %v\n", err)
+			exit(1)
+		}
+	}
+
 	fmt.Printf("Loading app from %v onto device\n", *fileName)
 	err = tk.LoadAppFromFile(*fileName)
 	if err != nil {

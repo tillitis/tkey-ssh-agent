@@ -25,6 +25,8 @@ linters:
     - scopelint
     - maligned
     - exhaustivestruct
+    - deadcode
+    - varcheck
 
     # TODO disable because currently not available for go1.18
     - bodyclose

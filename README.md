@@ -138,7 +138,7 @@ these to stderr.
 
 By now you should have learned which serial port to use from one of
 the "Running on" sections. If you're running on hardware, the LED on
-the UBS stick is expected to be flashing white, indicating that
+the USB stick is expected to be flashing white, indicating that
 firmware is ready to receive an app to run.
 
 There's a script called `runsign.sh` which loads and runs an ed25519
@@ -176,7 +176,8 @@ read and hashed without any modification.
 The USS digest is used by the firmware, together with other material,
 for deriving secrets for the application. The practical result for
 signerapp is that the ed25519 public/private keys will change
-depending on what USS (phrase) you entered. To learn more, read the
+depending on the USS (derived from the phrase you entered, or the file
+you provided). To learn more, read the
 [system_description.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/system_description/system_description.md)
 (in the tillitis-key1 repository).
 
@@ -202,6 +203,14 @@ indicating that it is ready to make (another) signature.
 If `--file` is not passed, the app is assumed to be loaded and running
 already, and signing is attempted right away.
 
+Note that to load a new app, the USB stick needs to be unplugged and
+plugged in again. Similarly, QEMU needs to be restarted (`Ctrl-a x` to
+quit). If you're using the setup with the USB stick sitting in the
+programming jig, and at the same time plugged into the computer (as
+explained in
+[quickstart.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/quickstart.md),
+then you need to unplug both the USB stick and the programmer.
+
 That was fun, now let's try the ssh-agent!
 
 ## Using mkdf-ssh-agent
@@ -220,9 +229,9 @@ This will start the ssh-agent and tell it to listen on the specified
 socket `./agent.sock`.
 
 It will also output the ed25519 public key for this instance of the
-app on this specific Tillitis Key USB stick. If the app binary, or the
-physical USB stick changes, then the private key will also change --
-and thus also the public key displayed!
+app on this specific Tillitis Key USB stick. If the app binary, the
+User Supplied Secret (USS), or the physical USB stick, then the
+private key will also change -- and thus also the public key.
 
 If you copy-paste the public key into your `~/.ssh/authorized_keys`
 you can try to log onto your local computer (if sshd is running

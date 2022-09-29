@@ -61,7 +61,7 @@ func New(port string, speed int) (TillitisKey, error) {
 
 	tk.conn, err = serial.Open(port, &serial.Mode{BaudRate: speed})
 	if err != nil {
-		return tk, fmt.Errorf("serial.Open %s: %w", port, err)
+		return tk, fmt.Errorf("Open %s: %w", port, err)
 	}
 
 	return tk, nil

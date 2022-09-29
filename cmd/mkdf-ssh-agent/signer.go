@@ -42,7 +42,7 @@ func NewSigner(devPath string, speed int, enterUSS bool, fileUSS string) (*Signe
 	le.Printf("Connecting to device on serial port %s ...\n", devPath)
 	tk, err := mkdf.New(devPath, speed)
 	if err != nil {
-		return nil, fmt.Errorf("Could not open %s: %w", devPath, err)
+		return nil, fmt.Errorf("Failed to connect: %w", err)
 	}
 
 	mkdfSigner := mkdfsign.New(tk)

@@ -4,7 +4,6 @@
 package main
 
 import (
-	"bytes"
 	"crypto"
 	"crypto/ed25519"
 	_ "embed"
@@ -15,9 +14,9 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/tillitis/tillitis-key1-apps/internal/uss"
 	"github.com/tillitis/tillitis-key1-apps/mkdf"
 	"github.com/tillitis/tillitis-key1-apps/mkdfsign"
-	"golang.org/x/term"
 )
 
 var ErrMaybeWrongDevice = errors.New("wrong device or non-responsive app")
@@ -82,26 +81,23 @@ func (s *Signer) maybeLoadApp(enterUSS bool, fileUSS string) error {
 	}
 
 	le.Printf("Device is in firmware mode.\n")
+	var secret []byte
 	var err error
-	var secretPhrase []byte
 	if enterUSS {
-		secretPhrase, err = inputUSS()
+		secret, err = uss.InputUSS()
 		if err != nil {
-			return err
+			return fmt.Errorf("Failed to get USS: %w", err)
 		}
 	} else if fileUSS != "" {
-		if fileUSS == "-" {
-			if secretPhrase, err = io.ReadAll(os.Stdin); err != nil {
-				return fmt.Errorf("Failed to read uss-file from stdin: %w", err)
-			}
-		} else if secretPhrase, err = os.ReadFile(fileUSS); err != nil {
-			return fmt.Errorf("Failed to read uss-file: %w", err)
+		secret, err = uss.ReadUSS(fileUSS)
+		if err != nil {
+			return fmt.Errorf("Failed to read uss-file %s: %w", fileUSS, err)
 		}
 	}
 
-	if len(secretPhrase) > 0 {
+	if len(secret) > 0 {
 		le.Printf("Loading USS...\n")
-		if err = s.tk.LoadUSS(secretPhrase); err != nil {
+		if err = s.tk.LoadUSS(secret); err != nil {
 			return fmt.Errorf("tk.LoadUSS: %w", err)
 		}
 	}
@@ -177,25 +173,4 @@ func handleSignals(action func(), sig ...os.Signal) {
 			action()
 		}
 	}()
-}
-
-func inputUSS() ([]byte, error) {
-	fmt.Printf("Enter phrase for the USS: ")
-	uss, err := term.ReadPassword(int(os.Stdin.Fd()))
-	if err != nil {
-		return nil, fmt.Errorf("ReadPassword: %w", err)
-	}
-	fmt.Printf("\nRepeat the phrase: ")
-	ussAgain, err := term.ReadPassword(0)
-	if err != nil {
-		return nil, fmt.Errorf("ReadPassword: %w", err)
-	}
-	fmt.Printf("\n")
-	if bytes.Compare(uss, ussAgain) != 0 {
-		return nil, fmt.Errorf("phrases did not match")
-	}
-	if len(uss) == 0 {
-		return nil, fmt.Errorf("no phrase entered")
-	}
-	return uss, nil
 }

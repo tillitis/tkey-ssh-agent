@@ -168,6 +168,11 @@ firmware when loading the app. By adding the flag `--uss`, you will be
 asked to type a phrase which will be hashed to become the USS digest
 (the final newline is removed from the phrase before hashing).
 
+Alternatively, you may use `--uss-file=filename` to make it read the
+contents of a file, which is then hashed as the USS. The filename can
+be `-` for reading from stdin. Note that all data in file/stdin is
+read and hashed without any modification.
+
 The USS digest is used by the firmware, together with other material,
 for deriving secrets for the application. The practical result for
 signerapp is that the ed25519 public/private keys will change
@@ -238,11 +243,8 @@ by https://go-review.googlesource.com/c/crypto/+/412154/ (until then
 it's also not possible to implement the upcoming SSH agent
 restrictions https://www.openssh.com/agent-restrict.html).)
 
-The mkdf-ssh-agent also supports the `--uss` flag, as described for
-`runapp` above. In addition, `--uss-file=filename` makes it read the
-contents of a file, which is then hashed as the USS. The filename can
-be `-` for reading from stdin. Note that all data in file/stdin is
-read and hashed without any modification.
+The mkdf-ssh-agent also supports the `--uss` and `--uss-file` flags,
+as described for `runapp` above.
 
 You can use `-k` (long option: `--show-pubkey`) to only output the
 pubkey. The pubkey is printed to stdout for easy redirection, but some

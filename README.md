@@ -13,12 +13,13 @@ signing. `mkdf-ssh-agent` is an ssh-agent with practical use.
 
 ## Building
 
-To build you need the `clang`, `llvm` and `lld` packages installed.
-And they need to have risc32 support, check this with `llc --version |
-grep riscv32`. Please see
+To build you need the `clang`, `llvm`, `lld`, `golang` packages
+installed. clang/llvm need to have riscv32 support, check this with
+`llc --version | grep riscv32`. Ubuntu 22.04 LTS (Jammy) is known to
+work. Please see
 [toolchain_setup.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/toolchain_setup.md)
-(in the tillitis-key1 repository) for information on the currently
-supported build and development environment.
+(in the tillitis-key1 repository) for detailed information on the
+currently supported build and development environment.
 
 Build everything:
 

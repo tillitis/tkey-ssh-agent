@@ -97,15 +97,19 @@ the host programs. Continue in the section "Using runsign..." below.
 
 ### Running apps on QEMU
 
-Build our [qemu](https://github.com/tillitis/qemu). Use the `mta1` branch:
+Build our [qemu](https://github.com/tillitis/qemu). Use the `mta1`
+branch:
 
 ```
 $ git clone -b mta1 https://github.com/tillitis/qemu
 $ mkdir qemu/build
 $ cd qemu/build
-$ ../configure --target-list=riscv32-softmmu
+$ ../configure --target-list=riscv32-softmmu --disable-werror
 $ make -j $(nproc)
 ```
+
+(Built with warnings-as-errors disabled, see [this
+issue](https://github.com/tillitis/qemu/issues/3).)
 
 You also need to build the firmware:
 
@@ -122,8 +126,8 @@ if you have any issues building.
 Then run the emulator, passing using the built firmware to "-bios":
 
 ```
-$ <path-to-qemu>/build/qemu-system-riscv32 -nographic -M mta1_mkdf,fifo=chrid -bios firmware.elf \
-       -chardev pty,id=chrid
+$ /path/to/qemu/build/qemu-system-riscv32 -nographic -M mta1_mkdf,fifo=chrid -bios firmware.elf \
+  -chardev pty,id=chrid
 ```
 
 It tells you what serial port it is using, for instance `/dev/pts/1`.

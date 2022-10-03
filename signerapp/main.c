@@ -72,7 +72,7 @@ int main(void)
 	int led_steady = LED_BLACK;
 	for (;;) {
 		// blocking; flashing a safe blue while waiting for cmd
-		in = readbyte_ledflash(LED_BLUE, 700000);
+		in = readbyte_ledflash(LED_BLUE, 900000);
 		*led = led_steady;
 		puts("Read byte: ");
 		puthex(in);
@@ -159,7 +159,7 @@ int main(void)
 			left -= nbytes;
 
 			if (left == 0) {
-				wait_touch_ledflash(LED_GREEN, 200000);
+				wait_touch_ledflash(LED_GREEN, 350000);
 				// All loaded, device touched, let's
 				// sign the message
 				crypto_ed25519_sign(signature,

@@ -5,6 +5,10 @@ repository](https://github.com/tillitis/tillitis-key1) (with hardware
 designs, gateware, firmware etc), and [Tillitis web
 site](https://www.tillitis.se).
 
+Note that development is ongoing. For example, changes might be made
+to the signerapp, causing the public/private keys it provides to
+change. To avoid unexpected changes, please use a tagged release.
+
 # The ed25519 signerapp
 
 An ed25519 signer app written in C. There are two host programs which
@@ -178,11 +182,14 @@ contents of a file, which is then hashed as the USS. The filename can
 be `-` for reading from stdin. Note that all data in file/stdin is
 read and hashed without any modification.
 
-The USS digest is used by the firmware, together with other material,
-for deriving secrets for the application. The practical result for
-signerapp is that the ed25519 public/private keys will change
-depending on the USS (derived from the phrase you entered, or the file
-you provided). To learn more, read the
+The firmware uses the USS digest, together with a hash digest of the
+application binary, and the Unique Device Secret (UDS, unique per
+physical device) to derive secrets for use by the application.
+
+The practical result for users of the signerapp is that the ed25519
+public/private keys will change along with the USS. So if you enter a
+different phrase (or pass a file with different contents), the derived
+USS will change, and so will your identity. To learn more, read the
 [system_description.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/system_description/system_description.md)
 (in the tillitis-key1 repository).
 
@@ -233,14 +240,15 @@ $ ./mkdf-ssh-agent -a ./agent.sock --port /dev/pts/1
 This will start the ssh-agent and tell it to listen on the specified
 socket `./agent.sock`.
 
-It will also output the ed25519 public key for this instance of the
-app on this specific Tillitis Key USB stick. If the app binary, the
-User Supplied Secret (USS), or the physical USB stick, then the
-private key will also change -- and thus also the public key.
+It will also output the SSH ed25519 public key for this instance of
+the app on this specific Tillitis Key USB stick. So again; if the
+signerapp binary, the USS, or the UDS in the physical USB stick
+change, then the private key will also change -- and thus the derived
+public key, your public identity in the world of SSH.
 
 If you copy-paste the public key into your `~/.ssh/authorized_keys`
 you can try to log onto your local computer (if sshd is running
-there). The socket path set/output above is also needed by ssh in
+there). The socket path set/output above is also needed by SSH in
 `SSH_AUTH_SOCK`:
 
 ```

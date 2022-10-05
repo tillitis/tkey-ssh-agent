@@ -272,6 +272,24 @@ You can use `-k` (long option: `--show-pubkey`) to only output the
 pubkey. The pubkey is printed to stdout for easy redirection, but some
 messages are still present on stderr.
 
+# The random app and runrandom host program
+
+The random app is a random number generator that uses Tillitis Key 1's
+TRNG (True Random Number Generator). The hardware stick will flash the
+red and blue LEDs while the app is running and show the same colors
+steadily while generating/delivering the numbers.
+
+The companion host program `runrandom` can be used to output random
+numbers on stdout. The host program embeds the app binary and uploads
+it to the USB stick if needed. If the stick is not in firmware mode,
+or is running another app, you'll need to unplug and plug it in again.
+You can build and use it like this:
+
+```
+$ make runrandom
+$ ./runrandom -b 42 | hexdump
+```
+
 # fooapp
 
 In `fooapp/` there is also a very, very simple app written in

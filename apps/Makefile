@@ -19,7 +19,7 @@ RM=/bin/rm
 
 
 .PHONY: all
-all: signerapp/app.bin timer/timer.bin
+all: signerapp/app.bin timer/timer.bin random/random.bin
 
 # C runtime library
 libcrt0/libcrt0.a: libcrt0/crt0.o
@@ -42,7 +42,7 @@ SIGNEROBJS=signerapp/app_proto.o \
 signerapp/app.bin: signerapp/app
 	$(OBJCOPY) --input-target=elf32-littleriscv --output-target=binary signerapp/app signerapp/app.bin
 
-signerapp/app: libcrt0/libcrt0.a libcommon/libcommon.a $(SIGNEROBJS) app.lds 
+signerapp/app: libcrt0/libcrt0.a libcommon/libcommon.a $(SIGNEROBJS) app.lds
 	$(CC) $(CFLAGS) $(SIGNEROBJS) $(LDFLAGS) -o $@
 
 $(SIGNEROBJS): $(INCLUDE)/mta1_mkdf_mem.h \
@@ -59,13 +59,25 @@ timer/timer.bin: timer/timer
 timer/timer: libcrt0/libcrt0.a libcommon/libcommon.a $(TIMEROBJS) app.lds
 	$(CC) $(CFLAGS) $(TIMEROBJS) $(LDFLAGS) -o $@
 
+# Random number generator app
+RANDOMOBJS=random/main.o random/app_proto.o
+
+random/random.bin: random/random
+	$(OBJCOPY) --input-target=elf32-littleriscv --output-target=binary $^ $@
+
+random/random: libcrt0/libcrt0.a libcommon/libcommon.a $(RANDOMOBJS) app.lds
+	$(CC) $(CFLAGS) $(RANDOMOBJS) $(LDFLAGS) -o $@
+
+$(RANDOMOBJS): $(INCLUDE)/mta1_mkdf_mem.h random/app_proto.h
+
 .PHONY: clean
 clean:
 	$(RM) -f signerapp/app.bin signerapp/app $(SIGNEROBJS)
 	$(RM) -f timer/timer.bin timer/timer $(TIMEROBJS)
+	$(RM) -f random/random.bin random/random $(RANDOMOBJS)
 	$(RM) -f libcommon/libcommon.a $(LIBOBJS) libcrt0/libcrt0.a libcrt0/crt0.o
 
-FMTFILES=include/*.h libcommon/*.c signerapp/*.[ch] timer/*.[ch]
+FMTFILES=include/*.h libcommon/*.c signerapp/*.[ch] timer/*.[ch] random/*.[ch]
 .PHONY: fmt
 fmt:
 	# Uses ../.clang-format

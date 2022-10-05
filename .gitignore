@@ -7,4 +7,6 @@
 apps/signerapp/app
 /runtimer
 apps/timer/timer
+/runrandom
+apps/random/random
 /golangci-lint

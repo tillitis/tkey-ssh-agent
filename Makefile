@@ -1,7 +1,7 @@
 RM=/bin/rm
 
 .PHONY: all
-all: apps runapp tk1sign mkdf-ssh-agent runtimer
+all: apps runapp tk1sign mkdf-ssh-agent runtimer runrandom
 
 .PHONY: apps
 apps:
@@ -22,6 +22,13 @@ runtimer:
 	go build ./cmd/runtimer
 
 # .PHONY to let go-build handle deps and rebuilds
+.PHONY: runrandom
+runrandom:
+	$(MAKE) -C apps random/random.bin
+	cp -af apps/random/random.bin cmd/runrandom/app.bin
+	go build ./cmd/runrandom
+
+# .PHONY to let go-build handle deps and rebuilds
 .PHONY: mkdf-ssh-agent
 mkdf-ssh-agent:
 	$(MAKE) -C apps signerapp/app.bin
@@ -30,7 +37,7 @@ mkdf-ssh-agent:
 
 .PHONY: clean
 clean:
-	rm -f runapp tk1sign mkdf-ssh-agent cmd/mkdf-ssh-agent/app.bin
+	rm -f runapp tk1sign mkdf-ssh-agent cmd/mkdf-ssh-agent/app.bin runtimer runrandom cmd/runrnadom/app.bin
 	$(MAKE) -C apps clean
 
 .PHONY: lint

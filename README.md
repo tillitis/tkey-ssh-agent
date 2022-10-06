@@ -169,7 +169,7 @@ you're using the default `/dev/ttyACM0`) and the raw app binary that
 should be run. The port used below is just an example.
 
 ```
-$ ./runapp --port /dev/pts/1 --file signerapp/app.bin
+$ ./runapp --port /dev/pts/1 --file apps/signerapp/app.bin
 ```
 
 The `runapp` also supports sending a User Supplied Secret (USS) to the
@@ -301,9 +301,10 @@ port on 0xfe00\_1000 (MTA1_MKDF_MMIO_QEMU_DEBUG). Anything written
 there will be printed as a character by qemu on the console.
 
 `putchar()`, `puts()`, `putinthex()`, `hexdump()` and friends (see
-`common/lib.[ch]`) use this debug port to print stuff. Though by
-default the [`signerapp/Makefile`](signerapp/Makefile) compiles with
-`-DNODEBUG` which makes these functions no-ops (do nothing).
+`libcommon/lib.[ch]`) use this debug port to print stuff. 
+
+`libcommon` is compiled with no debug output by default. Rebuild
+`libcommon` without `-DNODEBUG` to get the debug output.
 
 # Licensing
 

@@ -84,16 +84,8 @@ func main() {
 		}
 	}
 
-	if len(secret) > 0 {
-		fmt.Printf("Loading USS onto device\n")
-		if err = tk.LoadUSS(secret); err != nil {
-			fmt.Printf("LoadUSS failed: %v\n", err)
-			exit(1)
-		}
-	}
-
 	fmt.Printf("Loading app from %v onto device\n", *fileName)
-	err = tk.LoadAppFromFile(*fileName)
+	err = tk.LoadAppFromFile(*fileName, secret)
 	if err != nil {
 		fmt.Printf("LoadAppFromFile failed: %v\n", err)
 		exit(1)

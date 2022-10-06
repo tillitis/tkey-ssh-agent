@@ -95,15 +95,8 @@ func (s *Signer) maybeLoadApp(enterUSS bool, fileUSS string) error {
 		}
 	}
 
-	if len(secret) > 0 {
-		le.Printf("Loading USS...\n")
-		if err = s.tk.LoadUSS(secret); err != nil {
-			return fmt.Errorf("tk.LoadUSS: %w", err)
-		}
-	}
-
 	le.Printf("Loading app...\n")
-	if err = s.tk.LoadApp(appBinary); err != nil {
+	if err = s.tk.LoadApp(appBinary, secret); err != nil {
 		return fmt.Errorf("LoadApp: %w", err)
 	}
 	return nil

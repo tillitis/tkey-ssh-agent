@@ -1,7 +1,8 @@
+*.a
 *.o
 *.bin
 /mkdf-ssh-agent
 /runapp
 /tk1sign
-/signerapp/app
+apps/signerapp/app
 /golangci-lint

@@ -1,10 +1,10 @@
 // Copyright (C) 2022 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
+#include <mta1_mkdf_mem.h>
+
 #include "app_proto.h"
 #include "monocypher/monocypher-ed25519.h"
-
-#include "../common/mta1_mkdf_mem.h"
 
 // clang-format off
 static volatile uint32_t *cdi =   (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_CDI_FIRST;

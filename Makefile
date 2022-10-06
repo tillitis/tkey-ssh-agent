@@ -1,9 +1,11 @@
-.PHONY: all
-all: signerapp runapp tk1sign mkdf-ssh-agent
+RM=/bin/rm
 
-.PHONY: signerapp
-signerapp:
-	$(MAKE) -C apps/signerapp
+.PHONY: all
+all: apps runapp tk1sign mkdf-ssh-agent
+
+.PHONY: apps
+apps:
+	$(MAKE) -C apps
 
 # .PHONY to let go-build handle deps and rebuilds
 .PHONY: runapp
@@ -18,17 +20,14 @@ tk1sign:
 # .PHONY to let go-build handle deps and rebuilds
 .PHONY: mkdf-ssh-agent
 mkdf-ssh-agent:
+	$(MAKE) -C apps signerapp/app.bin
 	cp -af apps/signerapp/app.bin cmd/mkdf-ssh-agent/app.bin
 	go build ./cmd/mkdf-ssh-agent
 
 .PHONY: clean
 clean:
 	rm -f runapp tk1sign mkdf-ssh-agent cmd/mkdf-ssh-agent/app.bin
-	$(MAKE) -C apps/signerapp clean
-
-.PHONY: update-mem-include
-update-mem-include:
-	cp -af ../tillitis-key1/hw/application_fpga/fw/mta1_mkdf_mem.h common/mta1_mkdf_mem.h
+	$(MAKE) -C apps clean
 
 .PHONY: lint
 lint: golangci-lint

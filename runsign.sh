@@ -6,6 +6,6 @@ then
     exit 1
 fi
 
-./runapp --port $1 --file signerapp/app.bin
+./runapp --port $1 --file apps/signerapp/app.bin
 ./tk1sign --port $1 --file $2
 

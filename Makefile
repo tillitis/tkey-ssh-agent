@@ -3,7 +3,7 @@ all: signerapp runapp tk1sign mkdf-ssh-agent
 
 .PHONY: signerapp
 signerapp:
-	$(MAKE) -C signerapp
+	$(MAKE) -C apps/signerapp
 
 # .PHONY to let go-build handle deps and rebuilds
 .PHONY: runapp
@@ -18,13 +18,13 @@ tk1sign:
 # .PHONY to let go-build handle deps and rebuilds
 .PHONY: mkdf-ssh-agent
 mkdf-ssh-agent:
-	cp -af signerapp/app.bin cmd/mkdf-ssh-agent/app.bin
+	cp -af apps/signerapp/app.bin cmd/mkdf-ssh-agent/app.bin
 	go build ./cmd/mkdf-ssh-agent
 
 .PHONY: clean
 clean:
 	rm -f runapp tk1sign mkdf-ssh-agent cmd/mkdf-ssh-agent/app.bin
-	$(MAKE) -C signerapp clean
+	$(MAKE) -C apps/signerapp clean
 
 .PHONY: update-mem-include
 update-mem-include:

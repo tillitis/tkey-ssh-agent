@@ -4,8 +4,8 @@
 #ifndef APP_PROTO_H
 #define APP_PROTO_H
 
-#include "../common/lib.h"
-#include "../common/proto.h"
+#include <lib.h>
+#include <proto.h>
 
 // clang-format off
 enum appcmd {

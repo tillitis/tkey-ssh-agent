@@ -54,7 +54,7 @@
 #ifndef MONOCYPHER_H
 #define MONOCYPHER_H
 
-#include "../../common/types.h"
+#include <types.h>
 
 #ifdef MONOCYPHER_CPP_NAMESPACE
 namespace MONOCYPHER_CPP_NAMESPACE {

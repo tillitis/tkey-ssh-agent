@@ -18,7 +18,7 @@ LDFLAGS=-T app.lds -L libcommon/ -lcommon -L libcrt0/ -lcrt0
 RM=/bin/rm
 
 
-.PHONY:all
+.PHONY: all
 all: signerapp/app.bin
 
 # C runtime library
@@ -50,15 +50,20 @@ $(SIGNEROBJS): $(INCLUDE)/mta1_mkdf_mem.h \
 	signerapp/monocypher/monocypher-ed25519.h \
 	signerapp/app_proto.h
 
-.PHONY:clean
+.PHONY: clean
 clean:
 	$(RM) -f signerapp/app.bin signerapp/app $(SIGNEROBJS)
 	$(RM) -f libcommon/libcommon.a $(LIBOBJS) libcrt0/libcrt0.a libcrt0/crt0.o
 
-FMTFILES=signerapp/main.c signerapp/app_proto.h signerapp/app_proto.c
+FMTFILES=include/lib.h include/proto.h include/types.h \
+	libcommon/lib.c libcommon/proto.c \
+	signerapp/app_proto.h signerapp/app_proto.c signerapp/main.c
 .PHONY: fmt
 fmt:
-	make -C ../common fmt
 	# Uses ../.clang-format
 	clang-format --dry-run --ferror-limit=0 $(FMTFILES)
 	clang-format --verbose -i $(FMTFILES)
+
+.PHONY: update-mem-include
+update-mem-include:
+	cp -af ../../tillitis-key1/hw/application_fpga/fw/mta1_mkdf_mem.h include/mta1_mkdf_mem.h

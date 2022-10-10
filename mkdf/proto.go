@@ -113,11 +113,11 @@ func parseframe(b byte) (FramingHdr, error) {
 }
 
 // NewFrameBuf() allocates a buffer with the appropriate size for the
-// command in cmd, including the framing protocol header. The header
-// byte is generated and placed in the first byte of the returned
-// buffer. The cmd parameter is also used to get the endpoint and
-// command length for the header. The command code from cmd is also
-// placed in the second byte in the buffer.
+// command in cmd, including the framing protocol header byte. The cmd
+// parameter is used to get the endpoint and command length, which
+// together with id parameter are encoded as the header byte. The
+// header byte is placed in the first byte in the returned buffer. The
+// command code from cmd is placed in the buffer's second byte.
 //
 // Header:
 // Bit [7] (1 bit). Reserved - possible protocol version.
@@ -138,9 +138,9 @@ func parseframe(b byte) (FramingHdr, error) {
 //	128 bytes
 //
 // Note that the number of bytes indicated by the command data length
-// field does **not** include the command header byte. This means that
-// a complete command frame, with a header indicating a data length of
-// 128 bytes, is 129 bytes in length.
+// field does **not** include the header byte. This means that
+// a complete command frame, with a header indicating a command length
+// of 128 bytes, is 129 bytes in length.
 func NewFrameBuf(cmd Cmd, id int) ([]byte, error) {
 	if id > 3 {
 		return nil, fmt.Errorf("bad id")
@@ -163,15 +163,15 @@ func NewFrameBuf(cmd Cmd, id int) ([]byte, error) {
 }
 
 // Dump() hexdumps data in d with an explaining string s first. It
-// assumes the data in d corresponds to the framing protocol header
-// and firmware data.
+// expects d to contain the whole frame as sent on the wire, with the
+// the framing protocol header in the first byte.
 func Dump(s string, d []byte) {
 	hdr, err := parseframe(d[0])
 	if err != nil {
-		le.Printf("%s (header Unpack error: %s):\n%s", s, err, hex.Dump(d))
+		le.Printf("%s (parseframe error: %s):\n%s", s, err, hex.Dump(d))
 		return
 	}
-	le.Printf("%s (FrameLen: 1+%d):\n%s", s, hdr.CmdLen.Bytelen(), hex.Dump(d))
+	le.Printf("%s (frame len: 1+%d):\n%s", s, hdr.CmdLen.Bytelen(), hex.Dump(d))
 }
 
 func (tk TillitisKey) Write(d []byte) error {
@@ -183,59 +183,62 @@ func (tk TillitisKey) Write(d []byte) error {
 	return nil
 }
 
-// ReadFrame() reads a response in the framing protocol. Using
-// expectedResp it checks that the header's response code, length, and
-// endpoint is what's expected. The expectedID is also checked against
-// the ID in the header. It returns the framing protocol header,
-// payload, and any error separately.
-func (tk TillitisKey) ReadFrame(expectedResp Cmd, expectedID int) (FramingHdr, []byte, error) {
-	var hdr FramingHdr
-
+// ReadFrame() reads a response in the framing protocol. The header
+// byte is parsed and its command length and endpoint are checked
+// against the expectedResp parameter; its ID is checked against
+// expectedID. The response code (first byte after header) is also
+// checked against the code in expectedResp. It returns the whole
+// frame read, the parsed header byte, and any error separately.
+func (tk TillitisKey) ReadFrame(expectedResp Cmd, expectedID int) ([]byte, FramingHdr, error) {
 	if expectedID > 3 {
-		return hdr, nil, fmt.Errorf("bad expected ID")
+		return nil, FramingHdr{}, fmt.Errorf("bad expected ID")
 	}
 	if expectedResp.Endpoint() > 3 {
-		return hdr, nil, fmt.Errorf("bad expected endpoint")
+		return nil, FramingHdr{}, fmt.Errorf("bad expected endpoint")
 	}
 	if expectedResp.CmdLen() > 3 {
-		return hdr, nil, fmt.Errorf("bad expected cmdlen")
+		return nil, FramingHdr{}, fmt.Errorf("bad expected cmdlen")
 	}
 
-	// Try to read the single header byte; the Read() will any set
-	// timeout. The io.ReadFull() below overrides any timeout.
+	// Try to read the single header byte
 	rxHdr := make([]byte, 1)
+	// Read() obeys timeout set using SetReadTimeout()
 	n, err := tk.conn.Read(rxHdr)
 	if err != nil {
-		return hdr, nil, fmt.Errorf("Read: %w", err)
+		return nil, FramingHdr{}, fmt.Errorf("Read: %w", err)
 	}
 	if n == 0 {
-		return hdr, nil, fmt.Errorf("Read timeout")
+		return nil, FramingHdr{}, fmt.Errorf("Read timeout")
 	}
 
-	hdr, err = parseframe(rxHdr[0])
+	hdr, err := parseframe(rxHdr[0])
 	if err != nil {
-		return hdr, nil, fmt.Errorf("Couldn't parse framing header: %w", err)
+		return nil, hdr, fmt.Errorf("Couldn't parse framing header: %w", err)
 	}
 
 	if hdr.CmdLen != expectedResp.CmdLen() {
-		return hdr, nil, fmt.Errorf("Framing: Expected len %v, got %v", expectedResp.CmdLen(), hdr.CmdLen)
+		return nil, hdr, fmt.Errorf("Framing: Expected len %v, got %v", expectedResp.CmdLen(), hdr.CmdLen)
 	}
 
 	if hdr.Endpoint != expectedResp.Endpoint() {
-		return hdr, nil, fmt.Errorf("Message not meant for us: dest %v", hdr.Endpoint)
+		return nil, hdr, fmt.Errorf("Message not meant for us: dest %v", hdr.Endpoint)
 	}
 	if hdr.ID != byte(expectedID) {
-		return hdr, nil, fmt.Errorf("Expected ID %d, got %d", expectedID, hdr.ID)
+		return nil, hdr, fmt.Errorf("Expected ID %d, got %d", expectedID, hdr.ID)
 	}
 
-	rxPayload := make([]byte, expectedResp.CmdLen().Bytelen())
-	if _, err = io.ReadFull(tk.conn, rxPayload); err != nil {
-		return hdr, nil, fmt.Errorf("ReadFull: %w", err)
+	// Prepare a buffer with the header byte first, for returning
+	rx := make([]byte, 1+expectedResp.CmdLen().Bytelen())
+	rx[0] = rxHdr[0]
+	// Try to read the whole rest of the frame; ReadFull() overrides
+	// any timeout set using SetReadTimeout()
+	if _, err = io.ReadFull(tk.conn, rx[1:]); err != nil {
+		return nil, hdr, fmt.Errorf("ReadFull: %w", err)
 	}
 
-	if rxPayload[0] != expectedResp.Code() {
-		return hdr, nil, fmt.Errorf("Expected %s, got 0x%x", expectedResp, rxPayload[0])
+	if rx[1] != expectedResp.Code() {
+		return rx, hdr, fmt.Errorf("Expected 0x%x (%s), got 0x%x", expectedResp.Code(), expectedResp, rx[1])
 	}
 
-	return hdr, rxPayload, nil
+	return rx, hdr, nil
 }

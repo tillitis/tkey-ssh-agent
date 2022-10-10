@@ -119,7 +119,7 @@ func (tk TillitisKey) GetNameVersion() (*NameVersion, error) {
 		return nil, err
 	}
 
-	_, rx, err := tk.ReadFrame(rspGetNameVersion, id)
+	rx, _, err := tk.ReadFrame(rspGetNameVersion, id)
 	if err != nil {
 		return nil, fmt.Errorf("ReadFrame: %w", err)
 	}
@@ -129,7 +129,7 @@ func (tk TillitisKey) GetNameVersion() (*NameVersion, error) {
 	}
 
 	nameVer := &NameVersion{}
-	nameVer.Unpack(rx[1:])
+	nameVer.Unpack(rx[2:])
 
 	return nameVer, nil
 }
@@ -156,12 +156,12 @@ func (tk TillitisKey) LoadUSS(secretPhrase []byte) error {
 		return err
 	}
 
-	_, rx, err := tk.ReadFrame(rspLoadUSS, id)
+	rx, _, err := tk.ReadFrame(rspLoadUSS, id)
 	if err != nil {
 		return fmt.Errorf("ReadFrame: %w", err)
 	}
 
-	if rx[1] != StatusOK {
+	if rx[2] != StatusOK {
 		return fmt.Errorf("LoadUSS NOK")
 	}
 
@@ -247,12 +247,12 @@ func (tk TillitisKey) setAppSize(size int) error {
 		return err
 	}
 
-	_, rx, err := tk.ReadFrame(rspLoadAppSize, id)
+	rx, _, err := tk.ReadFrame(rspLoadAppSize, id)
 	if err != nil {
 		return fmt.Errorf("ReadFrame: %w", err)
 	}
 
-	if rx[1] != StatusOK {
+	if rx[2] != StatusOK {
 		return fmt.Errorf("SetAppSize NOK")
 	}
 
@@ -286,12 +286,12 @@ func (tk TillitisKey) loadAppData(content []byte) (int, error) {
 	}
 
 	// Wait for reply
-	_, rx, err := tk.ReadFrame(rspLoadAppData, id)
+	rx, _, err := tk.ReadFrame(rspLoadAppData, id)
 	if err != nil {
 		return 0, fmt.Errorf("ReadFrame: %w", err)
 	}
 
-	if rx[1] != StatusOK {
+	if rx[2] != StatusOK {
 		return 0, fmt.Errorf("LoadAppData NOK")
 	}
 
@@ -314,12 +314,12 @@ func (tk TillitisKey) getAppDigest() ([32]byte, error) {
 	}
 
 	// Wait for reply
-	_, rx, err := tk.ReadFrame(rspGetAppDigest, id)
+	rx, _, err := tk.ReadFrame(rspGetAppDigest, id)
 	if err != nil {
 		return md, fmt.Errorf("ReadFrame: %w", err)
 	}
 
-	copy(md[:], rx[1:])
+	copy(md[:], rx[2:])
 
 	return md, nil
 }
@@ -337,12 +337,12 @@ func (tk TillitisKey) runApp() error {
 	}
 
 	// Wait for reply
-	_, rx, err := tk.ReadFrame(rspRunApp, id)
+	rx, _, err := tk.ReadFrame(rspRunApp, id)
 	if err != nil {
 		return fmt.Errorf("ReadFrame: %w", err)
 	}
 
-	if rx[1] != StatusOK {
+	if rx[2] != StatusOK {
 		return fmt.Errorf("RunApp NOK")
 	}
 

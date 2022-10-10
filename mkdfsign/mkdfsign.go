@@ -103,7 +103,7 @@ func (s Signer) GetAppNameVersion() (*mkdf.NameVersion, error) {
 		return nil, fmt.Errorf("SetReadTimeout: %w", err)
 	}
 
-	_, rx, err := s.tk.ReadFrame(rspGetNameVersion, id)
+	rx, _, err := s.tk.ReadFrame(rspGetNameVersion, id)
 	if err != nil {
 		return nil, fmt.Errorf("ReadFrame: %w", err)
 	}
@@ -114,7 +114,7 @@ func (s Signer) GetAppNameVersion() (*mkdf.NameVersion, error) {
 	}
 
 	nameVer := &mkdf.NameVersion{}
-	nameVer.Unpack(rx[1:])
+	nameVer.Unpack(rx[2:])
 
 	return nameVer, nil
 }
@@ -132,14 +132,14 @@ func (s Signer) GetPubkey() ([]byte, error) {
 		return nil, fmt.Errorf("Write: %w", err)
 	}
 
-	_, rx, err := s.tk.ReadFrame(rspGetPubkey, id)
+	rx, _, err := s.tk.ReadFrame(rspGetPubkey, id)
 	mkdf.Dump("GetPubKey rx", rx)
 	if err != nil {
 		return nil, fmt.Errorf("ReadFrame: %w", err)
 	}
 
 	// Skip frame header & app header, returning size of ed25519 pubkey
-	return rx[1 : 1+32], nil
+	return rx[2 : 2+32], nil
 }
 
 // Sign signs the message in data and returns an ed25519 signature.
@@ -186,13 +186,13 @@ func (s Signer) setSize(size int) error {
 		return fmt.Errorf("Write: %w", err)
 	}
 
-	_, rx, err := s.tk.ReadFrame(rspSetSize, id)
+	rx, _, err := s.tk.ReadFrame(rspSetSize, id)
 	mkdf.Dump("SetAppSize rx", rx)
 	if err != nil {
 		return fmt.Errorf("ReadFrame: %w", err)
 	}
 
-	if rx[1] != mkdf.StatusOK {
+	if rx[2] != mkdf.StatusOK {
 		return fmt.Errorf("SetSignSize NOK")
 	}
 
@@ -225,12 +225,12 @@ func (s Signer) signLoad(content []byte) (int, error) {
 	}
 
 	// Wait for reply
-	_, rx, err := s.tk.ReadFrame(rspSignData, id)
+	rx, _, err := s.tk.ReadFrame(rspSignData, id)
 	if err != nil {
 		return 0, fmt.Errorf("ReadFrame: %w", err)
 	}
 
-	if rx[1] != mkdf.StatusOK {
+	if rx[2] != mkdf.StatusOK {
 		return 0, fmt.Errorf("SignData NOK")
 	}
 
@@ -251,11 +251,11 @@ func (s Signer) getSig() ([]byte, error) {
 		return nil, fmt.Errorf("Write: %w", err)
 	}
 
-	_, rx, err := s.tk.ReadFrame(rspGetSig, id)
+	rx, _, err := s.tk.ReadFrame(rspGetSig, id)
 	if err != nil {
 		return nil, fmt.Errorf("ReadFrame: %w", err)
 	}
 
-	// Skip app header, returning size of ed25519 signature
-	return rx[1 : 1+64], nil
+	// Skip frame header & app header, returning size of ed25519 signature
+	return rx[2 : 2+64], nil
 }

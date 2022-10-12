@@ -5,4 +5,6 @@
 /runapp
 /tk1sign
 apps/signerapp/app
+/runtimer
+apps/timer/timer
 /golangci-lint

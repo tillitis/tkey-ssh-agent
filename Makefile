@@ -1,7 +1,7 @@
 RM=/bin/rm
 
 .PHONY: all
-all: apps runapp tk1sign mkdf-ssh-agent
+all: apps runapp tk1sign mkdf-ssh-agent runtimer
 
 .PHONY: apps
 apps:
@@ -16,6 +16,10 @@ runapp:
 .PHONY: tk1sign
 tk1sign:
 	go build ./cmd/tk1sign
+
+.PHONY: runtimer
+runtimer:
+	go build ./cmd/runtimer
 
 # .PHONY to let go-build handle deps and rebuilds
 .PHONY: mkdf-ssh-agent

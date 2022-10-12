@@ -19,7 +19,7 @@ RM=/bin/rm
 
 
 .PHONY: all
-all: signerapp/app.bin
+all: signerapp/app.bin timer/timer.bin
 
 # C runtime library
 libcrt0/libcrt0.a: libcrt0/crt0.o
@@ -50,12 +50,22 @@ $(SIGNEROBJS): $(INCLUDE)/mta1_mkdf_mem.h \
 	signerapp/monocypher/monocypher-ed25519.h \
 	signerapp/app_proto.h
 
+# A simpler timer app
+TIMEROBJS = timer/main.o timer/app_proto.o
+
+timer/timer.bin: timer/timer
+	$(OBJCOPY) --input-target=elf32-littleriscv --output-target=binary timer/timer timer/timer.bin
+
+timer/timer: libcrt0/libcrt0.a libcommon/libcommon.a $(TIMEROBJS) app.lds
+	$(CC) $(CFLAGS) $(TIMEROBJS) $(LDFLAGS) -o $@
+
 .PHONY: clean
 clean:
 	$(RM) -f signerapp/app.bin signerapp/app $(SIGNEROBJS)
+	$(RM) -f timer/timer.bin timer/timer $(TIMEROBJS)
 	$(RM) -f libcommon/libcommon.a $(LIBOBJS) libcrt0/libcrt0.a libcrt0/crt0.o
 
-FMTFILES=include/*.h libcommon/*.c signerapp/*.[ch]
+FMTFILES=include/*.h libcommon/*.c signerapp/*.[ch] timer/*.[ch]
 .PHONY: fmt
 fmt:
 	# Uses ../.clang-format

@@ -1,6 +1,6 @@
 OBJCOPY ?= llvm-objcopy-14
 
-CC=clang
+CC = clang-14
 
 INCLUDE=include
 

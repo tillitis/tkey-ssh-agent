@@ -6,9 +6,9 @@ INCLUDE=include
 
 # If you want libcommon's puts() et cetera to output something on our
 # QEMU debug port, remove -DNODEBUG below
-CFLAGS =-target riscv32-unknown-none-elf -march=rv32imc -mabi=ilp32 -mcmodel=medany \
+CFLAGS = -target riscv32-unknown-none-elf -march=rv32imc -mabi=ilp32 -mcmodel=medany \
    -static -std=gnu99 -O2 -ffast-math -fno-common -fno-builtin-printf \
-   -fno-builtin-putchar -static -nostdlib -mno-relax -Wall -flto -I $(INCLUDE) -DNODEBUG
+   -fno-builtin-putchar -nostdlib -mno-relax -Wall -flto -I $(INCLUDE) -DNODEBUG
 
 AS = clang-14
 ASFLAGS = -target riscv32-unknown-none-elf -march=rv32imc -mabi=ilp32 -mno-relax

@@ -55,9 +55,7 @@ clean:
 	$(RM) -f signerapp/app.bin signerapp/app $(SIGNEROBJS)
 	$(RM) -f libcommon/libcommon.a $(LIBOBJS) libcrt0/libcrt0.a libcrt0/crt0.o
 
-FMTFILES=include/lib.h include/proto.h include/types.h \
-	libcommon/lib.c libcommon/proto.c \
-	signerapp/app_proto.h signerapp/app_proto.c signerapp/main.c
+FMTFILES=include/*.h libcommon/*.c signerapp/*.[ch]
 .PHONY: fmt
 fmt:
 	# Uses ../.clang-format

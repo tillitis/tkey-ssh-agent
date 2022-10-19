@@ -43,6 +43,9 @@ func SilenceLogging() {
 }
 
 const (
+	// Speed in bps for talking to Tillitis Key 1
+	SerialSpeed = 62500
+	// Codes used in app proto responses
 	StatusOK  = 0x00
 	StatusBad = 0x01
 )

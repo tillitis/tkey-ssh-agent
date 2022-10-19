@@ -128,7 +128,7 @@ func (t Timer) StartTimer() error {
 
 func main() {
 	port := pflag.String("port", "/dev/ttyACM0", "Serial port path")
-	speed := pflag.Int("speed", 38400, "When talking over the serial port, bits per second")
+	speed := pflag.Int("speed", mkdf.SerialSpeed, "When talking over the serial port, bits per second")
 	verbose := pflag.Bool("verbose", false, "Enable verbose output")
 	timer := pflag.Int("timer", 1, "Timer (seconds if default prescaler)")
 	// matching device clock at 18 MHz

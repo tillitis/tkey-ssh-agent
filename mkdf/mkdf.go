@@ -53,6 +53,11 @@ type TillitisKey struct {
 	conn serial.Port
 }
 
+const (
+	// bps for talking to Tillitis Key 1
+	SerialSpeed = 62500
+)
+
 // New() opens a connection to the Tillitis Key 1 at the serial device
 // port at indicated speed.
 func New(port string, speed int) (TillitisKey, error) {

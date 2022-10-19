@@ -18,7 +18,7 @@ import (
 func main() {
 	fileName := pflag.String("file", "", "Name of file with data to be signed (the \"message\")")
 	port := pflag.String("port", "/dev/ttyACM0", "Serial port path")
-	speed := pflag.Int("speed", 38400, "When talking over the serial port, bits per second")
+	speed := pflag.Int("speed", mkdf.SerialSpeed, "When talking over the serial port, bits per second")
 	verbose := pflag.Bool("verbose", false, "Enable verbose output")
 	pflag.Parse()
 

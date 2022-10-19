@@ -17,7 +17,7 @@ import (
 func main() {
 	fileName := pflag.String("file", "", "App binary to be uploaded and started")
 	port := pflag.String("port", "/dev/ttyACM0", "Serial port path")
-	speed := pflag.Int("speed", 38400, "When talking over the serial port, bits per second")
+	speed := pflag.Int("speed", mkdf.SerialSpeed, "When talking over the serial port, bits per second")
 	enterUSS := pflag.Bool("uss", false, "Enable typing of a phrase for the User Supplied Secret. The phrase\n"+
 		"is hashed using BLAKE2 to a digest. The USS digest is used by the\n"+
 		"firmware, together with other material, for deriving secrets for the\n"+

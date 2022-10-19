@@ -32,7 +32,7 @@ func main() {
 	var devPath string
 	var speed, bytes int
 	pflag.StringVar(&devPath, "port", "/dev/ttyACM0", "Path to serial port device")
-	pflag.IntVar(&speed, "speed", 38400, "When talking over the serial port, bits per second")
+	pflag.IntVar(&speed, "speed", mkdf.SerialSpeed, "When talking over the serial port, bits per second")
 	pflag.IntVarP(&bytes, "bytes", "b", 0, "Number of random bytes to get")
 	pflag.Parse()
 

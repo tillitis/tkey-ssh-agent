@@ -37,7 +37,7 @@ mkdf-ssh-agent:
 
 .PHONY: clean
 clean:
-	rm -f runapp tk1sign mkdf-ssh-agent cmd/mkdf-ssh-agent/app.bin runtimer runrandom cmd/runrnadom/app.bin
+	$(RM) -f runapp tk1sign mkdf-ssh-agent cmd/mkdf-ssh-agent/app.bin runtimer runrandom cmd/runrandom/app.bin
 	$(MAKE) -C apps clean
 
 .PHONY: lint

@@ -1,12 +1,10 @@
 *.a
 *.o
 *.bin
+*.elf
 /mkdf-ssh-agent
 /runapp
 /tk1sign
-apps/signerapp/app
 /runtimer
-apps/timer/timer
 /runrandom
-apps/random/random
 /golangci-lint

@@ -33,48 +33,48 @@ libcommon/libcommon.a: $(LIBOBJS)
 
 $(LIBOBJS): include/types.h include/mta1_mkdf_mem.h include/lib.h include/proto.h
 
+# Turn elf into bin for device
+%.bin: %.elf
+	$(OBJCOPY) --input-target=elf32-littleriscv --output-target=binary $^ $@
+
 # Simple ed25519 signer app
 SIGNEROBJS=signerapp/app_proto.o \
-	signerapp/main.o \
-	signerapp/monocypher/monocypher.o \
-	signerapp/monocypher/monocypher-ed25519.o
+    signerapp/main.o \
+    signerapp/monocypher/monocypher.o \
+    signerapp/monocypher/monocypher-ed25519.o
 
-signerapp/app.bin: signerapp/app
-	$(OBJCOPY) --input-target=elf32-littleriscv --output-target=binary signerapp/app signerapp/app.bin
-
-signerapp/app: libcrt0/libcrt0.a libcommon/libcommon.a $(SIGNEROBJS) app.lds
+signerapp/app.elf: libcrt0/libcrt0.a libcommon/libcommon.a $(SIGNEROBJS) app.lds
 	$(CC) $(CFLAGS) $(SIGNEROBJS) $(LDFLAGS) -o $@
 
-$(SIGNEROBJS): $(INCLUDE)/mta1_mkdf_mem.h \
-	signerapp/monocypher/monocypher.h \
-	signerapp/monocypher/monocypher-ed25519.h \
-	signerapp/app_proto.h
+$(SIGNEROBJS): $(INCLUDE)/mta1_mkdf_mem.h signerapp/app_proto.h \
+    signerapp/monocypher/monocypher.h \
+    signerapp/monocypher/monocypher-ed25519.h
 
 # A simpler timer app
 TIMEROBJS = timer/main.o timer/app_proto.o
 
-timer/timer.bin: timer/timer
-	$(OBJCOPY) --input-target=elf32-littleriscv --output-target=binary timer/timer timer/timer.bin
-
-timer/timer: libcrt0/libcrt0.a libcommon/libcommon.a $(TIMEROBJS) app.lds
+timer/timer.elf: libcrt0/libcrt0.a libcommon/libcommon.a $(TIMEROBJS) app.lds
 	$(CC) $(CFLAGS) $(TIMEROBJS) $(LDFLAGS) -o $@
+
+$(TIMEROBJS): $(INCLUDE)/mta1_mkdf_mem.h timer/app_proto.h
 
 # Random number generator app
 RANDOMOBJS=random/main.o random/app_proto.o
 
-random/random.bin: random/random
+random/random.bin: random/random.elf
 	$(OBJCOPY) --input-target=elf32-littleriscv --output-target=binary $^ $@
 
-random/random: libcrt0/libcrt0.a libcommon/libcommon.a $(RANDOMOBJS) app.lds
+random/random.elf: libcrt0/libcrt0.a libcommon/libcommon.a $(RANDOMOBJS) app.lds
 	$(CC) $(CFLAGS) $(RANDOMOBJS) $(LDFLAGS) -o $@
 
 $(RANDOMOBJS): $(INCLUDE)/mta1_mkdf_mem.h random/app_proto.h
 
+
 .PHONY: clean
 clean:
-	$(RM) -f signerapp/app.bin signerapp/app $(SIGNEROBJS)
-	$(RM) -f timer/timer.bin timer/timer $(TIMEROBJS)
-	$(RM) -f random/random.bin random/random $(RANDOMOBJS)
+	$(RM) -f signerapp/app.bin signerapp/app.elf $(SIGNEROBJS)
+	$(RM) -f timer/timer.bin timer/timer.elf $(TIMEROBJS)
+	$(RM) -f random/random.bin random/random.elf $(RANDOMOBJS)
 	$(RM) -f libcommon/libcommon.a $(LIBOBJS) libcrt0/libcrt0.a libcrt0/crt0.o
 
 FMTFILES=include/*.h libcommon/*.c signerapp/*.[ch] timer/*.[ch] random/*.[ch]

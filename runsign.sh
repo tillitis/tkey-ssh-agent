@@ -7,8 +7,8 @@ fi
 
 if [ $# -eq 2 ]; then
   ./runapp  --port "$1" --file apps/signerapp/app.bin
-  ./tk1sign --port "$1" --file "$2"
+  ./tk-sign --port "$1" --file "$2"
 else
   ./runapp  --port "$1" --speed "$2" --file apps/signerapp/app.bin
-  ./tk1sign --port "$1" --speed "$2" --file "$3"
+  ./tk-sign --port "$1" --speed "$2" --file "$3"
 fi

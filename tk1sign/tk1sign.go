@@ -1,12 +1,12 @@
 // Copyright (C) 2022 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
-// Package mkdfsign provides a connection to the ed25519 signerapp
+// Package tk1sign provides a connection to the ed25519 signerapp
 // running on the Tillitis Key 1. You're expected to pass an existing
 // TK1 connection to it, so use it like this:
 //
-//	tk, err := mkdf.New(*port, *speed)
-//	signer := mkdfsign.New(tk)
+//	tk, err := tk1.New(*port, *speed)
+//	signer := tk1sign.New(tk)
 //
 // Then use it like this to get the public key of the TK1:
 //
@@ -15,43 +15,43 @@
 // And like this to sign a message:
 //
 //	signature, err := signer.Sign(message)
-package mkdfsign
+package tk1sign
 
 import (
 	"fmt"
 
-	"github.com/tillitis/tillitis-key1-apps/mkdf"
+	"github.com/tillitis/tillitis-key1-apps/tk1"
 )
 
 var (
-	cmdGetPubkey      = appCmd{0x01, "cmdGetPubkey", mkdf.CmdLen1}
-	rspGetPubkey      = appCmd{0x02, "rspGetPubkey", mkdf.CmdLen128}
-	cmdSetSize        = appCmd{0x03, "cmdSetSize", mkdf.CmdLen32}
-	rspSetSize        = appCmd{0x04, "rspSetSize", mkdf.CmdLen4}
-	cmdSignData       = appCmd{0x05, "cmdSignData", mkdf.CmdLen128}
-	rspSignData       = appCmd{0x06, "rspSignData", mkdf.CmdLen4}
-	cmdGetSig         = appCmd{0x07, "cmdGetSig", mkdf.CmdLen1}
-	rspGetSig         = appCmd{0x08, "rspGetSig", mkdf.CmdLen128}
-	cmdGetNameVersion = appCmd{0x09, "cmdGetNameVersion", mkdf.CmdLen1}
-	rspGetNameVersion = appCmd{0x0a, "rspGetNameVersion", mkdf.CmdLen32}
+	cmdGetPubkey      = appCmd{0x01, "cmdGetPubkey", tk1.CmdLen1}
+	rspGetPubkey      = appCmd{0x02, "rspGetPubkey", tk1.CmdLen128}
+	cmdSetSize        = appCmd{0x03, "cmdSetSize", tk1.CmdLen32}
+	rspSetSize        = appCmd{0x04, "rspSetSize", tk1.CmdLen4}
+	cmdSignData       = appCmd{0x05, "cmdSignData", tk1.CmdLen128}
+	rspSignData       = appCmd{0x06, "rspSignData", tk1.CmdLen4}
+	cmdGetSig         = appCmd{0x07, "cmdGetSig", tk1.CmdLen1}
+	rspGetSig         = appCmd{0x08, "rspGetSig", tk1.CmdLen128}
+	cmdGetNameVersion = appCmd{0x09, "cmdGetNameVersion", tk1.CmdLen1}
+	rspGetNameVersion = appCmd{0x0a, "rspGetNameVersion", tk1.CmdLen32}
 )
 
 type appCmd struct {
 	code   byte
 	name   string
-	cmdLen mkdf.CmdLen
+	cmdLen tk1.CmdLen
 }
 
 func (c appCmd) Code() byte {
 	return c.code
 }
 
-func (c appCmd) CmdLen() mkdf.CmdLen {
+func (c appCmd) CmdLen() tk1.CmdLen {
 	return c.cmdLen
 }
 
-func (c appCmd) Endpoint() mkdf.Endpoint {
-	return mkdf.DestApp
+func (c appCmd) Endpoint() tk1.Endpoint {
+	return tk1.DestApp
 }
 
 func (c appCmd) String() string {
@@ -59,16 +59,16 @@ func (c appCmd) String() string {
 }
 
 type Signer struct {
-	tk mkdf.TillitisKey // A connection to a Tillitis Key 1
+	tk tk1.TillitisKey // A connection to a Tillitis Key 1
 }
 
 // New() gets you a connection to a ed25519 signerapp running on the
 // Tillitis Key 1. You're expected to pass an existing TK1 connection
 // to it, so use it like this:
 //
-//	tk, err := mkdf.New(port, speed)
-//	signer := mkdfsign.New(tk)
-func New(tk mkdf.TillitisKey) Signer {
+//	tk, err := tk1.New(port, speed)
+//	signer := tk1sign.New(tk)
+func New(tk tk1.TillitisKey) Signer {
 	var signer Signer
 
 	signer.tk = tk
@@ -86,14 +86,14 @@ func (s Signer) Close() error {
 
 // GetAppNameVersion gets the name and version of the running app in
 // the same style as the stick itself.
-func (s Signer) GetAppNameVersion() (*mkdf.NameVersion, error) {
+func (s Signer) GetAppNameVersion() (*tk1.NameVersion, error) {
 	id := 2
-	tx, err := mkdf.NewFrameBuf(cmdGetNameVersion, id)
+	tx, err := tk1.NewFrameBuf(cmdGetNameVersion, id)
 	if err != nil {
 		return nil, fmt.Errorf("NewFrameBuf: %w", err)
 	}
 
-	mkdf.Dump("GetAppNameVersion tx", tx)
+	tk1.Dump("GetAppNameVersion tx", tx)
 	if err = s.tk.Write(tx); err != nil {
 		return nil, fmt.Errorf("Write: %w", err)
 	}
@@ -113,7 +113,7 @@ func (s Signer) GetAppNameVersion() (*mkdf.NameVersion, error) {
 		return nil, fmt.Errorf("SetReadTimeout: %w", err)
 	}
 
-	nameVer := &mkdf.NameVersion{}
+	nameVer := &tk1.NameVersion{}
 	nameVer.Unpack(rx[2:])
 
 	return nameVer, nil
@@ -122,18 +122,18 @@ func (s Signer) GetAppNameVersion() (*mkdf.NameVersion, error) {
 // GetPubkey fetches the public key of the signer.
 func (s Signer) GetPubkey() ([]byte, error) {
 	id := 2
-	tx, err := mkdf.NewFrameBuf(cmdGetPubkey, id)
+	tx, err := tk1.NewFrameBuf(cmdGetPubkey, id)
 	if err != nil {
 		return nil, fmt.Errorf("NewFrameBuf: %w", err)
 	}
 
-	mkdf.Dump("GetPubkey tx", tx)
+	tk1.Dump("GetPubkey tx", tx)
 	if err = s.tk.Write(tx); err != nil {
 		return nil, fmt.Errorf("Write: %w", err)
 	}
 
 	rx, _, err := s.tk.ReadFrame(rspGetPubkey, id)
-	mkdf.Dump("GetPubKey rx", rx)
+	tk1.Dump("GetPubKey rx", rx)
 	if err != nil {
 		return nil, fmt.Errorf("ReadFrame: %w", err)
 	}
@@ -171,7 +171,7 @@ func (s Signer) Sign(data []byte) ([]byte, error) {
 // SetSize sets the size of the data to sign.
 func (s Signer) setSize(size int) error {
 	id := 2
-	tx, err := mkdf.NewFrameBuf(cmdSetSize, id)
+	tx, err := tk1.NewFrameBuf(cmdSetSize, id)
 	if err != nil {
 		return fmt.Errorf("NewFrameBuf: %w", err)
 	}
@@ -181,18 +181,18 @@ func (s Signer) setSize(size int) error {
 	tx[3] = byte(size >> 8)
 	tx[4] = byte(size >> 16)
 	tx[5] = byte(size >> 24)
-	mkdf.Dump("SetAppSize tx", tx)
+	tk1.Dump("SetAppSize tx", tx)
 	if err = s.tk.Write(tx); err != nil {
 		return fmt.Errorf("Write: %w", err)
 	}
 
 	rx, _, err := s.tk.ReadFrame(rspSetSize, id)
-	mkdf.Dump("SetAppSize rx", rx)
+	tk1.Dump("SetAppSize rx", rx)
 	if err != nil {
 		return fmt.Errorf("ReadFrame: %w", err)
 	}
 
-	if rx[2] != mkdf.StatusOK {
+	if rx[2] != tk1.StatusOK {
 		return fmt.Errorf("SetSignSize NOK")
 	}
 
@@ -203,12 +203,12 @@ func (s Signer) setSize(size int) error {
 // response from the signer.
 func (s Signer) signLoad(content []byte) (int, error) {
 	id := 2
-	tx, err := mkdf.NewFrameBuf(cmdSignData, id)
+	tx, err := tk1.NewFrameBuf(cmdSignData, id)
 	if err != nil {
 		return 0, fmt.Errorf("NewFrameBuf: %w", err)
 	}
 
-	payload := make([]byte, mkdf.CmdLen128.Bytelen()-1)
+	payload := make([]byte, tk1.CmdLen128.Bytelen()-1)
 	copied := copy(payload, content)
 
 	// Add padding if not filling the payload buffer.
@@ -219,7 +219,7 @@ func (s Signer) signLoad(content []byte) (int, error) {
 
 	copy(tx[2:], payload)
 
-	mkdf.Dump("LoadSignData tx", tx)
+	tk1.Dump("LoadSignData tx", tx)
 	if err = s.tk.Write(tx); err != nil {
 		return 0, fmt.Errorf("Write: %w", err)
 	}
@@ -230,7 +230,7 @@ func (s Signer) signLoad(content []byte) (int, error) {
 		return 0, fmt.Errorf("ReadFrame: %w", err)
 	}
 
-	if rx[2] != mkdf.StatusOK {
+	if rx[2] != tk1.StatusOK {
 		return 0, fmt.Errorf("SignData NOK")
 	}
 
@@ -241,12 +241,12 @@ func (s Signer) signLoad(content []byte) (int, error) {
 // available.
 func (s Signer) getSig() ([]byte, error) {
 	id := 2
-	tx, err := mkdf.NewFrameBuf(cmdGetSig, id)
+	tx, err := tk1.NewFrameBuf(cmdGetSig, id)
 	if err != nil {
 		return nil, fmt.Errorf("NewFrameBuf: %w", err)
 	}
 
-	mkdf.Dump("getSig tx", tx)
+	tk1.Dump("getSig tx", tx)
 	if err = s.tk.Write(tx); err != nil {
 		return nil, fmt.Errorf("Write: %w", err)
 	}

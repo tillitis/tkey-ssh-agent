@@ -13,7 +13,7 @@ import (
 	"syscall"
 
 	"github.com/spf13/pflag"
-	"github.com/tillitis/tillitis-key1-apps/mkdf"
+	"github.com/tillitis/tillitis-key1-apps/tk1"
 )
 
 // Makefile copies the built app here ./app.bin
@@ -22,7 +22,7 @@ import (
 var appBinary []byte
 
 const (
-	wantAppName0 = "mkdf"
+	wantAppName0 = "tk1 "
 	wantAppName1 = "rand"
 )
 
@@ -32,7 +32,7 @@ func main() {
 	var devPath string
 	var speed, bytes int
 	pflag.StringVar(&devPath, "port", "/dev/ttyACM0", "Path to serial port device")
-	pflag.IntVar(&speed, "speed", mkdf.SerialSpeed, "When talking over the serial port, bits per second")
+	pflag.IntVar(&speed, "speed", tk1.SerialSpeed, "When talking over the serial port, bits per second")
 	pflag.IntVarP(&bytes, "bytes", "b", 0, "Number of random bytes to get")
 	pflag.Parse()
 
@@ -42,10 +42,10 @@ func main() {
 		os.Exit(2)
 	}
 
-	mkdf.SilenceLogging()
+	tk1.SilenceLogging()
 
 	le.Printf("Connecting to device on serial port %s...\n", devPath)
-	tk, err := mkdf.New(devPath, speed)
+	tk, err := tk1.New(devPath, speed)
 	if err != nil {
 		le.Printf("Could not open %s: %v\n", devPath, err)
 		os.Exit(1)
@@ -124,7 +124,7 @@ func isWantedApp(randomGen RandomGen) bool {
 	return true
 }
 
-func isFirmwareMode(tk mkdf.TillitisKey) bool {
+func isFirmwareMode(tk tk1.TillitisKey) bool {
 	_, err := tk.GetNameVersion()
 	return err == nil
 }

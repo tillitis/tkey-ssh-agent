@@ -13,7 +13,7 @@ change. To avoid unexpected changes, please use a tagged release.
 
 An ed25519 signer app written in C. There are two host programs which
 can communicate with the app. `runapp` just performs a complete test
-signing. `mkdf-ssh-agent` is an ssh-agent with practical use.
+signing. `tk-ssh-agent` is an ssh-agent with practical use.
 
 ## Building
 
@@ -37,7 +37,7 @@ your system.
 
 The signerapp can be run both on the hardware Tillitis Key 1, and on a
 QEMU machine that emulates the platform. In both cases, the host
-program (`runapp`, `tk1sign` or `mkdf-ssh-agent` running on your
+program (`runapp`, `tk-sign` or `tk-ssh-agent` running on your
 computer) will talk to the app over a serial port, virtual or real.
 Please continue below in the suitable "Running apps on ..." section.
 
@@ -58,7 +58,7 @@ MTA1-USB-V1`. On Linux, Tillitis Key 1's serial port device path is
 typically `/dev/ttyACM0` (but it may end with another digit, if you
 have other devices plugged in). This is also the default path that the
 host programs use to talk to it. You can list the possible paths using
-`mkdf-ssh-agent --list-ports`.
+`tk-ssh-agent --list-ports`.
 
 You also need to be sure that you can access the serial port as your
 regular user. One way to do that is by becoming a member of the group
@@ -101,11 +101,11 @@ the host programs. Continue in the section "Using runsign..." below.
 
 ### Running apps on QEMU
 
-Build our [qemu](https://github.com/tillitis/qemu). Use the `mta1`
+Build our [qemu](https://github.com/tillitis/qemu). Use the `tk1`
 branch:
 
 ```
-$ git clone -b mta1 https://github.com/tillitis/qemu
+$ git clone -b tk1 https://github.com/tillitis/qemu
 $ mkdir qemu/build
 $ cd qemu/build
 $ ../configure --target-list=riscv32-softmmu --disable-werror
@@ -130,7 +130,7 @@ if you have any issues building.
 Then run the emulator, passing using the built firmware to "-bios":
 
 ```
-$ /path/to/qemu/build/qemu-system-riscv32 -nographic -M mta1_mkdf,fifo=chrid -bios firmware.elf \
+$ /path/to/qemu/build/qemu-system-riscv32 -nographic -M tk1,fifo=chrid -bios firmware.elf \
   -chardev pty,id=chrid
 ```
 
@@ -138,7 +138,7 @@ It tells you what serial port it is using, for instance `/dev/pts/1`.
 This is what you need to use as `--port` when running the host
 programs. Continue in the section "Using runsign..." below.
 
-The MTA1 machine running on QEMU (which in turn runs the firmware, and
+The TK1 machine running on QEMU (which in turn runs the firmware, and
 then the app) can output some memory access (and other) logging. You
 can add `-d guest_errors` to the qemu commandline To make QEMU send
 these to stderr.
@@ -162,7 +162,7 @@ The file with the message can currently be at most 4096 bytes long.
 
 The host program `runapp` only loads and starts an app. Then you will
 have to switch to a different program to speak your specific app
-protocol, for instance the `tk1sign` program provided here.
+protocol, for instance the `tk-sign` program provided here.
 
 To run `runapp` you need to specify both the serial port (unless
 you're using the default `/dev/ttyACM0`) and the raw app binary that
@@ -193,10 +193,11 @@ USS will change, and so will your identity. To learn more, read the
 [system_description.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/system_description/system_description.md)
 (in the tillitis-key1 repository).
 
-`tk1sign` is used in a similar way:
+`tk-sign` is used in a similar way, assuming `runapp` has been used to
+load the signerapp:
 
 ```
-./tk1sign --port /dev/pts/1 --file file-with-message-to-sign
+./tk-sign --port /dev/pts/1 --file file-with-message-to-sign
 ```
 
 If you're using real hardware, the LED on the USB stick is a steady
@@ -225,16 +226,16 @@ then you need to unplug both the USB stick and the programmer.
 
 That was fun, now let's try the ssh-agent!
 
-## Using mkdf-ssh-agent
+## Using tk-ssh-agent
 
 This host program for the signerapp is a complete, alternative
 ssh-agent with practical use. The signerapp binary gets built into the
-mkdf-ssh-agent, which will upload it to the USB stick when started. If
+tk-ssh-agent, which will upload it to the USB stick when started. If
 the serial port path is not the default, you need to pass it as
 `--port`. An example:
 
 ```
-$ ./mkdf-ssh-agent -a ./agent.sock --port /dev/pts/1
+$ ./tk-ssh-agent -a ./agent.sock --port /dev/pts/1
 ```
 
 This will start the ssh-agent and tell it to listen on the specified
@@ -259,14 +260,14 @@ $ SSH_AUTH_SOCK=/path/to/agent.sock ssh -F /dev/null localhost
 interfere with this test.
 
 (The message `agent 27: ssh: parse error in message type 27` coming
-from mkdf-ssh-agent is due to
-https://github.com/golang/go/issues/51689 and will eventually be fixed
-by https://go-review.googlesource.com/c/crypto/+/412154/ (until then
-it's also not possible to implement the upcoming SSH agent
-restrictions https://www.openssh.com/agent-restrict.html).)
+from tk-ssh-agent is due to https://github.com/golang/go/issues/51689
+and will eventually be fixed by
+https://go-review.googlesource.com/c/crypto/+/412154/ (until then it's
+also not possible to implement the upcoming SSH agent restrictions
+https://www.openssh.com/agent-restrict.html).)
 
-The mkdf-ssh-agent also supports the `--uss` and `--uss-file` flags,
-as described for `runapp` above.
+The tk-ssh-agent also supports the `--uss` and `--uss-file` flags, as
+described for `runapp` above.
 
 You can use `-k` (long option: `--show-pubkey`) to only output the
 pubkey. The pubkey is printed to stdout for easy redirection, but some
@@ -313,14 +314,13 @@ There are no heap allocation functions, no `malloc()` and friends.
 Special memory areas for memory mapped hardware functions are
 available at base 0xc000\_0000 and an offset. See
 [software.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/system_description/software.md)
-(in the tillitis-key1 repository), and the include file
-`mta1_mkdf_mem.h`.
+(in the tillitis-key1 repository), and the include file `tk1_mem.h`.
 
 ### Debugging
 
 If you're running the app on our qemu emulator we have added a debug
-port on 0xfe00\_1000 (MTA1_MKDF_MMIO_QEMU_DEBUG). Anything written
-there will be printed as a character by qemu on the console.
+port on 0xfe00\_1000 (TK1_MMIO_QEMU_DEBUG). Anything written there
+will be printed as a character by qemu on the console.
 
 `putchar()`, `puts()`, `putinthex()`, `hexdump()` and friends (see
 `apps/libcommon/lib.[ch]`) use this debug port to print stuff. 

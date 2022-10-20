@@ -15,8 +15,8 @@ import (
 	"syscall"
 
 	"github.com/tillitis/tillitis-key1-apps/internal/uss"
-	"github.com/tillitis/tillitis-key1-apps/mkdf"
-	"github.com/tillitis/tillitis-key1-apps/mkdfsign"
+	"github.com/tillitis/tillitis-key1-apps/tk1"
+	"github.com/tillitis/tillitis-key1-apps/tk1sign"
 )
 
 var ErrMaybeWrongDevice = errors.New("wrong device or non-responsive app")
@@ -28,25 +28,25 @@ var appBinary []byte
 
 const (
 	// 4 chars each.
-	wantAppName0 = "mkdf"
+	wantAppName0 = "tk1 "
 	wantAppName1 = "sign"
 )
 
 type Signer struct {
-	tk         *mkdf.TillitisKey
-	mkdfSigner *mkdfsign.Signer
+	tk       *tk1.TillitisKey
+	tkSigner *tk1sign.Signer
 }
 
 func NewSigner(devPath string, speed int, enterUSS bool, fileUSS string) (*Signer, error) {
-	mkdf.SilenceLogging()
+	tk1.SilenceLogging()
 	le.Printf("Connecting to device on serial port %s ...\n", devPath)
-	tk, err := mkdf.New(devPath, speed)
+	tk, err := tk1.New(devPath, speed)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to connect: %w", err)
 	}
 
-	mkdfSigner := mkdfsign.New(tk)
-	signer := &Signer{&tk, &mkdfSigner}
+	tkSigner := tk1sign.New(tk)
+	signer := &Signer{&tk, &tkSigner}
 
 	// Start handling signals here to catch abort during USS entering
 	handleSignals(func() {
@@ -103,17 +103,17 @@ func (s *Signer) maybeLoadApp(enterUSS bool, fileUSS string) error {
 }
 
 func (s *Signer) disconnect() error {
-	if s.mkdfSigner == nil {
+	if s.tkSigner == nil {
 		return nil
 	}
-	if err := s.mkdfSigner.Close(); err != nil {
-		return fmt.Errorf("mkdfSigner.Close: %w", err)
+	if err := s.tkSigner.Close(); err != nil {
+		return fmt.Errorf("tkSigner.Close: %w", err)
 	}
 	return nil
 }
 
 func (s *Signer) isWantedApp() bool {
-	nameVer, err := s.mkdfSigner.GetAppNameVersion()
+	nameVer, err := s.tkSigner.GetAppNameVersion()
 	if err != nil {
 		if !errors.Is(err, io.EOF) {
 			le.Printf("GetAppNameVersion: %s\n", err)
@@ -135,7 +135,7 @@ func (s *Signer) isFirmwareMode() bool {
 // implementing crypto.Signer below
 
 func (s *Signer) Public() crypto.PublicKey {
-	pub, err := s.mkdfSigner.GetPubkey()
+	pub, err := s.tkSigner.GetPubkey()
 	if err != nil {
 		le.Printf("GetPubKey failed: %s\n", err)
 		return nil
@@ -150,7 +150,7 @@ func (s *Signer) Sign(rand io.Reader, message []byte, opts crypto.SignerOpts) ([
 		return nil, errors.New("message must not be hashed")
 	}
 
-	signature, err := s.mkdfSigner.Sign(message)
+	signature, err := s.tkSigner.Sign(message)
 	if err != nil {
 		return nil, fmt.Errorf("Sign: %w", err)
 	}

@@ -4,7 +4,7 @@
 #include "lib.h"
 #include "types.h"
 
-#include "mta1_mkdf_mem.h"
+#include "tk1_mem.h"
 
 #ifdef NODEBUG
 int putchar(uint8_t ch)
@@ -32,8 +32,7 @@ void hexdump(uint8_t *buf, int len)
 {
 }
 #else
-static volatile uint8_t *debugtx =
-    (volatile uint8_t *)MTA1_MKDF_MMIO_QEMU_DEBUG;
+static volatile uint8_t *debugtx = (volatile uint8_t *)TK1_MMIO_QEMU_DEBUG;
 
 int putchar(uint8_t ch)
 {

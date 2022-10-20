@@ -6,14 +6,14 @@ package main
 import (
 	"fmt"
 
-	"github.com/tillitis/tillitis-key1-apps/mkdf"
+	"github.com/tillitis/tillitis-key1-apps/tk1"
 )
 
 var (
-	cmdGetNameVersion = appCmd{0x01, "cmdGetNameVersion", mkdf.CmdLen1}
-	rspGetNameVersion = appCmd{0x02, "rspGetNameVersion", mkdf.CmdLen32}
-	cmdGetRandom      = appCmd{0x03, "cmdGetRandom", mkdf.CmdLen4}
-	rspGetRandom      = appCmd{0x04, "rspGetRandom", mkdf.CmdLen128}
+	cmdGetNameVersion = appCmd{0x01, "cmdGetNameVersion", tk1.CmdLen1}
+	rspGetNameVersion = appCmd{0x02, "rspGetNameVersion", tk1.CmdLen32}
+	cmdGetRandom      = appCmd{0x03, "cmdGetRandom", tk1.CmdLen4}
+	rspGetRandom      = appCmd{0x04, "rspGetRandom", tk1.CmdLen128}
 )
 
 // RSP_GET_RANDOM cmdlen - (responsecode + status)
@@ -22,19 +22,19 @@ const RandomPayloadMaxBytes = 128 - (1 + 1)
 type appCmd struct {
 	code   byte
 	name   string
-	cmdLen mkdf.CmdLen
+	cmdLen tk1.CmdLen
 }
 
 func (c appCmd) Code() byte {
 	return c.code
 }
 
-func (c appCmd) CmdLen() mkdf.CmdLen {
+func (c appCmd) CmdLen() tk1.CmdLen {
 	return c.cmdLen
 }
 
-func (c appCmd) Endpoint() mkdf.Endpoint {
-	return mkdf.DestApp
+func (c appCmd) Endpoint() tk1.Endpoint {
+	return tk1.DestApp
 }
 
 func (c appCmd) String() string {
@@ -42,16 +42,16 @@ func (c appCmd) String() string {
 }
 
 type RandomGen struct {
-	tk mkdf.TillitisKey // A connection to a Tillitis Key 1
+	tk tk1.TillitisKey // A connection to a Tillitis Key 1
 }
 
 // New() gets you a connection to the random app running on the
 // Tillitis Key 1. You're expected to pass an existing TK1 connection
 // to it, so use it like this:
 //
-//	tk, err := mkdf.New(port, speed)
-//	randomGen := mkdfrand.New(tk)
-func New(tk mkdf.TillitisKey) RandomGen {
+//	tk, err := tk1.New(port, speed)
+//	randomGen := New(tk)
+func New(tk tk1.TillitisKey) RandomGen {
 	var randomGen RandomGen
 
 	randomGen.tk = tk
@@ -69,14 +69,14 @@ func (s RandomGen) Close() error {
 
 // GetAppNameVersion gets the name and version of the running app in
 // the same style as the stick itself.
-func (s RandomGen) GetAppNameVersion() (*mkdf.NameVersion, error) {
+func (s RandomGen) GetAppNameVersion() (*tk1.NameVersion, error) {
 	id := 2
-	tx, err := mkdf.NewFrameBuf(cmdGetNameVersion, id)
+	tx, err := tk1.NewFrameBuf(cmdGetNameVersion, id)
 	if err != nil {
 		return nil, fmt.Errorf("NewFrameBuf: %w", err)
 	}
 
-	mkdf.Dump("GetAppNameVersion tx", tx)
+	tk1.Dump("GetAppNameVersion tx", tx)
 	if err = s.tk.Write(tx); err != nil {
 		return nil, fmt.Errorf("Write: %w", err)
 	}
@@ -96,7 +96,7 @@ func (s RandomGen) GetAppNameVersion() (*mkdf.NameVersion, error) {
 		return nil, fmt.Errorf("SetReadTimeout: %w", err)
 	}
 
-	nameVer := &mkdf.NameVersion{}
+	nameVer := &tk1.NameVersion{}
 	nameVer.Unpack(rx[2:])
 
 	return nameVer, nil
@@ -109,24 +109,24 @@ func (s RandomGen) GetRandom(bytes int) ([]byte, error) {
 	}
 
 	id := 2
-	tx, err := mkdf.NewFrameBuf(cmdGetRandom, id)
+	tx, err := tk1.NewFrameBuf(cmdGetRandom, id)
 	if err != nil {
 		return nil, fmt.Errorf("NewFrameBuf: %w", err)
 	}
 
 	tx[2] = byte(bytes)
-	mkdf.Dump("GetRandom tx", tx)
+	tk1.Dump("GetRandom tx", tx)
 	if err = s.tk.Write(tx); err != nil {
 		return nil, fmt.Errorf("Write: %w", err)
 	}
 
 	rx, _, err := s.tk.ReadFrame(rspGetRandom, id)
-	mkdf.Dump("GetRandom rx", rx)
+	tk1.Dump("GetRandom rx", rx)
 	if err != nil {
 		return nil, fmt.Errorf("ReadFrame: %w", err)
 	}
 
-	if rx[2] != mkdf.StatusOK {
+	if rx[2] != tk1.StatusOK {
 		return nil, fmt.Errorf("GetRandom NOK")
 	}
 

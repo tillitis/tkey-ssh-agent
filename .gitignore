@@ -2,9 +2,9 @@
 *.o
 *.bin
 *.elf
-/mkdf-ssh-agent
+/tk-ssh-agent
 /runapp
-/tk1sign
+/tk-sign
 /runtimer
 /runrandom
 /golangci-lint

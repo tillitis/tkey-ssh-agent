@@ -2,17 +2,17 @@
 // SPDX-License-Identifier: GPL-2.0-only
 
 #include <lib.h>
-#include <mta1_mkdf_mem.h>
 #include <proto.h>
+#include <tk1_mem.h>
 #include <types.h>
 
 #include "app_proto.h"
 
 // clang-format off
-volatile uint32_t *timer = (volatile uint32_t *)MTA1_MKDF_MMIO_TIMER_TIMER;
-volatile uint32_t *timer_prescaler = (volatile uint32_t *)MTA1_MKDF_MMIO_TIMER_PRESCALER;
-volatile uint32_t *timer_status = (volatile uint32_t *)MTA1_MKDF_MMIO_TIMER_STATUS;
-volatile uint32_t *timer_ctrl = (volatile uint32_t *)MTA1_MKDF_MMIO_TIMER_CTRL;
+volatile uint32_t *timer =           (volatile uint32_t *)TK1_MMIO_TIMER_TIMER;
+volatile uint32_t *timer_prescaler = (volatile uint32_t *)TK1_MMIO_TIMER_PRESCALER;
+volatile uint32_t *timer_status =    (volatile uint32_t *)TK1_MMIO_TIMER_STATUS;
+volatile uint32_t *timer_ctrl =      (volatile uint32_t *)TK1_MMIO_TIMER_CTRL;
 // clang-format on
 
 int main(void)

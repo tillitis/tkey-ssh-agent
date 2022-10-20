@@ -1,26 +1,26 @@
 // Copyright (C) 2022 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
-#include <mta1_mkdf_mem.h>
+#include <tk1_mem.h>
 
 #include "app_proto.h"
 #include "monocypher/monocypher-ed25519.h"
 
 // clang-format off
-static volatile uint32_t *cdi =   (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_CDI_FIRST;
-static volatile uint32_t *led =   (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_LED;
-static volatile uint32_t *touch = (volatile uint32_t *)MTA1_MKDF_MMIO_TOUCH_STATUS;
+static volatile uint32_t *cdi =   (volatile uint32_t *)TK1_MMIO_TK1_CDI_FIRST;
+static volatile uint32_t *led =   (volatile uint32_t *)TK1_MMIO_TK1_LED;
+static volatile uint32_t *touch = (volatile uint32_t *)TK1_MMIO_TOUCH_STATUS;
 
 #define LED_BLACK 0
-#define LED_RED   (1 << MTA1_MKDF_MMIO_MTA1_LED_R_BIT)
-#define LED_GREEN (1 << MTA1_MKDF_MMIO_MTA1_LED_G_BIT)
-#define LED_BLUE  (1 << MTA1_MKDF_MMIO_MTA1_LED_B_BIT)
+#define LED_RED   (1 << TK1_MMIO_TK1_LED_R_BIT)
+#define LED_GREEN (1 << TK1_MMIO_TK1_LED_G_BIT)
+#define LED_BLUE  (1 << TK1_MMIO_TK1_LED_B_BIT)
 // clang-format on
 
 #define MAX_SIGN_SIZE 4096
 
-const uint8_t app_name0[4] = "fdkm"; // mkdf backwards
-const uint8_t app_name1[4] = "ngis"; // sign backwards
+const uint8_t app_name0[4] = " 1kt"; // "tk1 " backwards
+const uint8_t app_name1[4] = "ngis"; // "sign" backwards
 const uint32_t app_version = 0x00000001;
 
 void wait_touch_ledflash(int ledvalue, int loopcount)
@@ -31,8 +31,7 @@ void wait_touch_ledflash(int ledvalue, int loopcount)
 	for (;;) {
 		*led = led_on ? ledvalue : 0;
 		for (int i = 0; i < loopcount; i++) {
-			if (*touch &
-			    (1 << MTA1_MKDF_MMIO_TOUCH_STATUS_EVENT_BIT)) {
+			if (*touch & (1 << TK1_MMIO_TOUCH_STATUS_EVENT_BIT)) {
 				goto touched;
 			}
 		}

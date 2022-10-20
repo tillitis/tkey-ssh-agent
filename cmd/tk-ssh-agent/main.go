@@ -12,7 +12,7 @@ import (
 	"syscall"
 
 	"github.com/spf13/pflag"
-	"github.com/tillitis/tillitis-key1-apps/mkdf"
+	"github.com/tillitis/tillitis-key1-apps/tk1"
 	"go.bug.st/serial"
 )
 
@@ -34,7 +34,7 @@ func main() {
 	pflag.BoolVarP(&listPortsOnly, "list-ports", "", false, "List possible serial ports for --port")
 	pflag.StringVar(&devPath, "port", "/dev/ttyACM0", "Path to serial port device")
 	pflag.BoolVarP(&showPubkeyOnly, "show-pubkey", "k", false, "Don't start the agent, just output the ssh-ed25519 pubkey")
-	pflag.IntVar(&speed, "speed", mkdf.SerialSpeed, "When talking over the serial port, bits per second")
+	pflag.IntVar(&speed, "speed", tk1.SerialSpeed, "When talking over the serial port, bits per second")
 	pflag.BoolVar(&enterUSS, "uss", false, "Enable typing of a phrase to be hashed as the User Supplied Secret.\n"+
 		"The USS is loaded onto the USB stick along with the app itself.\n"+
 		"Every different USS results in different SSH public/private keys,\n"+

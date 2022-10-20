@@ -1,23 +1,23 @@
 // Copyright (C) 2022 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
-#include <mta1_mkdf_mem.h>
+#include <tk1_mem.h>
 
 #include "app_proto.h"
 
 // clang-format off
-static volatile uint32_t *led =          (volatile uint32_t *)MTA1_MKDF_MMIO_MTA1_LED;
-static volatile uint32_t *trng_status  = (volatile uint32_t *)MTA1_MKDF_MMIO_TRNG_STATUS;
-static volatile uint32_t *trng_entropy = (volatile uint32_t *)MTA1_MKDF_MMIO_TRNG_ENTROPY;
+static volatile uint32_t *led =          (volatile uint32_t *)TK1_MMIO_TK1_LED;
+static volatile uint32_t *trng_status  = (volatile uint32_t *)TK1_MMIO_TRNG_STATUS;
+static volatile uint32_t *trng_entropy = (volatile uint32_t *)TK1_MMIO_TRNG_ENTROPY;
 
 #define LED_BLACK  0
-#define LED_RED    (1 << MTA1_MKDF_MMIO_MTA1_LED_R_BIT)
-#define LED_GREEN  (1 << MTA1_MKDF_MMIO_MTA1_LED_G_BIT)
-#define LED_BLUE   (1 << MTA1_MKDF_MMIO_MTA1_LED_B_BIT)
+#define LED_RED    (1 << TK1_MMIO_TK1_LED_R_BIT)
+#define LED_GREEN  (1 << TK1_MMIO_TK1_LED_G_BIT)
+#define LED_BLUE   (1 << TK1_MMIO_TK1_LED_B_BIT)
 // clang-format on
 
-const uint8_t app_name0[4] = "fdkm"; // mkdf backwards
-const uint8_t app_name1[4] = "dnar"; // rand backwards
+const uint8_t app_name0[4] = " 1kt"; // "tk1 " backwards
+const uint8_t app_name1[4] = "dnar"; // "rand" backwards
 const uint32_t app_version = 0x00000001;
 
 // RSP_GET_RANDOM cmdlen - (responsecode + status)
@@ -27,8 +27,8 @@ void get_random(uint8_t *buf, int bytes)
 {
 	int left = bytes;
 	for (;;) {
-		while ((*trng_status &
-			(1 << MTA1_MKDF_MMIO_TRNG_STATUS_READY_BIT)) == 0) {
+		while ((*trng_status & (1 << TK1_MMIO_TRNG_STATUS_READY_BIT)) ==
+		       0) {
 		}
 		uint32_t rnd = *trng_entropy;
 		if (left > 4) {

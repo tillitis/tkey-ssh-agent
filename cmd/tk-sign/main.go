@@ -11,19 +11,19 @@ import (
 	"syscall"
 
 	"github.com/spf13/pflag"
-	"github.com/tillitis/tillitis-key1-apps/mkdf"
-	"github.com/tillitis/tillitis-key1-apps/mkdfsign"
+	"github.com/tillitis/tillitis-key1-apps/tk1"
+	"github.com/tillitis/tillitis-key1-apps/tk1sign"
 )
 
 func main() {
 	fileName := pflag.String("file", "", "Name of file with data to be signed (the \"message\")")
 	port := pflag.String("port", "/dev/ttyACM0", "Serial port path")
-	speed := pflag.Int("speed", mkdf.SerialSpeed, "When talking over the serial port, bits per second")
+	speed := pflag.Int("speed", tk1.SerialSpeed, "When talking over the serial port, bits per second")
 	verbose := pflag.Bool("verbose", false, "Enable verbose output")
 	pflag.Parse()
 
 	if !*verbose {
-		mkdf.SilenceLogging()
+		tk1.SilenceLogging()
 	}
 
 	if *fileName == "" {
@@ -39,13 +39,13 @@ func main() {
 	}
 
 	fmt.Printf("Connecting to device on serial port %s ...\n", *port)
-	tk, err := mkdf.New(*port, *speed)
+	tk, err := tk1.New(*port, *speed)
 	if err != nil {
 		fmt.Printf("Could not open %s: %v\n", *port, err)
 		os.Exit(1)
 	}
 
-	signer := mkdfsign.New(tk)
+	signer := tk1sign.New(tk)
 	exit := func(code int) {
 		if err := signer.Close(); err != nil {
 			fmt.Printf("%v\n", err)

@@ -1,10 +1,10 @@
 // Copyright (C) 2022 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
-// Package mkdf provides a connection to a Tillitis Key 1 security stick.
-// To create a new connection:
+// Package tk1 provides a connection to a Tillitis Key 1 security
+// stick. To create a new connection:
 //
-//	tk, err := mkdf.New(*port, *speed)
+//	tk, err := tk1.New(*port, *speed)
 //
 // Then you can start using it by asking it to identify itself:
 //
@@ -16,13 +16,13 @@
 //
 // After this, you will have to switch to a new protocol specific to
 // the app, see for instance the package
-// github.com/tillitis/tillitis-key1-apps/mkdfsign for one such app
+// github.com/tillitis/tillitis-key1-apps/tk1sign for one such app
 // specific protocol.
 //
 // When writing your app specific protocol you might still want to use
 // the framing protocol provided here. See NewFrameBuf() and
 // ReadFrame().
-package mkdf
+package tk1
 
 import (
 	"encoding/binary"

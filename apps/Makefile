@@ -31,7 +31,7 @@ LIBOBJS=libcommon/lib.o libcommon/proto.o
 libcommon/libcommon.a: $(LIBOBJS)
 	 ar -q $@ libcommon/lib.o libcommon/proto.o
 
-$(LIBOBJS): include/types.h include/mta1_mkdf_mem.h include/lib.h include/proto.h
+$(LIBOBJS): include/types.h include/tk1_mem.h include/lib.h include/proto.h
 
 # Turn elf into bin for device
 %.bin: %.elf
@@ -46,7 +46,7 @@ SIGNEROBJS=signerapp/app_proto.o \
 signerapp/app.elf: libcrt0/libcrt0.a libcommon/libcommon.a $(SIGNEROBJS) app.lds
 	$(CC) $(CFLAGS) $(SIGNEROBJS) $(LDFLAGS) -o $@
 
-$(SIGNEROBJS): $(INCLUDE)/mta1_mkdf_mem.h signerapp/app_proto.h \
+$(SIGNEROBJS): $(INCLUDE)/tk1_mem.h signerapp/app_proto.h \
     signerapp/monocypher/monocypher.h \
     signerapp/monocypher/monocypher-ed25519.h
 
@@ -56,7 +56,7 @@ TIMEROBJS = timer/main.o timer/app_proto.o
 timer/timer.elf: libcrt0/libcrt0.a libcommon/libcommon.a $(TIMEROBJS) app.lds
 	$(CC) $(CFLAGS) $(TIMEROBJS) $(LDFLAGS) -o $@
 
-$(TIMEROBJS): $(INCLUDE)/mta1_mkdf_mem.h timer/app_proto.h
+$(TIMEROBJS): $(INCLUDE)/tk1_mem.h timer/app_proto.h
 
 # Random number generator app
 RANDOMOBJS=random/main.o random/app_proto.o
@@ -67,7 +67,7 @@ random/random.bin: random/random.elf
 random/random.elf: libcrt0/libcrt0.a libcommon/libcommon.a $(RANDOMOBJS) app.lds
 	$(CC) $(CFLAGS) $(RANDOMOBJS) $(LDFLAGS) -o $@
 
-$(RANDOMOBJS): $(INCLUDE)/mta1_mkdf_mem.h random/app_proto.h
+$(RANDOMOBJS): $(INCLUDE)/tk1_mem.h random/app_proto.h
 
 
 .PHONY: clean
@@ -86,4 +86,4 @@ fmt:
 
 .PHONY: update-mem-include
 update-mem-include:
-	cp -af ../../tillitis-key1/hw/application_fpga/fw/mta1_mkdf_mem.h include/mta1_mkdf_mem.h
+	cp -af ../../tillitis-key1/hw/application_fpga/fw/tk1_mem.h include/tk1_mem.h

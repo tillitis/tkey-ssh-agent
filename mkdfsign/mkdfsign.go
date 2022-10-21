@@ -1,7 +1,7 @@
 // Copyright (C) 2022 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
-// Package mkdfsign provides a connection the the ed25519 signerapp
+// Package mkdfsign provides a connection to the ed25519 signerapp
 // running on the Tillitis Key 1. You're expected to pass an existing
 // TK1 connection to it, so use it like this:
 //

@@ -164,7 +164,7 @@ func NewFrameBuf(cmd Cmd, id int) ([]byte, error) {
 
 // Dump() hexdumps data in d with an explaining string s first. It
 // expects d to contain the whole frame as sent on the wire, with the
-// the framing protocol header in the first byte.
+// framing protocol header in the first byte.
 func Dump(s string, d []byte) {
 	hdr, err := parseframe(d[0])
 	if err != nil {

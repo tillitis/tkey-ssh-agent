@@ -41,7 +41,7 @@ func (c appCmd) String() string {
 	return c.name
 }
 
-type randomGen struct {
+type RandomGen struct {
 	tk mkdf.TillitisKey // A connection to a Tillitis Key 1
 }
 
@@ -51,8 +51,8 @@ type randomGen struct {
 //
 //	tk, err := mkdf.New(port, speed)
 //	randomGen := mkdfrand.New(tk)
-func New(tk mkdf.TillitisKey) randomGen {
-	var randomGen randomGen
+func New(tk mkdf.TillitisKey) RandomGen {
+	var randomGen RandomGen
 
 	randomGen.tk = tk
 
@@ -60,7 +60,7 @@ func New(tk mkdf.TillitisKey) randomGen {
 }
 
 // Close closes the connection to the TK1
-func (s randomGen) Close() error {
+func (s RandomGen) Close() error {
 	if err := s.tk.Close(); err != nil {
 		return fmt.Errorf("tk.Close: %w", err)
 	}
@@ -69,7 +69,7 @@ func (s randomGen) Close() error {
 
 // GetAppNameVersion gets the name and version of the running app in
 // the same style as the stick itself.
-func (s randomGen) GetAppNameVersion() (*mkdf.NameVersion, error) {
+func (s RandomGen) GetAppNameVersion() (*mkdf.NameVersion, error) {
 	id := 2
 	tx, err := mkdf.NewFrameBuf(cmdGetNameVersion, id)
 	if err != nil {
@@ -103,7 +103,7 @@ func (s randomGen) GetAppNameVersion() (*mkdf.NameVersion, error) {
 }
 
 // GetRandom fetches random data.
-func (s randomGen) GetRandom(bytes int) ([]byte, error) {
+func (s RandomGen) GetRandom(bytes int) ([]byte, error) {
 	if bytes < 1 || bytes > RandomPayloadMaxBytes {
 		return nil, fmt.Errorf("number of bytes is not in [1,%d]", RandomPayloadMaxBytes)
 	}

@@ -109,7 +109,7 @@ func handleSignals(action func(), sig ...os.Signal) {
 	}()
 }
 
-func isWantedApp(randomGen randomGen) bool {
+func isWantedApp(randomGen RandomGen) bool {
 	nameVer, err := randomGen.GetAppNameVersion()
 	if err != nil {
 		if !errors.Is(err, io.EOF) {

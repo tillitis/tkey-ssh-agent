@@ -137,6 +137,31 @@ func (tk TillitisKey) GetNameVersion() (*NameVersion, error) {
 	return nameVer, nil
 }
 
+// Modelled after how tpt.py (in tillitis-key1 repo) generates the UDI
+type UDI struct {
+	Unnamed   uint8 // 4 bits, hardcoded to 0 by tpt.py
+	VendorID  uint16
+	ProductID uint8
+	Revision  uint8 // 4 bits
+	Serial    uint32
+}
+
+func (u *UDI) String() string {
+	return fmt.Sprintf("%01x%04x:%02x:%01x:%08x",
+		u.Unnamed, u.VendorID, u.ProductID, u.Revision, u.Serial)
+}
+
+// Unpack unpacks the UDI parts from the raw 8 bytes (2 * 32-bit
+// words) sent on the wire.
+func (u *UDI) Unpack(raw []byte) {
+	vpr := binary.LittleEndian.Uint32(raw[0:4])
+	u.Unnamed = uint8((vpr >> 28) & 0xf)
+	u.VendorID = uint16((vpr >> 12) & 0xffff)
+	u.ProductID = uint8((vpr >> 4) & 0xff)
+	u.Revision = uint8(vpr & 0xf)
+	u.Serial = binary.LittleEndian.Uint32(raw[4:8])
+}
+
 // LoadAppFromFile() loads and runs a raw binary file from fileName into the TK1.
 func (tk TillitisKey) LoadAppFromFile(fileName string, secretPhrase []byte) error {
 	content, err := os.ReadFile(fileName)

@@ -5,7 +5,6 @@ package main
 
 import (
 	"bytes"
-	"crypto"
 	"crypto/rand"
 	"errors"
 	"fmt"
@@ -19,11 +18,11 @@ import (
 )
 
 type SSHAgent struct {
-	signer crypto.Signer
+	signer *Signer
 	mutex  sync.Mutex
 }
 
-func NewSSHAgent(signer crypto.Signer) *SSHAgent {
+func NewSSHAgent(signer *Signer) *SSHAgent {
 	return &SSHAgent{signer: signer}
 }
 
@@ -36,10 +35,11 @@ func (s *SSHAgent) GetAuthorizedKey() ([]byte, error) {
 }
 
 func (s *SSHAgent) getSSHPub() (ssh.PublicKey, error) {
-	if s.signer.Public() == nil {
+	pub := s.signer.Public()
+	if pub == nil {
 		return nil, fmt.Errorf("pubkey is nil")
 	}
-	sshPub, err := ssh.NewPublicKey(s.signer.Public())
+	sshPub, err := ssh.NewPublicKey(pub)
 	if err != nil {
 		return nil, fmt.Errorf("NewPublicKey: %w", err)
 	}
@@ -81,10 +81,14 @@ func (s *SSHAgent) List() ([]*agent.Key, error) {
 	if err != nil {
 		return nil, err
 	}
+	udi, err := s.signer.GetUDI()
+	if err != nil {
+		return nil, err
+	}
 	return []*agent.Key{{
 		Format:  sshPub.Type(),
 		Blob:    sshPub.Marshal(),
-		Comment: "pubkey-of-something-hw-backed",
+		Comment: fmt.Sprintf("TK1-%s", udi),
 	}}, nil
 }
 

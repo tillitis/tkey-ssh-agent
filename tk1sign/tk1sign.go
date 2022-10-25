@@ -256,6 +256,11 @@ func (s Signer) getSig() ([]byte, error) {
 		return nil, fmt.Errorf("ReadFrame: %w", err)
 	}
 
-	// Skip frame header & app header, returning size of ed25519 signature
-	return rx[2 : 2+64], nil
+	if rx[2] != tk1.StatusOK {
+		return nil, fmt.Errorf("getSig NOK")
+	}
+
+	// Skip frame header, app header, and status; returning size of
+	// ed25519 signature
+	return rx[3 : 3+64], nil
 }

@@ -109,9 +109,10 @@ int main(void)
 
 		case APP_CMD_SET_SIZE:
 			puts("APP_CMD_SET_SIZE\n");
+			// Bad length
 			if (hdr.len != 32) {
-				// Bad length
-				puts("APP_CMD_SET_SIZE bad length\n");
+				rsp[0] = STATUS_BAD;
+				appreply(hdr, APP_RSP_SET_SIZE, rsp);
 				break;
 			}
 			signature_done = 0;
@@ -180,7 +181,8 @@ int main(void)
 				appreply(hdr, APP_RSP_GET_SIG, rsp);
 				break;
 			}
-			memcpy(rsp, signature, 64);
+			rsp[0] = STATUS_OK;
+			memcpy(rsp + 1, signature, 64);
 			appreply(hdr, APP_RSP_GET_SIG, rsp);
 			led_steady = LED_GREEN;
 			break;

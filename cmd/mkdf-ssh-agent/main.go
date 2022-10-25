@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"syscall"
 
 	"github.com/spf13/pflag"
@@ -42,6 +43,12 @@ func main() {
 		"for reading from stdin. Note that the all data in file/stdin is\n"+
 		"hashed, newlines are not stripped.")
 	pflag.Parse()
+
+	if pflag.NArg() > 0 {
+		le.Printf("Unexpected argument: %s\n\n", strings.Join(pflag.Args(), " "))
+		pflag.Usage()
+		exit(2)
+	}
 
 	if listPortsOnly {
 		if err := listPorts(); err != nil {

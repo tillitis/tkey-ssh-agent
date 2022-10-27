@@ -13,7 +13,12 @@ import (
 
 	"github.com/spf13/pflag"
 	"github.com/tillitis/tillitis-key1-apps/tk1"
-	"go.bug.st/serial"
+	"go.bug.st/serial/enumerator"
+)
+
+const (
+	tillitisUSBVID = "1207"
+	tillitisUSBPID = "8887"
 )
 
 // Use when printing err/diag msgs
@@ -30,11 +35,12 @@ func main() {
 	var speed int
 	var enterUSS, showPubkeyOnly, listPortsOnly bool
 	pflag.CommandLine.SetOutput(os.Stderr)
-	pflag.StringVarP(&sockPath, "agent-socket", "a", "", "Path to bind agent's UNIX domain socket at")
-	pflag.BoolVarP(&listPortsOnly, "list-ports", "", false, "List possible serial ports for --port")
-	pflag.StringVar(&devPath, "port", "/dev/ttyACM0", "Path to serial port device")
-	pflag.BoolVarP(&showPubkeyOnly, "show-pubkey", "k", false, "Don't start the agent, just output the ssh-ed25519 pubkey")
-	pflag.IntVar(&speed, "speed", tk1.SerialSpeed, "When talking over the serial port, bits per second")
+	pflag.StringVarP(&sockPath, "agent-socket", "a", "", "Path to bind agent's UNIX domain socket at.")
+	pflag.BoolVarP(&listPortsOnly, "list-ports", "", false, "List possible serial ports to use with --port.")
+	pflag.StringVar(&devPath, "port", "", "Path to serial port device. If this is not passed, auto-detection\n"+
+		"will be attempted.")
+	pflag.BoolVarP(&showPubkeyOnly, "show-pubkey", "k", false, "Don't start the agent, only output the ssh-ed25519 pubkey.")
+	pflag.IntVar(&speed, "speed", tk1.SerialSpeed, "When talking over the serial port, bits per second.")
 	pflag.BoolVar(&enterUSS, "uss", false, "Enable typing of a phrase to be hashed as the User Supplied Secret.\n"+
 		"The USS is loaded onto the USB stick along with the app itself.\n"+
 		"Every different USS results in different SSH public/private keys,\n"+
@@ -50,18 +56,32 @@ func main() {
 		exit(2)
 	}
 
-	if listPortsOnly {
-		if err := listPorts(); err != nil {
-			le.Printf("Failed to list ports: %v\n", err)
-			exit(1)
-		}
-		exit(0)
+	exclusive := 0
+	if sockPath != "" {
+		exclusive++
 	}
-
-	if showPubkeyOnly && sockPath != "" {
-		le.Printf("Can't combine -a and -k.\n\n")
+	if showPubkeyOnly {
+		exclusive++
+	}
+	if listPortsOnly {
+		exclusive++
+	}
+	if exclusive > 1 {
+		le.Printf("Pass only one of -a, -k, or --list-ports.\n\n")
 		pflag.Usage()
 		exit(2)
+	}
+
+	if listPortsOnly {
+		n, err := printPorts()
+		if err != nil {
+			le.Printf("Failed to list ports: %v\n", err)
+			exit(1)
+		} else if n == 0 {
+			exit(1)
+		}
+		// Successful only if we found some port
+		exit(0)
 	}
 
 	if !showPubkeyOnly && sockPath == "" {
@@ -71,7 +91,7 @@ func main() {
 	}
 
 	if enterUSS && fileUSS != "" {
-		le.Printf("Can't combine --uss and --uss-file\n\n")
+		le.Printf("Pass only one of --uss or --uss-file.\n\n")
 		pflag.Usage()
 		exit(2)
 	}
@@ -80,6 +100,17 @@ func main() {
 		_, err := os.Stat(sockPath)
 		if err == nil || !errors.Is(err, os.ErrNotExist) {
 			le.Printf("Socket path %s exists?\n", sockPath)
+			exit(1)
+		}
+	}
+
+	if devPath == "" {
+		var err error
+		devPath, err = detectPort()
+		if err != nil {
+			le.Printf("Failed to list ports: %v\n", err)
+			exit(1)
+		} else if devPath == "" {
 			exit(1)
 		}
 	}
@@ -123,13 +154,62 @@ func main() {
 	exit(0)
 }
 
-func listPorts() error {
-	ports, err := serial.GetPortsList()
+type serialPort struct {
+	devPath      string
+	serialNumber string
+}
+
+func detectPort() (string, error) {
+	ports, err := getTillitisPorts()
 	if err != nil {
-		return fmt.Errorf("GetPortsList: %w", err)
+		return "", err
 	}
-	for _, port := range ports {
-		fmt.Printf("%s\n", port)
+	if len(ports) == 0 {
+		le.Printf("Could not detect any Tillitis Key serial ports.\n" +
+			"You may still use the --port flag to use a known device path.\n")
+		return "", nil
 	}
-	return nil
+	if len(ports) > 1 {
+		le.Printf("Detected %d Tillitis Key serial ports:\n", len(ports))
+		for _, p := range ports {
+			le.Printf("%s with serial number %s\n", p.devPath, p.serialNumber)
+		}
+		le.Printf("Please choose one of the above by using the --port flag.\n")
+		return "", nil
+	}
+	le.Printf("Auto-detected serial port %s\n", ports[0].devPath)
+	return ports[0].devPath, nil
+}
+
+func printPorts() (int, error) {
+	ports, err := getTillitisPorts()
+	if err != nil {
+		return 0, err
+	}
+	if len(ports) == 0 {
+		le.Printf("No Tillitis Key serial ports found.\n")
+	} else {
+		le.Printf("Tillitis Key serial ports (on stdout):\n")
+		for _, p := range ports {
+			fmt.Fprintf(os.Stdout, "%s serialNumber:%s\n", p.devPath, p.serialNumber)
+		}
+	}
+	return len(ports), nil
+}
+
+func getTillitisPorts() ([]serialPort, error) {
+	var ports []serialPort
+	portDetails, err := enumerator.GetDetailedPortsList()
+	if err != nil {
+		return nil, fmt.Errorf("GetDetailedPortsList: %w", err)
+	}
+	if len(portDetails) == 0 {
+		return ports, nil
+	}
+	for _, port := range portDetails {
+		if port.IsUSB && port.VID == tillitisUSBVID && port.PID == tillitisUSBPID {
+			ports = append(ports, serialPort{port.Name, port.SerialNumber})
+		}
+	}
+	return ports, nil
 }

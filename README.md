@@ -56,9 +56,11 @@ programming of the USB stick.
 Running `lsusb` should list the USB stick as `1207:8887 Tillitis
 MTA1-USB-V1`. On Linux, Tillitis Key 1's serial port device path is
 typically `/dev/ttyACM0` (but it may end with another digit, if you
-have other devices plugged in). This is also the default path that the
-host programs use to talk to it. You can list the possible paths using
-`tk-ssh-agent --list-ports`.
+have other devices plugged in). This is also generally the default
+path that the host programs use to talk to it. You can list the
+possible paths using `tk-ssh-agent --list-ports`. When `tk-ssh-agent`
+is run without passing `--port`, it attempts to auto-detect the serial
+port of the USB stick.
 
 You also need to be sure that you can access the serial port as your
 regular user. One way to do that is by becoming a member of the group
@@ -230,9 +232,11 @@ That was fun, now let's try the ssh-agent!
 
 This host program for the signerapp is a complete, alternative
 ssh-agent with practical use. The signerapp binary gets built into the
-tk-ssh-agent, which will upload it to the USB stick when started. If
-the serial port path is not the default, you need to pass it as
-`--port`. An example:
+tk-ssh-agent, which will upload it to the USB stick when started. By
+default, tk-ssh-agent tries to auto-detect the path of the serial
+port. This should work for the Tillitis Key 1 USB stick. But if you
+have more than one USB stick plugged in, or if you are running on
+QEMU, then you will need to pass to pass a `--port` An example:
 
 ```
 $ ./tk-ssh-agent -a ./agent.sock --port /dev/pts/1

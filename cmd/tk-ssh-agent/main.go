@@ -35,19 +35,25 @@ func main() {
 	var speed int
 	var enterUSS, showPubkeyOnly, listPortsOnly bool
 	pflag.CommandLine.SetOutput(os.Stderr)
-	pflag.StringVarP(&sockPath, "agent-socket", "a", "", "Path to bind agent's UNIX domain socket at.")
+	pflag.StringVarP(&sockPath, "agent-socket", "a", "", "Start the agent, setting the path to the UNIX-domain\n"+
+		"socket that it should bind to. SSH will talk to\n"+
+		"this agent when it finds this path in the environment\n"+
+		"variable SSH_AUTH_SOCK.")
 	pflag.BoolVarP(&listPortsOnly, "list-ports", "", false, "List possible serial ports to use with --port.")
-	pflag.StringVar(&devPath, "port", "", "Path to serial port device. If this is not passed, auto-detection\n"+
-		"will be attempted.")
-	pflag.BoolVarP(&showPubkeyOnly, "show-pubkey", "k", false, "Don't start the agent, only output the ssh-ed25519 pubkey.")
-	pflag.IntVar(&speed, "speed", tk1.SerialSpeed, "When talking over the serial port, bits per second.")
-	pflag.BoolVar(&enterUSS, "uss", false, "Enable typing of a phrase to be hashed as the User Supplied Secret.\n"+
-		"The USS is loaded onto the USB stick along with the app itself.\n"+
-		"Every different USS results in different SSH public/private keys,\n"+
+	pflag.StringVar(&devPath, "port", "", "Path to serial port device. If this is not passed,\n"+
+		"auto-detection will be attempted.")
+	pflag.BoolVarP(&showPubkeyOnly, "show-pubkey", "k", false, "Don't start the agent, only output the ssh-ed25519\n"+
+		"pubkey.")
+	pflag.IntVar(&speed, "speed", tk1.SerialSpeed, "When talking over the serial port, bits per second.\n")
+	pflag.BoolVar(&enterUSS, "uss", false, "Enable typing of a phrase to be hashed as the User\n"+
+		"Supplied Secret. The USS is loaded onto the USB\n"+
+		"stick along with the app itself. Every different\n"+
+		"USS results in different SSH public/private keys,\n"+
 		"meaning a different identity.")
-	pflag.StringVar(&fileUSS, "uss-file", "", "Read a file and hash its contents as the USS. Use --uss-file=-\n"+
-		"for reading from stdin. Note that the all data in file/stdin is\n"+
-		"hashed, newlines are not stripped.")
+	pflag.StringVar(&fileUSS, "uss-file", "", "Read a file and hash its contents as the USS. Use\n"+
+		"--uss-file=- for reading from stdin. Note that all\n"+
+		"data in file/stdin is read and hashed, newlines are\n"+
+		"not stripped.")
 	pflag.Parse()
 
 	if pflag.NArg() > 0 {

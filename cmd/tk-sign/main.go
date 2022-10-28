@@ -11,6 +11,7 @@ import (
 	"syscall"
 
 	"github.com/spf13/pflag"
+	"github.com/tillitis/tillitis-key1-apps/internal/util"
 	"github.com/tillitis/tillitis-key1-apps/tk1"
 	"github.com/tillitis/tillitis-key1-apps/tk1sign"
 )
@@ -18,8 +19,8 @@ import (
 func main() {
 	fileName := pflag.String("file", "",
 		"Read data to be signed (the \"message\") from `FILE`.")
-	port := pflag.String("port", "/dev/ttyACM0",
-		"Set serial port device `PATH`.")
+	port := pflag.String("port", "",
+		"Set serial port device `PATH`. If this is not passed, auto-detection will be attempted.")
 	speed := pflag.Int("speed", tk1.SerialSpeed,
 		"Set serial port speed in `BPS` (bits per second).")
 	verbose := pflag.Bool("verbose", false,
@@ -38,6 +39,17 @@ func main() {
 		fmt.Printf("Please pass at least --file\n")
 		pflag.Usage()
 		os.Exit(2)
+	}
+
+	if *port == "" {
+		var err error
+		*port, err = util.DetectSerialPort()
+		if err != nil {
+			fmt.Printf("Failed to list ports: %v\n", err)
+			os.Exit(1)
+		} else if *port == "" {
+			os.Exit(1)
+		}
 	}
 
 	message, err := os.ReadFile(*fileName)

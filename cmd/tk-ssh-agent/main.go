@@ -12,13 +12,8 @@ import (
 	"syscall"
 
 	"github.com/spf13/pflag"
+	"github.com/tillitis/tillitis-key1-apps/internal/util"
 	"github.com/tillitis/tillitis-key1-apps/tk1"
-	"go.bug.st/serial/enumerator"
-)
-
-const (
-	tillitisUSBVID = "1207"
-	tillitisUSBPID = "8887"
 )
 
 // Use when printing err/diag msgs
@@ -81,7 +76,7 @@ func main() {
 	if listPortsOnly {
 		n, err := printPorts()
 		if err != nil {
-			le.Printf("Failed to list ports: %v\n", err)
+			le.Printf("%v\n", err)
 			exit(1)
 		} else if n == 0 {
 			exit(1)
@@ -112,7 +107,7 @@ func main() {
 
 	if devPath == "" {
 		var err error
-		devPath, err = detectPort()
+		devPath, err = util.DetectSerialPort()
 		if err != nil {
 			le.Printf("Failed to list ports: %v\n", err)
 			exit(1)
@@ -160,62 +155,18 @@ func main() {
 	exit(0)
 }
 
-type serialPort struct {
-	devPath      string
-	serialNumber string
-}
-
-func detectPort() (string, error) {
-	ports, err := getTillitisPorts()
-	if err != nil {
-		return "", err
-	}
-	if len(ports) == 0 {
-		le.Printf("Could not detect any Tillitis Key serial ports.\n" +
-			"You may still use the --port flag to use a known device path.\n")
-		return "", nil
-	}
-	if len(ports) > 1 {
-		le.Printf("Detected %d Tillitis Key serial ports:\n", len(ports))
-		for _, p := range ports {
-			le.Printf("%s with serial number %s\n", p.devPath, p.serialNumber)
-		}
-		le.Printf("Please choose one of the above by using the --port flag.\n")
-		return "", nil
-	}
-	le.Printf("Auto-detected serial port %s\n", ports[0].devPath)
-	return ports[0].devPath, nil
-}
-
 func printPorts() (int, error) {
-	ports, err := getTillitisPorts()
+	ports, err := util.GetSerialPorts()
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("Failed to list ports: %w", err)
 	}
 	if len(ports) == 0 {
 		le.Printf("No Tillitis Key serial ports found.\n")
 	} else {
 		le.Printf("Tillitis Key serial ports (on stdout):\n")
 		for _, p := range ports {
-			fmt.Fprintf(os.Stdout, "%s serialNumber:%s\n", p.devPath, p.serialNumber)
+			fmt.Fprintf(os.Stdout, "%s serialNumber:%s\n", p.DevPath, p.SerialNumber)
 		}
 	}
 	return len(ports), nil
-}
-
-func getTillitisPorts() ([]serialPort, error) {
-	var ports []serialPort
-	portDetails, err := enumerator.GetDetailedPortsList()
-	if err != nil {
-		return nil, fmt.Errorf("GetDetailedPortsList: %w", err)
-	}
-	if len(portDetails) == 0 {
-		return ports, nil
-	}
-	for _, port := range portDetails {
-		if port.IsUSB && port.VID == tillitisUSBVID && port.PID == tillitisUSBPID {
-			ports = append(ports, serialPort{port.Name, port.SerialNumber})
-		}
-	}
-	return ports, nil
 }

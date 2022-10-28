@@ -56,15 +56,14 @@ programming of the USB stick.
 Running `lsusb` should list the USB stick as `1207:8887 Tillitis
 MTA1-USB-V1`. On Linux, Tillitis Key 1's serial port device path is
 typically `/dev/ttyACM0` (but it may end with another digit, if you
-have other devices plugged in). This is also generally the default
-path that the host programs use to talk to it. You can list the
-possible paths using `tk-ssh-agent --list-ports`. When `tk-ssh-agent`
-is run without passing `--port`, it attempts to auto-detect the serial
-port of the USB stick.
+have other devices plugged in). The host programs tries to auto-detect
+serial ports of Tillitis USB sticks, but if more than one is found
+you'll need to choose one using the `--port` flag.
 
-You also need to be sure that you can access the serial port as your
-regular user. One way to do that is by becoming a member of the group
-that owns the serial port. You can do that like this:
+However, you should make sure that you can access the serial port as
+your regular user. One way to do that is by becoming a member of the
+group that owns the serial port. On Ubuntu that group is `dialout`,
+and you can do it like this:
 
 ```
 $ id -un
@@ -80,10 +79,8 @@ log back in again. You can also (following the above example) run
 `newgrp dialout` in the terminal that you're working in.
 
 Your Tillitis Key 1 is now running the firmware. Its LED flashing
-white, indicating that it is ready to receive an app to run. You have
-also learned what serial port path to use for accessing it. You may
-need to pass this as `--port` when running the host programs. Continue
-in the section "Using runapp" below.
+white, indicating that it is ready to receive an app to run. Continue
+in the section "Using runsign..." below.
 
 #### Users on MacOS
 
@@ -98,8 +95,9 @@ There should be an entry with `"USB Vendor Name" = "Tillitis"`.
 
 Looking in the `/dev` directory, there should be a device named like
 `/dev/tty.usbmodemXYZ`. Where XYZ is a number, for example 101. This
-is the device path that needs to be passed as `--port` when running
-the host programs. Continue in the section "Using runsign..." below.
+is the device path that might need to be passed as `--port` when
+running the host programs. Continue in the section "Using runsign..."
+below.
 
 ### Running apps on QEMU
 
@@ -145,7 +143,7 @@ then the app) can output some memory access (and other) logging. You
 can add `-d guest_errors` to the qemu commandline To make QEMU send
 these to stderr.
 
-## Using runsign and runapp
+## Using runsign.sh and runapp
 
 By now you should have learned which serial port to use from one of
 the "Running on" sections. If you're running on hardware, the LED on
@@ -157,10 +155,12 @@ signer app, then asks the app to sign a message and verifies it. You
 can use it like this:
 
 ```
-./runsign.sh /dev/pts/19 file-with-message
+./runsign.sh file-with-message
 ```
 
-The file with the message can currently be at most 4096 bytes long.
+The file with the message can currently be at most 4096 bytes long. If
+the `--port` flags needs to be used, you can pass it after the message
+argument.
 
 The host program `runapp` only loads and starts an app. Then you will
 have to switch to a different program to speak your specific app
@@ -232,11 +232,11 @@ That was fun, now let's try the ssh-agent!
 
 This host program for the signerapp is a complete, alternative
 ssh-agent with practical use. The signerapp binary gets built into the
-tk-ssh-agent, which will upload it to the USB stick when started. By
-default, tk-ssh-agent tries to auto-detect the path of the serial
-port. This should work for the Tillitis Key 1 USB stick. But if you
-have more than one USB stick plugged in, or if you are running on
-QEMU, then you will need to pass to pass a `--port` An example:
+tk-ssh-agent, which will upload it to the USB stick when started. Like
+the other host programs, tk-ssh-agent tries to auto-detect serial
+ports of Tillitis USB sticks. If more than one is found, or if you're
+running on QEMU, then you'll need to use the `--port` flag. An example
+of that:
 
 ```
 $ ./tk-ssh-agent -a ./agent.sock --port /dev/pts/1

@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/spf13/pflag"
+	"github.com/tillitis/tillitis-key1-apps/internal/util"
 	"github.com/tillitis/tillitis-key1-apps/tk1"
 )
 
@@ -130,8 +131,8 @@ func (t Timer) StartTimer() error {
 const defaultPrescaler = 18_000_000
 
 func main() {
-	port := pflag.String("port", "/dev/ttyACM0",
-		"Set serial port device `PATH`.")
+	port := pflag.String("port", "",
+		"Set serial port device `PATH`. If this is not passed, auto-detection will be attempted.")
 	speed := pflag.Int("speed", tk1.SerialSpeed,
 		"Set serial port speed in `BPS` (bits per second).")
 	verbose := pflag.Bool("verbose", false,
@@ -148,6 +149,17 @@ func main() {
 
 	if !*verbose {
 		tk1.SilenceLogging()
+	}
+
+	if *port == "" {
+		var err error
+		*port, err = util.DetectSerialPort()
+		if err != nil {
+			fmt.Printf("Failed to list ports: %v\n", err)
+			os.Exit(1)
+		} else if *port == "" {
+			os.Exit(1)
+		}
 	}
 
 	fmt.Printf("Connecting to device on serial port %s ...\n", *port)

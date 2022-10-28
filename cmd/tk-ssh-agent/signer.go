@@ -14,7 +14,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/tillitis/tillitis-key1-apps/internal/uss"
+	"github.com/tillitis/tillitis-key1-apps/internal/util"
 	"github.com/tillitis/tillitis-key1-apps/tk1"
 	"github.com/tillitis/tillitis-key1-apps/tk1sign"
 )
@@ -84,12 +84,12 @@ func (s *Signer) maybeLoadApp(enterUSS bool, fileUSS string) error {
 	var secret []byte
 	var err error
 	if enterUSS {
-		secret, err = uss.InputUSS()
+		secret, err = util.InputUSS()
 		if err != nil {
 			return fmt.Errorf("Failed to get USS: %w", err)
 		}
 	} else if fileUSS != "" {
-		secret, err = uss.ReadUSS(fileUSS)
+		secret, err = util.ReadUSS(fileUSS)
 		if err != nil {
 			return fmt.Errorf("Failed to read uss-file %s: %w", fileUSS, err)
 		}

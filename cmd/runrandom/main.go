@@ -14,6 +14,7 @@ import (
 	"syscall"
 
 	"github.com/spf13/pflag"
+	"github.com/tillitis/tillitis-key1-apps/internal/util"
 	"github.com/tillitis/tillitis-key1-apps/tk1"
 )
 
@@ -32,8 +33,8 @@ var le = log.New(os.Stderr, "", 0)
 func main() {
 	var devPath string
 	var speed, bytes int
-	pflag.StringVar(&devPath, "port", "/dev/ttyACM0",
-		"Set serial port device `PATH`.")
+	pflag.StringVar(&devPath, "port", "",
+		"Set serial port device `PATH`. If this is not passed, auto-detection will be attempted.")
 	pflag.IntVar(&speed, "speed", tk1.SerialSpeed,
 		"Set serial port speed in `BPS` (bits per second).")
 	pflag.IntVarP(&bytes, "bytes", "b", 0,
@@ -48,6 +49,17 @@ func main() {
 		le.Printf("Please set number of bytes with --bytes\n")
 		pflag.Usage()
 		os.Exit(2)
+	}
+
+	if devPath == "" {
+		var err error
+		devPath, err = util.DetectSerialPort()
+		if err != nil {
+			fmt.Printf("Failed to list ports: %v\n", err)
+			os.Exit(1)
+		} else if devPath == "" {
+			os.Exit(1)
+		}
 	}
 
 	tk1.SilenceLogging()

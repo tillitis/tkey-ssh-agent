@@ -35,25 +35,25 @@ func main() {
 	var speed int
 	var enterUSS, showPubkeyOnly, listPortsOnly bool
 	pflag.CommandLine.SetOutput(os.Stderr)
-	pflag.StringVarP(&sockPath, "agent-socket", "a", "", "Start the agent, setting the path to the UNIX-domain\n"+
-		"socket that it should bind to. SSH will talk to\n"+
-		"this agent when it finds this path in the environment\n"+
-		"variable SSH_AUTH_SOCK.")
-	pflag.BoolVarP(&listPortsOnly, "list-ports", "", false, "List possible serial ports to use with --port.")
-	pflag.StringVar(&devPath, "port", "", "Path to serial port device. If this is not passed,\n"+
-		"auto-detection will be attempted.")
-	pflag.BoolVarP(&showPubkeyOnly, "show-pubkey", "k", false, "Don't start the agent, only output the ssh-ed25519\n"+
-		"pubkey.")
-	pflag.IntVar(&speed, "speed", tk1.SerialSpeed, "When talking over the serial port, bits per second.\n")
-	pflag.BoolVar(&enterUSS, "uss", false, "Enable typing of a phrase to be hashed as the User\n"+
-		"Supplied Secret. The USS is loaded onto the USB\n"+
-		"stick along with the app itself. Every different\n"+
-		"USS results in different SSH public/private keys,\n"+
-		"meaning a different identity.")
-	pflag.StringVar(&fileUSS, "uss-file", "", "Read a file and hash its contents as the USS. Use\n"+
-		"--uss-file=- for reading from stdin. Note that all\n"+
-		"data in file/stdin is read and hashed, newlines are\n"+
-		"not stripped.")
+	pflag.CommandLine.SortFlags = false
+	pflag.StringVarP(&sockPath, "agent-socket", "a", "",
+		"Start the agent, setting the `PATH` to the UNIX-domain socket that it should bind to. SSH finds and talks to the agent if given this path in the environment variable SSH_AUTH_SOCK.")
+	pflag.BoolVarP(&showPubkeyOnly, "show-pubkey", "k", false,
+		"Don't start the agent, only output the ssh-ed25519 public key.")
+	pflag.BoolVarP(&listPortsOnly, "list-ports", "", false,
+		"List possible serial ports to use with --port.")
+	pflag.StringVar(&devPath, "port", "",
+		"Set serial port device `PATH`. If this is not passed, auto-detection will be attempted.")
+	pflag.IntVar(&speed, "speed", tk1.SerialSpeed,
+		"Set serial port speed in `BPS` (bits per second).")
+	pflag.BoolVar(&enterUSS, "uss", false,
+		"Enable typing of a phrase to be hashed as the User Supplied Secret. The USS is loaded onto the USB stick along with the app itself. A different USS results in different SSH public/private keys, meaning a different identity.")
+	pflag.StringVar(&fileUSS, "uss-file", "",
+		"Read `FILE` and hash its contents as the USS. Use '-' (dash) to read from stdin. The full contents are hashed unmodified (e.g. newlines are not stripped).")
+	pflag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage of %s:\n%s", os.Args[0],
+			pflag.CommandLine.FlagUsagesWrapped(80))
+	}
 	pflag.Parse()
 
 	if pflag.NArg() > 0 {

@@ -126,14 +126,24 @@ func (t Timer) StartTimer() error {
 	return nil
 }
 
-func main() {
-	port := pflag.String("port", "/dev/ttyACM0", "Serial port path")
-	speed := pflag.Int("speed", tk1.SerialSpeed, "When talking over the serial port, bits per second")
-	verbose := pflag.Bool("verbose", false, "Enable verbose output")
-	timer := pflag.Int("timer", 1, "Timer (seconds if default prescaler)")
-	// matching device clock at 18 MHz
-	prescaler := pflag.Int("prescaler", 18_000_000, "Prescaler")
+// matching device clock at 18 MHz
+const defaultPrescaler = 18_000_000
 
+func main() {
+	port := pflag.String("port", "/dev/ttyACM0",
+		"Set serial port device `PATH`.")
+	speed := pflag.Int("speed", tk1.SerialSpeed,
+		"Set serial port speed in `BPS` (bits per second).")
+	verbose := pflag.Bool("verbose", false,
+		"Enable verbose output.")
+	timer := pflag.Int("timer", 1,
+		fmt.Sprintf("Set timer `VALUE` (seconds if prescaler is %d).", defaultPrescaler))
+	prescaler := pflag.Int("prescaler", defaultPrescaler,
+		"Set prescaler.")
+	pflag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage of %s:\n%s", os.Args[0],
+			pflag.CommandLine.FlagUsagesWrapped(80))
+	}
 	pflag.Parse()
 
 	if !*verbose {

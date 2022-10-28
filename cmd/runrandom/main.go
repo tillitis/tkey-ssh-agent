@@ -6,6 +6,7 @@ package main
 import (
 	_ "embed"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -31,9 +32,16 @@ var le = log.New(os.Stderr, "", 0)
 func main() {
 	var devPath string
 	var speed, bytes int
-	pflag.StringVar(&devPath, "port", "/dev/ttyACM0", "Path to serial port device")
-	pflag.IntVar(&speed, "speed", tk1.SerialSpeed, "When talking over the serial port, bits per second")
-	pflag.IntVarP(&bytes, "bytes", "b", 0, "Number of random bytes to get")
+	pflag.StringVar(&devPath, "port", "/dev/ttyACM0",
+		"Set serial port device `PATH`.")
+	pflag.IntVar(&speed, "speed", tk1.SerialSpeed,
+		"Set serial port speed in `BPS` (bits per second).")
+	pflag.IntVarP(&bytes, "bytes", "b", 0,
+		"Fetch `COUNT` number of random bytes.")
+	pflag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage of %s:\n%s", os.Args[0],
+			pflag.CommandLine.FlagUsagesWrapped(80))
+	}
 	pflag.Parse()
 
 	if bytes == 0 {

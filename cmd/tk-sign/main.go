@@ -16,10 +16,18 @@ import (
 )
 
 func main() {
-	fileName := pflag.String("file", "", "Name of file with data to be signed (the \"message\")")
-	port := pflag.String("port", "/dev/ttyACM0", "Serial port path")
-	speed := pflag.Int("speed", tk1.SerialSpeed, "When talking over the serial port, bits per second")
-	verbose := pflag.Bool("verbose", false, "Enable verbose output")
+	fileName := pflag.String("file", "",
+		"Read data to be signed (the \"message\") from `FILE`.")
+	port := pflag.String("port", "/dev/ttyACM0",
+		"Set serial port device `PATH`.")
+	speed := pflag.Int("speed", tk1.SerialSpeed,
+		"Set serial port speed in `BPS` (bits per second).")
+	verbose := pflag.Bool("verbose", false,
+		"Enable verbose output.")
+	pflag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage of %s:\n%s", os.Args[0],
+			pflag.CommandLine.FlagUsagesWrapped(80))
+	}
 	pflag.Parse()
 
 	if !*verbose {

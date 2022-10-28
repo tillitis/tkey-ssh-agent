@@ -15,17 +15,22 @@ import (
 )
 
 func main() {
-	fileName := pflag.String("file", "", "App binary to be uploaded and started")
-	port := pflag.String("port", "/dev/ttyACM0", "Serial port path")
-	speed := pflag.Int("speed", tk1.SerialSpeed, "When talking over the serial port, bits per second")
-	enterUSS := pflag.Bool("uss", false, "Enable typing of a phrase for the User Supplied Secret. The phrase\n"+
-		"is hashed using BLAKE2 to a digest. The USS digest is used by the\n"+
-		"firmware, together with other material, for deriving secrets for the\n"+
-		"application.")
-	fileUSS := pflag.String("uss-file", "", "Read a file and hash its contents as the USS. Use --uss-file=-\n"+
-		"for reading from stdin. Note that the all data in file/stdin is\n"+
-		"hashed, newlines are not stripped.")
-	verbose := pflag.Bool("verbose", false, "Enable verbose output")
+	fileName := pflag.String("file", "",
+		"App binary `FILE` to be uploaded and started.")
+	port := pflag.String("port", "/dev/ttyACM0",
+		"Set serial port device `PATH`.")
+	speed := pflag.Int("speed", tk1.SerialSpeed,
+		"Set serial port speed in `BPS` (bits per second).")
+	enterUSS := pflag.Bool("uss", false,
+		"Enable typing of a phrase for the User Supplied Secret. The phrase is hashed using BLAKE2 to a digest. The USS digest is used by the firmware, together with other material, for deriving secrets for the application.")
+	fileUSS := pflag.String("uss-file", "",
+		"Read `FILE` and hash its contents as the USS. Use '-' (dash) to read from stdin. The full contents are hashed unmodified (e.g. newlines are not stripped).")
+	verbose := pflag.Bool("verbose", false,
+		"Enable verbose output.")
+	pflag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage of %s:\n%s", os.Args[0],
+			pflag.CommandLine.FlagUsagesWrapped(80))
+	}
 	pflag.Parse()
 
 	if !*verbose {

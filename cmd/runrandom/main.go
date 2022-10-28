@@ -40,7 +40,13 @@ func main() {
 	pflag.IntVarP(&bytes, "bytes", "b", 0,
 		"Fetch `COUNT` number of random bytes.")
 	pflag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage of %s:\n%s", os.Args[0],
+		fmt.Fprintf(os.Stderr, `runrandom is a host program for the random-app, used to fetch random numbers
+from the TRNG on Tillitis Key 1. This program embeds the random-app binary,
+which it loads onto the USB stick and starts.
+
+Usage:
+
+%s`,
 			pflag.CommandLine.FlagUsagesWrapped(80))
 	}
 	pflag.Parse()
@@ -82,8 +88,8 @@ func main() {
 
 	if !isWantedApp(randomGen) {
 		if !isFirmwareMode(tk) {
-			le.Printf("If the serial port is correct for the device, then it might not be it\n" +
-				"firmware-mode (and already have an app running). Please unplug and plug it in again.\n")
+			fmt.Printf("If the serial port is correct, then Tillitis Key might not be in firmware-\n" +
+				"mode, and have an app running already. Please unplug and plug it in again.\n")
 			exit(1)
 		}
 		le.Printf("Device is in firmware mode. Loading app...\n")

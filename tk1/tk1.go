@@ -10,7 +10,7 @@
 //
 //	nameVer, err := tk.GetNameVersion()
 //
-// Or uploading and starting an app on the stick:
+// Or loading and starting an app on the stick:
 //
 //	err = tk.LoadAppFromFile(*fileName)
 //

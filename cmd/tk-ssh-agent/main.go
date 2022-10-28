@@ -32,22 +32,36 @@ func main() {
 	pflag.CommandLine.SetOutput(os.Stderr)
 	pflag.CommandLine.SortFlags = false
 	pflag.StringVarP(&sockPath, "agent-socket", "a", "",
-		"Start the agent, setting the `PATH` to the UNIX-domain socket that it should bind to. SSH finds and talks to the agent if given this path in the environment variable SSH_AUTH_SOCK.")
+		"Start the agent, setting the `PATH` to the UNIX-domain socket that it should bind/listen to.")
 	pflag.BoolVarP(&showPubkeyOnly, "show-pubkey", "k", false,
 		"Don't start the agent, only output the ssh-ed25519 public key.")
-	pflag.BoolVarP(&listPortsOnly, "list-ports", "", false,
+	pflag.BoolVarP(&listPortsOnly, "list-ports", "L", false,
 		"List possible serial ports to use with --port.")
 	pflag.StringVar(&devPath, "port", "",
 		"Set serial port device `PATH`. If this is not passed, auto-detection will be attempted.")
 	pflag.IntVar(&speed, "speed", tk1.SerialSpeed,
 		"Set serial port speed in `BPS` (bits per second).")
 	pflag.BoolVar(&enterUSS, "uss", false,
-		"Enable typing of a phrase to be hashed as the User Supplied Secret. The USS is loaded onto the USB stick along with the app itself. A different USS results in different SSH public/private keys, meaning a different identity.")
+		"Enable typing of a phrase to be hashed as the User Supplied Secret. The USS is loaded onto Tillitis Key along with the app itself. A different USS results in different SSH public/private keys, meaning a different identity.")
 	pflag.StringVar(&fileUSS, "uss-file", "",
 		"Read `FILE` and hash its contents as the USS. Use '-' (dash) to read from stdin. The full contents are hashed unmodified (e.g. newlines are not stripped).")
 	pflag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage of %s:\n%s", os.Args[0],
-			pflag.CommandLine.FlagUsagesWrapped(80))
+		desc := `Usage: tk-ssh-agent -a|-k|-L [flags...]
+
+tk-ssh-agent is an alternative ssh-agent that communicates with a Tillitis Key 1
+USB stick. This stick holds private key and signing functionality for public key
+authentication.
+
+Through the agent-socket, when set in the SSH_AUTH_SOCK environment variable,
+programs like ssh(1) and ssh-keygen(1) can find and use this agent, e.g. for
+authentication when accessing other machines.
+
+To make the Tillitis Key 1 provide this functionality, the tk-ssh-agent contains
+a compiled signerapp binary which it loads onto the stick and starts. The stick
+will flash blue when signerapp is running and waiting for a signing command, and
+green when the stick must be touched to complete a signature.`
+		fmt.Fprintf(os.Stderr, "%s\n\n%s", desc,
+			pflag.CommandLine.FlagUsagesWrapped(86))
 	}
 	pflag.Parse()
 
@@ -68,7 +82,7 @@ func main() {
 		exclusive++
 	}
 	if exclusive > 1 {
-		le.Printf("Pass only one of -a, -k, or --list-ports.\n\n")
+		le.Printf("Pass only one of -a, -k, or -L.\n\n")
 		pflag.Usage()
 		exit(2)
 	}
@@ -119,8 +133,8 @@ func main() {
 	signer, err := NewSigner(devPath, speed, enterUSS, fileUSS)
 	if err != nil {
 		if errors.Is(err, ErrMaybeWrongDevice) {
-			le.Printf("If the serial port is correct for the device, then it might not be it\n" +
-				"firmware-mode (and already have an app running). Please unplug and plug it in again.\n")
+			le.Printf("If the serial port is correct, then Tillitis Key might not be in firmware-\n" +
+				"mode, and have an app running already. Please unplug and plug it in again.\n")
 		} else {
 			le.Printf("%s\n", err)
 		}

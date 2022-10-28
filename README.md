@@ -232,11 +232,11 @@ That was fun, now let's try the ssh-agent!
 
 This host program for the signerapp is a complete, alternative
 ssh-agent with practical use. The signerapp binary gets built into the
-tk-ssh-agent, which will upload it to the USB stick when started. Like
-the other host programs, tk-ssh-agent tries to auto-detect serial
-ports of Tillitis USB sticks. If more than one is found, or if you're
-running on QEMU, then you'll need to use the `--port` flag. An example
-of that:
+tk-ssh-agent, which will load it onto USB stick when started. Like the
+other host programs, tk-ssh-agent tries to auto-detect serial ports of
+Tillitis USB sticks. If more than one is found, or if you're running
+on QEMU, then you'll need to use the `--port` flag. An example of
+that:
 
 ```
 $ ./tk-ssh-agent -a ./agent.sock --port /dev/pts/1
@@ -285,9 +285,9 @@ red and blue LEDs while the app is running and show the same colors
 steadily while generating/delivering the numbers.
 
 The companion host program `runrandom` can be used to output random
-numbers on stdout. The host program embeds the app binary and uploads
-it to the USB stick if needed. If the stick is not in firmware mode,
-or is running another app, you'll need to unplug and plug it in again.
+numbers on stdout. The host program embeds the app binary and loads it
+onto the USB stick if needed. If the stick is not in firmware mode, or
+is running another app, you'll need to unplug and plug it in again.
 You can build and use it like this:
 
 ```

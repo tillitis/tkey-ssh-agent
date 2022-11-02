@@ -8,8 +8,8 @@ ENTRY(_start)
 
 MEMORY
 {
-	RAM1 (rwx)   : ORIGIN = 0x40000000, LENGTH = 0x10000 /* 64 KB */
-	RAM2 (rwx)   : ORIGIN = 0x40010000, LENGTH = 0x10000 /* 64 KB */
+	RAM1 (rwx)   : ORIGIN = 0x40000000, LENGTH = 0x07000 /*  28 KB */
+	RAM2 (rwx)   : ORIGIN = 0x40007000, LENGTH = 0x19000 /* 100 KB */
 }
 
 SECTIONS
@@ -40,11 +40,10 @@ SECTIONS
 		. = ALIGN(4);
 		*(.data)           /* .data sections */
 		*(.data*)          /* .data* sections */
-		*(.sdata)           /* .sdata sections */
-		*(.sdata*)          /* .sdata* sections */
+		*(.sdata)          /* .sdata sections */
+		*(.sdata*)         /* .sdata* sections */
 		. = ALIGN(4);
 		_edata = .;
-
 	} >RAM2
 
 	/* Uninitialized data section */
@@ -61,5 +60,5 @@ SECTIONS
 		. = ALIGN(4);
 		_ebss = .;
 	} >RAM2
-	/* Init stack to start directly under RAM2, see crt0.s */
+	/* Init stack to start directly under RAM2, see libcrt0/crt0.S */
 }

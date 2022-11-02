@@ -185,8 +185,8 @@ func (tk TillitisKey) LoadAppFromFile(fileName string, secretPhrase []byte) erro
 // expected USS is used.
 func (tk TillitisKey) LoadApp(bin []byte, secretPhrase []byte) error {
 	binLen := len(bin)
-	if binLen > 65536 {
-		return fmt.Errorf("File to big")
+	if binLen > 100*1024 { // TK1_APP_MAX_SIZE
+		return fmt.Errorf("File too big")
 	}
 
 	err := tk.loadUSS(secretPhrase)

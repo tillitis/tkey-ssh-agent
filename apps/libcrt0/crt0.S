@@ -36,8 +36,8 @@ _start:
 	li x30,0
 	li x31,0
 
-        /* init stack at the address under 0x40010000 where we load the app */
-        li sp, 0x4000fff0
+        /* init stack below 0x40007000 (TK1_APP_ADDR) where fw loads app */
+        li sp, 0x40006ff0
 
 	/* zero-init bss section */
 	la a0, _sbss

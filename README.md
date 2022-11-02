@@ -219,12 +219,11 @@ If `--file` is not passed, the app is assumed to be loaded and running
 already, and signing is attempted right away.
 
 Note that to load a new app, the USB stick needs to be unplugged and
-plugged in again. Similarly, QEMU needs to be restarted (`Ctrl-a x` to
-quit). If you're using the setup with the USB stick sitting in the
-programming jig, and at the same time plugged into the computer (as
-explained in
-[quickstart.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/quickstart.md),
-then you need to unplug both the USB stick and the programmer.
+plugged in again. Similarly, QEMU would need to be restarted (`Ctrl-a
+x` to quit). If you're using the setup with the USB stick sitting in
+the programming jig and at the same time plugged into the computer,
+then you need to unplug both the USB stick and the programmer. Or
+alternatively run the `reset-tk1` script (in the tillitis-key1 repo).
 
 That was fun, now let's try the ssh-agent!
 

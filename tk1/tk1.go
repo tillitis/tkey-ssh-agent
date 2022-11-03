@@ -56,7 +56,7 @@ type TillitisKey struct {
 	conn serial.Port
 }
 
-// New() opens a connection to the Tillitis Key 1 at the serial device
+// New opens a connection to the Tillitis Key 1 at the serial device
 // port at indicated speed.
 func New(port string, speed int) (TillitisKey, error) {
 	var tk TillitisKey
@@ -105,7 +105,7 @@ func (n *NameVersion) Unpack(raw []byte) {
 	n.Version = binary.LittleEndian.Uint32(raw[8:12])
 }
 
-// GetNameVersion() gets the name and version from the TK1 firmware
+// GetNameVersion gets the name and version from the TK1 firmware
 func (tk TillitisKey) GetNameVersion() (*NameVersion, error) {
 	id := 2
 	tx, err := NewFrameBuf(cmdGetNameVersion, id)
@@ -190,7 +190,8 @@ func (tk TillitisKey) GetUDI() (*UDI, error) {
 	return udi, nil
 }
 
-// LoadAppFromFile() loads and runs a raw binary file from fileName into the TK1.
+// LoadAppFromFile loads and runs a raw binary file from fileName into
+// the TK1.
 func (tk TillitisKey) LoadAppFromFile(fileName string, secretPhrase []byte) error {
 	content, err := os.ReadFile(fileName)
 	if err != nil {
@@ -217,22 +218,23 @@ func (tk TillitisKey) LoadApp(bin []byte, secretPhrase []byte) error {
 		return fmt.Errorf("File too big")
 	}
 
-	err := tk.loadUSS(secretPhrase)
-	if err != nil {
-		return err
-	}
-
 	le.Printf("app size: %v, 0x%x, 0b%b\n", binLen, binLen, binLen)
 
-	err = tk.setAppSize(binLen)
+	err := tk.loadApp(binLen, secretPhrase)
 	if err != nil {
 		return err
 	}
 
 	// Load the file
 	var offset int
+	var deviceDigest [32]byte
+
 	for nsent := 0; offset < binLen; offset += nsent {
-		nsent, err = tk.loadAppData(bin[offset:])
+		if binLen-offset <= CmdLen128.Bytelen()-1 {
+			deviceDigest, nsent, err = tk.loadAppData(bin[offset:], true)
+		} else {
+			_, nsent, err = tk.loadAppData(bin[offset:], false)
+		}
 		if err != nil {
 			return fmt.Errorf("loadAppData: %w", err)
 		}
@@ -241,67 +243,26 @@ func (tk TillitisKey) LoadApp(bin []byte, secretPhrase []byte) error {
 		return fmt.Errorf("transmitted more than expected")
 	}
 
-	le.Printf("Going to getappdigest\n")
-	appDigest, err := tk.getAppDigest()
-	if err != nil {
-		return err
-	}
-
 	digest := blake2s.Sum256(bin)
 
 	le.Printf("Digest from host:\n")
 	printDigest(digest)
 	le.Printf("Digest from device:\n")
-	printDigest(appDigest)
+	printDigest(deviceDigest)
 
-	if appDigest != digest {
+	if deviceDigest != digest {
 		return fmt.Errorf("Different digests")
 	}
 	le.Printf("Same digests!\n")
 
-	// Run the app
-	le.Printf("Running the app\n")
-	return tk.runApp()
-}
-
-func (tk TillitisKey) loadUSS(secretPhrase []byte) error {
-	id := 2
-	tx, err := NewFrameBuf(cmdLoadUSS, id)
-	if err != nil {
-		return err
-	}
-
-	if len(secretPhrase) == 0 {
-		uss := [32]byte{}
-		copy(tx[2:], uss[:])
-	} else {
-		// Hash user's phrase as USS
-		uss := blake2s.Sum256(secretPhrase)
-		copy(tx[2:], uss[:])
-	}
-
-	// Not running Dump() on the secret USS
-	le.Printf("LoadUSS tx len:%d contents omitted\n", len(tx))
-	if err = tk.Write(tx); err != nil {
-		return err
-	}
-
-	rx, _, err := tk.ReadFrame(rspLoadUSS, id)
-	if err != nil {
-		return fmt.Errorf("ReadFrame: %w", err)
-	}
-
-	if rx[2] != StatusOK {
-		return fmt.Errorf("LoadUSS NOK")
-	}
-
+	// The app has now started automatically.
 	return nil
 }
 
-// setAppSize() sets the size of the app to be loaded into the TK1.
-func (tk TillitisKey) setAppSize(size int) error {
+// loadApp sets the size and USS of the app to be loaded into the TK1.
+func (tk TillitisKey) loadApp(size int, secretPhrase []byte) error {
 	id := 2
-	tx, err := NewFrameBuf(cmdLoadAppSize, id)
+	tx, err := NewFrameBuf(cmdLoadApp, id)
 	if err != nil {
 		return err
 	}
@@ -312,30 +273,38 @@ func (tk TillitisKey) setAppSize(size int) error {
 	tx[4] = byte(size >> 16)
 	tx[5] = byte(size >> 24)
 
-	Dump("SetAppSize tx", tx)
+	if len(secretPhrase) == 0 {
+		tx[6] = 0
+	} else {
+		tx[6] = 1
+		// Hash user's phrase as USS
+		uss := blake2s.Sum256(secretPhrase)
+		copy(tx[6:], uss[:])
+	}
+
+	Dump("LoadApp tx", tx)
 	if err = tk.Write(tx); err != nil {
 		return err
 	}
 
-	rx, _, err := tk.ReadFrame(rspLoadAppSize, id)
+	rx, _, err := tk.ReadFrame(rspLoadApp, id)
 	if err != nil {
 		return fmt.Errorf("ReadFrame: %w", err)
 	}
 
 	if rx[2] != StatusOK {
-		return fmt.Errorf("SetAppSize NOK")
+		return fmt.Errorf("LoadApp NOK")
 	}
 
 	return nil
 }
 
-// loadAppData() loads a chunk of the raw app binary into the TK1 and
-// waits for a reply.
-func (tk TillitisKey) loadAppData(content []byte) (int, error) {
+// loadAppData loads a chunk of the raw app binary into the TK1.
+func (tk TillitisKey) loadAppData(content []byte, last bool) ([32]byte, int, error) {
 	id := 2
 	tx, err := NewFrameBuf(cmdLoadAppData, id)
 	if err != nil {
-		return 0, err
+		return [32]byte{}, 0, err
 	}
 
 	payload := make([]byte, CmdLen128.Bytelen()-1)
@@ -352,71 +321,35 @@ func (tk TillitisKey) loadAppData(content []byte) (int, error) {
 	Dump("LoadAppData tx", tx)
 
 	if err = tk.Write(tx); err != nil {
-		return 0, err
+		return [32]byte{}, 0, err
+	}
+
+	var rx []byte
+	var expectedResp Cmd
+
+	if last {
+		expectedResp = rspLoadAppDataReady
+	} else {
+		expectedResp = rspLoadAppData
 	}
 
 	// Wait for reply
-	rx, _, err := tk.ReadFrame(rspLoadAppData, id)
+	rx, _, err = tk.ReadFrame(expectedResp, id)
 	if err != nil {
-		return 0, fmt.Errorf("ReadFrame: %w", err)
+		return [32]byte{}, 0, fmt.Errorf("ReadFrame: %w", err)
 	}
 
 	if rx[2] != StatusOK {
-		return 0, fmt.Errorf("LoadAppData NOK")
+		return [32]byte{}, 0, fmt.Errorf("LoadAppData NOK")
 	}
 
-	return copied, nil
-}
-
-// getAppDigest() asks for an app digest from the TK1.
-func (tk TillitisKey) getAppDigest() ([32]byte, error) {
-	var md [32]byte
-	id := 2
-	tx, err := NewFrameBuf(cmdGetAppDigest, id)
-	if err != nil {
-		return md, err
+	if last {
+		var digest [32]byte
+		copy(digest[:], rx[3:])
+		return digest, copied, nil
 	}
 
-	Dump("GetDigest tx", tx)
-
-	if err = tk.Write(tx); err != nil {
-		return md, err
-	}
-
-	// Wait for reply
-	rx, _, err := tk.ReadFrame(rspGetAppDigest, id)
-	if err != nil {
-		return md, fmt.Errorf("ReadFrame: %w", err)
-	}
-
-	copy(md[:], rx[2:])
-
-	return md, nil
-}
-
-// runApp() runs the loaded app, if any, in the TK1.
-func (tk TillitisKey) runApp() error {
-	id := 2
-	tx, err := NewFrameBuf(cmdRunApp, id)
-	if err != nil {
-		return err
-	}
-
-	if err = tk.Write(tx); err != nil {
-		return err
-	}
-
-	// Wait for reply
-	rx, _, err := tk.ReadFrame(rspRunApp, id)
-	if err != nil {
-		return fmt.Errorf("ReadFrame: %w", err)
-	}
-
-	if rx[2] != StatusOK {
-		return fmt.Errorf("RunApp NOK")
-	}
-
-	return nil
+	return [32]byte{}, copied, nil
 }
 
 func printDigest(md [32]byte) {

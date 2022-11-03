@@ -52,21 +52,15 @@ type Cmd interface {
 }
 
 var (
-	cmdGetNameVersion = fwCmd{0x01, "cmdGetNameVersion", CmdLen1}
-	rspGetNameVersion = fwCmd{0x02, "rspGetNameVersion", CmdLen32}
-	cmdLoadAppSize    = fwCmd{0x03, "cmdLoadAppSize", CmdLen32}
-	rspLoadAppSize    = fwCmd{0x04, "rspLoadAppSize", CmdLen4}
-	cmdLoadAppData    = fwCmd{0x05, "cmdLoadAppData", CmdLen128}
-	rspLoadAppData    = fwCmd{0x06, "rspLoadAppData", CmdLen4}
-	cmdRunApp         = fwCmd{0x07, "cmdRunApp", CmdLen1}
-	rspRunApp         = fwCmd{0x08, "rspRunApp", CmdLen4}
-	cmdGetAppDigest   = fwCmd{0x09, "cmdGetAppDigest", CmdLen1}
-	cmdLoadUSS        = fwCmd{0x0a, "cmdLoadUSS", CmdLen128}
-	rspLoadUSS        = fwCmd{0x0b, "rspLoadUSS", CmdLen4}
-	cmdGetUDI         = fwCmd{0x0c, "cmdGetUDI", CmdLen1}
-	rspGetUDI         = fwCmd{0x0d, "rspGetUDI", CmdLen32}
-	// ...
-	rspGetAppDigest = fwCmd{0x10, "rspGetAppDigest", CmdLen128} // encoded as 0x10 for backwards compatibility
+	cmdGetNameVersion   = fwCmd{0x01, "cmdGetNameVersion", CmdLen1}
+	rspGetNameVersion   = fwCmd{0x02, "rspGetNameVersion", CmdLen32}
+	cmdLoadApp          = fwCmd{0x03, "cmdLoadApp", CmdLen128}
+	rspLoadApp          = fwCmd{0x04, "rspLoadApp", CmdLen4}
+	cmdLoadAppData      = fwCmd{0x05, "cmdLoadAppData", CmdLen128}
+	rspLoadAppData      = fwCmd{0x06, "rspLoadAppData", CmdLen4}
+	rspLoadAppDataReady = fwCmd{0x07, "rspLoadAppDataReady", CmdLen128}
+	cmdGetUDI           = fwCmd{0x08, "cmdGetUDI", CmdLen1}
+	rspGetUDI           = fwCmd{0x09, "rspGetUDI", CmdLen32}
 )
 
 type fwCmd struct {

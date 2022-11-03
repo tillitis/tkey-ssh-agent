@@ -67,7 +67,7 @@ func main() {
 
 	signer := tk1sign.New(tk)
 	exit := func(code int) {
-		if err := signer.Close(); err != nil {
+		if err = signer.Close(); err != nil {
 			fmt.Printf("%v\n", err)
 		}
 		os.Exit(code)

@@ -169,7 +169,7 @@ func main() {
 		os.Exit(1)
 	}
 	exit := func(code int) {
-		if err := tk.Close(); err != nil {
+		if err = tk.Close(); err != nil {
 			fmt.Printf("tk.Close: %v\n", err)
 		}
 		os.Exit(code)

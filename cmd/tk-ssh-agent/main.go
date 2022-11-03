@@ -155,7 +155,7 @@ green when the stick must be touched to complete a signature.`
 
 	prevExitFunc := exit
 	exit = func(code int) {
-		if err := signer.disconnect(); err != nil {
+		if err = signer.disconnect(); err != nil {
 			le.Printf("%s\n", err)
 		}
 		prevExitFunc(code)

@@ -79,7 +79,7 @@ Usage:
 
 	randomGen := New(tk)
 	exit := func(code int) {
-		if err := randomGen.Close(); err != nil {
+		if err = randomGen.Close(); err != nil {
 			le.Printf("%v\n", err)
 		}
 		os.Exit(code)

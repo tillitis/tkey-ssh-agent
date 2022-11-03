@@ -50,7 +50,7 @@ func NewSigner(devPath string, speed int, enterUSS bool, fileUSS string, exitFun
 
 	// Start handling signals here to catch abort during USS entering
 	handleSignals(func() {
-		if err := signer.disconnect(); err != nil {
+		if err = signer.disconnect(); err != nil {
 			le.Printf("%s\n", err)
 		}
 		exitFunc(1)

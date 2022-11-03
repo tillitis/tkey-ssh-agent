@@ -311,8 +311,8 @@ RAM starts at 0x4000\_0000 and ends at 0x4002\_0000. The app will be
 loaded by firmware at 0x4000\_7000 which means a maximum size
 including `.data` and `.bss` of 100 KiB. It will have 28 KiB of stack,
 from 0x4000\_6ff0 down to where RAM starts (see
-[apps/libcrt0/crt0.S](apps/libcrt0/crt0.S)). A smaller app may move
-itself in memory, in order to have a larger stack.
+[apps/libcrt0/crt0.S](apps/libcrt0/crt0.S)). A smaller app may want
+to move itself in memory in order to have larger continuous memory.
 
 There are no heap allocation functions, no `malloc()` and friends.
 

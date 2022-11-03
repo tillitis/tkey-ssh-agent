@@ -37,7 +37,7 @@ type Signer struct {
 	tkSigner *tk1sign.Signer
 }
 
-func NewSigner(devPath string, speed int, enterUSS bool, fileUSS string) (*Signer, error) {
+func NewSigner(devPath string, speed int, enterUSS bool, fileUSS string, exitFunc func(int)) (*Signer, error) {
 	tk1.SilenceLogging()
 	le.Printf("Connecting to device on serial port %s ...\n", devPath)
 	tk, err := tk1.New(devPath, speed)
@@ -53,7 +53,7 @@ func NewSigner(devPath string, speed int, enterUSS bool, fileUSS string) (*Signe
 		if err := signer.disconnect(); err != nil {
 			le.Printf("%s\n", err)
 		}
-		os.Exit(1)
+		exitFunc(1)
 	}, os.Interrupt, syscall.SIGTERM)
 
 	if err = signer.maybeLoadApp(enterUSS, fileUSS); err != nil {

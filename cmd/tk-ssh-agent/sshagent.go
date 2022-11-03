@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"path/filepath"
 	"sync"
 
 	"golang.org/x/crypto/ssh"
@@ -46,16 +45,12 @@ func (s *SSHAgent) getSSHPub() (ssh.PublicKey, error) {
 	return sshPub, nil
 }
 
-func (s *SSHAgent) Serve(sockPath string) error {
-	sockPath, err := filepath.Abs(sockPath)
-	if err != nil {
-		return fmt.Errorf("Abs: %w", err)
-	}
-	listener, err := net.Listen("unix", sockPath)
+func (s *SSHAgent) Serve(absSockPath string) error {
+	listener, err := net.Listen("unix", absSockPath)
 	if err != nil {
 		return fmt.Errorf("Listen: %w", err)
 	}
-	le.Printf("listening on %s ...\n", sockPath)
+	le.Printf("listening on %s ...\n", absSockPath)
 	for {
 		conn, err := listener.Accept()
 		if err != nil {

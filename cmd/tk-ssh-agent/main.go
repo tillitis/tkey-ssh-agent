@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"syscall"
 
@@ -112,10 +113,21 @@ green when the stick must be touched to complete a signature.`
 	}
 
 	if sockPath != "" {
-		_, err := os.Stat(sockPath)
+		var err error
+		sockPath, err = filepath.Abs(sockPath)
+		if err != nil {
+			le.Printf("Failed to get agent-socket path: %s", err)
+			exit(1)
+		}
+		_, err = os.Stat(sockPath)
 		if err == nil || !errors.Is(err, os.ErrNotExist) {
 			le.Printf("Socket path %s exists?\n", sockPath)
 			exit(1)
+		}
+		prevExitFunc := exit
+		exit = func(code int) {
+			_ = os.Remove(sockPath)
+			prevExitFunc(code)
 		}
 	}
 
@@ -130,7 +142,7 @@ green when the stick must be touched to complete a signature.`
 		}
 	}
 
-	signer, err := NewSigner(devPath, speed, enterUSS, fileUSS)
+	signer, err := NewSigner(devPath, speed, enterUSS, fileUSS, exit)
 	if err != nil {
 		if errors.Is(err, ErrMaybeWrongDevice) {
 			le.Printf("If the serial port is correct, then Tillitis Key might not be in firmware-\n" +
@@ -141,11 +153,12 @@ green when the stick must be touched to complete a signature.`
 		exit(1)
 	}
 
+	prevExitFunc := exit
 	exit = func(code int) {
 		if err := signer.disconnect(); err != nil {
 			le.Printf("%s\n", err)
 		}
-		os.Exit(code)
+		prevExitFunc(code)
 	}
 
 	agent := NewSSHAgent(signer)

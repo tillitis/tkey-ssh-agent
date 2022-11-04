@@ -96,7 +96,7 @@ while true; do
   if ! ./tk-sign "$@" --file "$msgf"; then
     exit 1
   fi
-  c=$(( c++ ))
+  c=$(( c+1 ))
   now=$(date +%s)
   printf "loop count: %d, seconds passed: %d\n" "$c" "$((now - start))"
 done

@@ -166,12 +166,17 @@ func NewFrameBuf(cmd Cmd, id int) ([]byte, error) {
 // expects d to contain the whole frame as sent on the wire, with the
 // framing protocol header in the first byte.
 func Dump(s string, d []byte) {
-	hdr, err := parseframe(d[0])
-	if err != nil {
-		le.Printf("%s (parseframe error: %s):\n%s", s, err, hex.Dump(d))
+	if d == nil || len(d) == 0 {
+		le.Printf("%s: no data\n", s)
 		return
 	}
-	le.Printf("%s (frame len: 1+%d):\n%s", s, hdr.CmdLen.Bytelen(), hex.Dump(d))
+	hdr, err := parseframe(d[0])
+	if err != nil {
+		le.Printf("%s (parseframe error: %s):\n", s, err)
+	} else {
+		le.Printf("%s (frame len: 1+%d):\n", s, hdr.CmdLen.Bytelen())
+	}
+	le.Printf("%s", hex.Dump(d))
 }
 
 func (tk TillitisKey) Write(d []byte) error {

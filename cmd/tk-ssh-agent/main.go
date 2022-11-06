@@ -116,7 +116,7 @@ green when the stick must be touched to complete a signature.`
 		var err error
 		sockPath, err = filepath.Abs(sockPath)
 		if err != nil {
-			le.Printf("Failed to get agent-socket path: %s", err)
+			le.Printf("Failed to get agent-socket path: %s\n", err)
 			exit(1)
 		}
 		_, err = os.Stat(sockPath)

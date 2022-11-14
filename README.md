@@ -1,21 +1,20 @@
+# Tillitie Key 1 Apps
+This repository contains applications to run on the Tillitis Key 1.
 
-This repository contains applications to run on the Tillitis Key 1. So
-far there is one app of real use. For more information see the [main
-repository](https://github.com/tillitis/tillitis-key1) (with hardware
-designs, gateware, firmware etc), and [Tillitis web
-site](https://www.tillitis.se).
+Current list of apps:
+- The Ed2519 signer app. Used as root of trust and SSH access
+- The random app.
+- The RNG stream app. Providing arbitrary high quality random numbers
+- fooapp. A minimalistic example application
+
+For more information about the apps, see subsections below.
 
 Note that development is ongoing. For example, changes might be made
 to the signerapp, causing the public/private keys it provides to
 change. To avoid unexpected changes, please use a tagged release.
 
-# The ed25519 signerapp
 
-An ed25519 signer app written in C. There are two host programs which
-can communicate with the app. `runapp` just performs a complete test
-signing. `tk-ssh-agent` is an ssh-agent with practical use.
-
-## Building
+## Building apps
 
 To build you need the `clang`, `llvm`, `lld`, `golang` packages
 installed. clang/llvm need to have riscv32 support, check this with
@@ -41,7 +40,8 @@ program (`runapp`, `tk-sign` or `tk-ssh-agent` running on your
 computer) will talk to the app over a serial port, virtual or real.
 Please continue below in the suitable "Running apps on ..." section.
 
-### Running apps on Tillitis Key 1
+
+## Running apps
 
 Plug the USB stick into your computer. If the LED at in one of the
 outer corners of the USB stick is flashing white, then it has been
@@ -51,7 +51,8 @@ If it is not then please refer to
 (in the tillitis-key1 repository) for instructions on initial
 programming of the USB stick.
 
-#### Users on Linux
+
+### Users on Linux
 
 Running `lsusb` should list the USB stick as `1207:8887 Tillitis
 MTA1-USB-V1`. On Linux, Tillitis Key 1's serial port device path is
@@ -82,7 +83,8 @@ Your Tillitis Key 1 is now running the firmware. Its LED flashing
 white, indicating that it is ready to receive an app to run. Continue
 in the section "Using runsign..." below.
 
-#### Users on MacOS
+
+#### User on MacOS
 
 You can check that the OS has found and enumerated the USB stick by
 running:
@@ -99,7 +101,7 @@ is the device path that might need to be passed as `--port` when
 running the host programs. Continue in the section "Using runsign..."
 below.
 
-### Running apps on QEMU
+### Running apps in QEMU
 
 Build our [qemu](https://github.com/tillitis/qemu). Use the `tk1`
 branch:
@@ -143,7 +145,15 @@ then the app) can output some memory access (and other) logging. You
 can add `-d guest_errors` to the qemu commandline To make QEMU send
 these to stderr.
 
-## Using runsign.sh and runapp
+
+## The ed25519 signerapp
+This is a message signer, root of trust using ed25519. There are two
+host programs which can communicate with the app. `runapp` just
+performs a complete test signing. `tk-ssh-agent` is an ssh-agent
+that allow using the signer for SSH remote access.
+
+
+### Using runsign.sh and runapp
 
 By now you should have learned which serial port to use from one of
 the "Running on" sections. If you're running on hardware, the LED on
@@ -227,7 +237,7 @@ alternatively run the `reset-tk1` script (in the tillitis-key1 repo).
 
 That was fun, now let's try the ssh-agent!
 
-## Using tk-ssh-agent
+### Using tk-ssh-agent
 
 This host program for the signerapp is a complete, alternative
 ssh-agent with practical use. The signerapp binary gets built into the
@@ -276,7 +286,7 @@ You can use `-k` (long option: `--show-pubkey`) to only output the
 pubkey. The pubkey is printed to stdout for easy redirection, but some
 messages are still present on stderr.
 
-# The random app and runrandom host program
+## The random app and runrandom host program
 
 The random app is a random number generator that uses Tillitis Key 1's
 TRNG (True Random Number Generator). The hardware stick will flash the
@@ -294,18 +304,37 @@ $ make runrandom
 $ ./runrandom -b 42 | hexdump
 ```
 
-# fooapp
+
+## The RNG stream app
+
+This app generates a qontinious stream of high quality random numbers
+that can be read from the USB device endpoint (for example dev/ttyACM0
+in Linux).
+
+The app can be loaded and started using the `runapp` described above.
+
+The RNG is a Hash_DRBG implementation using the BLAKE2s hash function
+as primitive. The generator will extract at most 128 bits from each
+hash operation, using 128 bits as exclusive evolving state. The RNG
+will be reseeded after 1000 hash operations. Reseeding is done by
+extracting 256 entropy bits from the TK1 TRNG core. Note that the
+reseed rate can be changed during compile time by chanhing the
+RESEED_TIME define in main.c.
+
+
+## fooapp
 
 In `fooapp/` there is also a very, very simple app written in
 assembler, foo.bin (foo.S) that blinks the LED.
 
-# Developing apps
+
+## Developing apps
 
 Device apps and libraries are kept under the `apps` directory. A C
 runtime is provided as `apps/libcrt0/libcrt0.a` which you can link
 your C apps with.
 
-## Memory
+### Memory
 
 RAM starts at 0x4000\_0000 and ends at 0x4002\_0000. The app will be
 loaded by firmware at 0x4000\_7000 which means a maximum size
@@ -328,12 +357,13 @@ port on 0xfe00\_1000 (TK1_MMIO_QEMU_DEBUG). Anything written there
 will be printed as a character by qemu on the console.
 
 `putchar()`, `puts()`, `putinthex()`, `hexdump()` and friends (see
-`apps/libcommon/lib.[ch]`) use this debug port to print stuff. 
+`apps/libcommon/lib.[ch]`) use this debug port to print stuff.
 
 `libcommon` is compiled with no debug output by default. Rebuild
 `libcommon` without `-DNODEBUG` to get the debug output.
 
-# Licensing
+
+## Licensing
 
 See [LICENSES](./LICENSES/README.md) for more information about the projects'
 licenses.

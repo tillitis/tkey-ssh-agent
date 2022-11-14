@@ -299,17 +299,19 @@ $ ./runrandom -b 42 | hexdump
 ## The RNG stream app
 
 This app generates a continuous stream of high quality random numbers
-that can be read from the USB device endpoint (for example
-/dev/ttyACM0 in Linux).
+that can be read from Tillitis Key's serial port device. In Linux for
+example like: `dd bs=1 count=1024 if=/dev/ttyACM0 of=rngdata` (or just
+a plain `cat`).
 
-The app can be loaded and started using the `runapp` described above.
+The app can be loaded and started using the `runapp` as described
+above.
 
 The RNG is a Hash_DRBG implementation using the BLAKE2s hash function
 as primitive. The generator will extract at most 128 bits from each
 hash operation, using 128 bits as exclusive evolving state. The RNG
 will be reseeded after 1000 hash operations. Reseeding is done by
 extracting 256 entropy bits from the TK1 TRNG core. Note that the
-reseed rate can be changed during compile time by chaining the
+reseed rate can be changed during compile time by adjusting the
 RESEED_TIME define in main.c.
 
 

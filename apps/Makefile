@@ -19,7 +19,7 @@ RM=/bin/rm
 
 
 .PHONY: all
-all: signerapp/app.bin timer/timer.bin random/random.bin
+all: signerapp/app.bin timer/timer.bin random/random.bin rng_stream/rng_stream.bin
 
 # C runtime library
 libcrt0/libcrt0.a: libcrt0/crt0.o
@@ -69,15 +69,27 @@ random/random.elf: libcrt0/libcrt0.a libcommon/libcommon.a $(RANDOMOBJS) app.lds
 
 $(RANDOMOBJS): $(INCLUDE)/tk1_mem.h random/app_proto.h
 
+# Streaming RNG random number app
+RNG_STREAM_OBJS=rng_stream/main.o blake2s/blake2s.o
+
+rng_stream/rng_stream.bin: rng_stream/rng_stream.elf
+	$(OBJCOPY) --input-target=elf32-littleriscv --output-target=binary $^ $@
+
+rng_stream/rng_stream.elf: libcrt0/libcrt0.a libcommon/libcommon.a $(RNG_STREAM_OBJS) app.lds
+	$(CC) $(CFLAGS) $(RNG_STREAM_OBJS) $(LDFLAGS) -o $@
+
+$(RNG_STREAM_OBJS): $(INCLUDE)/tk1_mem.h
+
 
 .PHONY: clean
 clean:
 	$(RM) -f signerapp/app.bin signerapp/app.elf $(SIGNEROBJS)
 	$(RM) -f timer/timer.bin timer/timer.elf $(TIMEROBJS)
 	$(RM) -f random/random.bin random/random.elf $(RANDOMOBJS)
+	$(RM) -f rng_stream/rng_stream.bin rng_stream/rng_stream.elf $(RNG_STREAM_OBJS)
 	$(RM) -f libcommon/libcommon.a $(LIBOBJS) libcrt0/libcrt0.a libcrt0/crt0.o
 
-FMTFILES=include/*.h libcommon/*.c signerapp/*.[ch] timer/*.[ch] random/*.[ch]
+FMTFILES=include/*.h libcommon/*.c signerapp/*.[ch] timer/*.[ch] random/*.[ch] rng_stream/*.[ch]
 .PHONY: fmt
 fmt:
 	# Uses ../.clang-format

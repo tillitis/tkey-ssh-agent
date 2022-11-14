@@ -1,4 +1,4 @@
-# Tillitie Key 1 Apps
+# Tillitis Key 1 Apps
 This repository contains applications to run on the Tillitis Key 1.
 
 Current list of apps:

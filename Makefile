@@ -1,7 +1,7 @@
 RM=/bin/rm
 
 .PHONY: all
-all: apps runapp tk-sign tk-ssh-agent runtimer runrandom
+all: apps runapp tk-sign runsign.sh tk-ssh-agent runtimer runrandom
 
 .PHONY: apps
 apps:
@@ -16,6 +16,9 @@ runapp:
 .PHONY: tk-sign
 tk-sign:
 	go build ./cmd/tk-sign
+
+runsign.sh: apps/signerapp/runsign.sh
+	cp -af $< $@
 
 .PHONY: runtimer
 runtimer:
@@ -37,7 +40,7 @@ tk-ssh-agent:
 
 .PHONY: clean
 clean:
-	$(RM) -f runapp tk-sign tk-ssh-agent cmd/tk-ssh-agent/app.bin runtimer runrandom cmd/runrandom/app.bin
+	$(RM) -f runapp tk-sign runsign.sh tk-ssh-agent cmd/tk-ssh-agent/app.bin runtimer runrandom cmd/runrandom/app.bin
 	$(MAKE) -C apps clean
 
 .PHONY: lint

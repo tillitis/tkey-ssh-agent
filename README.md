@@ -1,8 +1,9 @@
 # Tillitis Key 1 Apps
+
 This repository contains applications to run on the Tillitis Key 1.
 
 Current list of apps:
-- The Ed2519 signer app. Used as root of trust and SSH access
+- The Ed25519 signerapp. Used as root of trust and SSH authentication
 - The random app.
 - The RNG stream app. Providing arbitrary high quality random numbers
 - fooapp. A minimalistic example application
@@ -38,7 +39,7 @@ The signerapp can be run both on the hardware Tillitis Key 1, and on a
 QEMU machine that emulates the platform. In both cases, the host
 program (`runapp`, `tk-sign` or `tk-ssh-agent` running on your
 computer) will talk to the app over a serial port, virtual or real.
-Please continue below in the suitable "Running apps on ..." section.
+There is a separate section below which explains running in QEMU.
 
 
 ## Running apps
@@ -50,7 +51,6 @@ If it is not then please refer to
 [quickstart.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/quickstart.md)
 (in the tillitis-key1 repository) for instructions on initial
 programming of the USB stick.
-
 
 ### Users on Linux
 
@@ -80,9 +80,7 @@ log back in again. You can also (following the above example) run
 `newgrp dialout` in the terminal that you're working in.
 
 Your Tillitis Key 1 is now running the firmware. Its LED flashing
-white, indicating that it is ready to receive an app to run. Continue
-in the section "Using runsign..." below.
-
+white, indicating that it is ready to receive an app to run.
 
 #### User on MacOS
 
@@ -98,8 +96,7 @@ There should be an entry with `"USB Vendor Name" = "Tillitis"`.
 Looking in the `/dev` directory, there should be a device named like
 `/dev/tty.usbmodemXYZ`. Where XYZ is a number, for example 101. This
 is the device path that might need to be passed as `--port` when
-running the host programs. Continue in the section "Using runsign..."
-below.
+running the host programs.
 
 ### Running apps in QEMU
 
@@ -138,7 +135,7 @@ $ /path/to/qemu/build/qemu-system-riscv32 -nographic -M tk1,fifo=chrid -bios fir
 
 It tells you what serial port it is using, for instance `/dev/pts/1`.
 This is what you need to use as `--port` when running the host
-programs. Continue in the section "Using runsign..." below.
+programs.
 
 The TK1 machine running on QEMU (which in turn runs the firmware, and
 then the app) can output some memory access (and other) logging. You
@@ -147,22 +144,22 @@ these to stderr.
 
 
 ## The ed25519 signerapp
-This is a message signer, root of trust using ed25519. There are two
-host programs which can communicate with the app. `runapp` just
-performs a complete test signing. `tk-ssh-agent` is an ssh-agent
-that allow using the signer for SSH remote access.
 
+This is a message signer, for root of trust and SSH authentication
+using ed25519. There are two host programs which can communicate with
+the app. `tk-sign` just performs a complete test signing.
+`tk-ssh-agent` is an ssh-agent that allow using the signer for SSH
+remote access.
 
-### Using runsign.sh and runapp
+### Using runsign.sh, runapp, and tk-sign
 
-By now you should have learned which serial port to use from one of
-the "Running on" sections. If you're running on hardware, the LED on
-the USB stick is expected to be flashing white, indicating that
-firmware is ready to receive an app to run.
+If you're running on hardware, the LED on the USB stick is expected to
+be flashing white, indicating that firmware is ready to receive an app
+to run.
 
-There's a script called `runsign.sh` which loads and runs an ed25519
-signer app, then asks the app to sign a message and verifies it. You
-can use it like this:
+There's a script called `runsign.sh` which runs `runapp` to load and
+start the signerapp. It then runs `tk-sign` which asks the app to sign
+a message and verifies it. You can use it like this:
 
 ```
 ./runsign.sh file-with-message
@@ -286,6 +283,7 @@ You can use `-k` (long option: `--show-pubkey`) to only output the
 pubkey. The pubkey is printed to stdout for easy redirection, but some
 messages are still present on stderr.
 
+
 ## The random app and runrandom host program
 
 The random app is a random number generator that uses Tillitis Key 1's
@@ -307,9 +305,9 @@ $ ./runrandom -b 42 | hexdump
 
 ## The RNG stream app
 
-This app generates a qontinious stream of high quality random numbers
-that can be read from the USB device endpoint (for example dev/ttyACM0
-in Linux).
+This app generates a continuous stream of high quality random numbers
+that can be read from the USB device endpoint (for example
+/dev/ttyACM0 in Linux).
 
 The app can be loaded and started using the `runapp` described above.
 
@@ -318,7 +316,7 @@ as primitive. The generator will extract at most 128 bits from each
 hash operation, using 128 bits as exclusive evolving state. The RNG
 will be reseeded after 1000 hash operations. Reseeding is done by
 extracting 256 entropy bits from the TK1 TRNG core. Note that the
-reseed rate can be changed during compile time by chanhing the
+reseed rate can be changed during compile time by chaining the
 RESEED_TIME define in main.c.
 
 

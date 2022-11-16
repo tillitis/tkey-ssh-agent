@@ -112,7 +112,7 @@ func parseframe(b byte) (FramingHdr, error) {
 	return f, nil
 }
 
-// NewFrameBuf() allocates a buffer with the appropriate size for the
+// NewFrameBuf allocates a buffer with the appropriate size for the
 // command in cmd, including the framing protocol header byte. The cmd
 // parameter is used to get the endpoint and command length, which
 // together with id parameter are encoded as the header byte. The
@@ -123,19 +123,20 @@ func parseframe(b byte) (FramingHdr, error) {
 // Bit [7] (1 bit). Reserved - possible protocol version.
 // Bits [6..5] (2 bits). Frame ID tag.
 //
-// Bits [4..3] (2 bits). Endpoint number.
+// Bits [4..3] (2 bits). Endpoint number:
 //
-//	HW in application_fpga
-//	FW in application_fpga
-//	SW (application) in application_fpga
+//	00 == reserved
+//	01 == HW in application_fpga
+//	10 == FW in application_fpga
+//	11 == SW (application) in application_fpga
 //
 // Bit [2] (1 bit). Unused. MUST be zero.
-// Bits [1..0] (2 bits). Command data length.
+// Bits [1..0] (2 bits). Command data length:
 //
-//	1 byte
-//	4 bytes
-//	32 bytes
-//	128 bytes
+//	00 == 1 byte
+//	01 == 4 bytes
+//	10 == 32 bytes
+//	11 == 128 bytes
 //
 // Note that the number of bytes indicated by the command data length
 // field does **not** include the header byte. This means that

@@ -5,6 +5,7 @@
 /tk-ssh-agent
 /runapp
 /tk-sign
+/runsign.sh
 /runtimer
 /runrandom
 /golangci-lint

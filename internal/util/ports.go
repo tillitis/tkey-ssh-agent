@@ -10,9 +10,18 @@ import (
 	"go.bug.st/serial/enumerator"
 )
 
+type constError string
+
+func (err constError) Error() string {
+	return string(err)
+}
+
 const (
 	tillitisUSBVID = "1207"
 	tillitisUSBPID = "8887"
+	// Custom errors
+	ErrNoDevice    = constError("no Tillitis Key connected")
+	ErrManyDevices = constError("more than one Tillitis Key connected")
 )
 
 type SerialPort struct {
@@ -20,25 +29,31 @@ type SerialPort struct {
 	SerialNumber string
 }
 
-func DetectSerialPort() (string, error) {
+func DetectSerialPort(verbose bool) (string, error) {
 	ports, err := GetSerialPorts()
 	if err != nil {
 		return "", err
 	}
 	if len(ports) == 0 {
-		fmt.Fprintf(os.Stderr, "Could not detect any Tillitis Key serial ports. You may pass\n"+
-			"a known path using the --port flag.\n")
-		return "", nil
+		if verbose {
+			fmt.Fprintf(os.Stderr, "Could not detect any Tillitis Key serial ports. You may pass\n"+
+				"a known path using the --port flag.\n")
+		}
+		return "", ErrNoDevice
 	}
 	if len(ports) > 1 {
-		fmt.Fprintf(os.Stderr, "Detected %d Tillitis Key serial ports:\n", len(ports))
-		for _, p := range ports {
-			fmt.Fprintf(os.Stderr, "%s with serial number %s\n", p.DevPath, p.SerialNumber)
+		if verbose {
+			fmt.Fprintf(os.Stderr, "Detected %d Tillitis Key serial ports:\n", len(ports))
+			for _, p := range ports {
+				fmt.Fprintf(os.Stderr, "%s with serial number %s\n", p.DevPath, p.SerialNumber)
+			}
+			fmt.Fprintf(os.Stderr, "Please choose one of the above by using the --port flag.\n")
 		}
-		fmt.Fprintf(os.Stderr, "Please choose one of the above by using the --port flag.\n")
-		return "", nil
+		return "", ErrManyDevices
 	}
-	fmt.Fprintf(os.Stderr, "Auto-detected serial port %s\n", ports[0].DevPath)
+	if verbose {
+		fmt.Fprintf(os.Stderr, "Auto-detected serial port %s\n", ports[0].DevPath)
+	}
 	return ports[0].DevPath, nil
 }
 

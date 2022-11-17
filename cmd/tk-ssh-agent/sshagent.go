@@ -11,7 +11,9 @@ import (
 	"io"
 	"net"
 	"sync"
+	"time"
 
+	"github.com/gen2brain/beeep"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
 )
@@ -25,38 +27,18 @@ func NewSSHAgent(signer *Signer) *SSHAgent {
 	return &SSHAgent{signer: signer}
 }
 
-func (s *SSHAgent) GetAuthorizedKey() ([]byte, error) {
-	sshPub, err := s.getSSHPub()
-	if err != nil {
-		return nil, err
-	}
-	return ssh.MarshalAuthorizedKey(sshPub), nil
-}
-
-func (s *SSHAgent) getSSHPub() (ssh.PublicKey, error) {
-	pub := s.signer.Public()
-	if pub == nil {
-		return nil, fmt.Errorf("pubkey is nil")
-	}
-	sshPub, err := ssh.NewPublicKey(pub)
-	if err != nil {
-		return nil, fmt.Errorf("NewPublicKey: %w", err)
-	}
-	return sshPub, nil
-}
-
 func (s *SSHAgent) Serve(absSockPath string) error {
 	listener, err := net.Listen("unix", absSockPath)
 	if err != nil {
 		return fmt.Errorf("Listen: %w", err)
 	}
-	le.Printf("listening on %s ...\n", absSockPath)
+	le.Printf("Listening on %s\n", absSockPath)
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
 			return fmt.Errorf("Accept: %w", err)
 		}
-		le.Printf("handling a client connection\n")
+		le.Printf("Handling a client connection\n")
 		go s.handleConn(conn)
 	}
 }
@@ -70,9 +52,14 @@ func (s *SSHAgent) handleConn(c net.Conn) {
 // implementing agent.ExtendedAgent below
 
 func (s *SSHAgent) List() ([]*agent.Key, error) {
+	if !s.signer.isConnected() {
+		le.Printf("List: not connected, returning empty list\n")
+		return []*agent.Key{}, nil
+	}
+
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
-	sshPub, err := s.getSSHPub()
+	sshPub, err := s.signer.getSSHPub()
 	if err != nil {
 		return nil, err
 	}
@@ -90,10 +77,13 @@ func (s *SSHAgent) List() ([]*agent.Key, error) {
 var ErrNotImplemented = errors.New("not implemented")
 
 func (s *SSHAgent) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, error) {
+	if !s.signer.isConnected() {
+		return nil, ErrNoDevice
+	}
+
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
-	le.Printf("Sign: user will have to touch the device\n")
-	sshPub, err := s.getSSHPub()
+	sshPub, err := s.signer.getSSHPub()
 	if err != nil {
 		return nil, err
 	}
@@ -104,6 +94,16 @@ func (s *SSHAgent) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, error) 
 	if err != nil {
 		return nil, fmt.Errorf("NewSignerFromSigner: %w", err)
 	}
+
+	timer := time.AfterFunc(4*time.Second, func() {
+		err = beeep.Notify(progname, "Touch your Tillitis Key to confirm SSH login.", "")
+		if err != nil {
+			le.Printf("Notify failed: %s\n", err)
+		}
+	})
+	defer timer.Stop()
+
+	le.Printf("Sign: user will have to touch the Tillitis Key\n")
 	signature, err := sshSigner.Sign(rand.Reader, data)
 	if err != nil {
 		return nil, fmt.Errorf("Signer.Sign: %w", err)

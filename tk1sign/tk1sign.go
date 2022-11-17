@@ -5,7 +5,8 @@
 // running on the Tillitis Key 1. You're expected to pass an existing
 // TK1 connection to it, so use it like this:
 //
-//	tk, err := tk1.New(*port, *speed)
+//	tk := tk1.New()
+//	err := tk.Connect(port)
 //	signer := tk1sign.New(tk)
 //
 // Then use it like this to get the public key of the TK1:
@@ -61,16 +62,17 @@ func (c appCmd) String() string {
 }
 
 type Signer struct {
-	tk tk1.TillitisKey // A connection to a Tillitis Key 1
+	tk *tk1.TillitisKey // A connection to a Tillitis Key 1
 }
 
-// New() gets you a connection to a ed25519 signerapp running on the
-// Tillitis Key 1. You're expected to pass an existing TK1 connection
-// to it, so use it like this:
+// New allocates a struct for communicating with the ed25519 signerapp
+// running on the Tillitis Key 1. You're expected to pass an existing
+// TK1 connection to it, so use it like this:
 //
-//	tk, err := tk1.New(port, speed)
+//	tk := tk1.New()
+//	err := tk.Connect(port)
 //	signer := tk1sign.New(tk)
-func New(tk tk1.TillitisKey) Signer {
+func New(tk *tk1.TillitisKey) Signer {
 	var signer Signer
 
 	signer.tk = tk

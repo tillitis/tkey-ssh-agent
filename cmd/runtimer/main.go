@@ -47,16 +47,17 @@ func (c appCmd) String() string {
 }
 
 type Timer struct {
-	tk tk1.TillitisKey // A connection to a Tillitis Key 1
+	tk *tk1.TillitisKey // A connection to a Tillitis Key 1
 }
 
-// New() gets you a connection to a timer app running on the Tillitis
-// Key 1. You're expected to pass an existing TK1 connection to it, so
-// use it like this:
+// New allocates a struct for communicating with the timer app running
+// on the Tillitis Key 1. You're expected to pass an existing TK1
+// connection to it, so use it like this:
 //
-//	tk, err := tk1.New(port, speed)
+//	tk := tk1.New()
+//	err := tk.Connect(port)
 //	timer := NewTimer(tk)
-func NewTimer(tk tk1.TillitisKey) Timer {
+func NewTimer(tk *tk1.TillitisKey) Timer {
 	var timer Timer
 
 	timer.tk = tk
@@ -153,7 +154,7 @@ func main() {
 
 	if *port == "" {
 		var err error
-		*port, err = util.DetectSerialPort()
+		*port, err = util.DetectSerialPort(true)
 		if err != nil {
 			fmt.Printf("Failed to list ports: %v\n", err)
 			os.Exit(1)
@@ -162,14 +163,14 @@ func main() {
 		}
 	}
 
+	tk := tk1.New()
 	fmt.Printf("Connecting to device on serial port %s ...\n", *port)
-	tk, err := tk1.New(*port, *speed)
-	if err != nil {
+	if err := tk.Connect(*port, tk1.WithSpeed(*speed)); err != nil {
 		fmt.Printf("Could not open %s: %v\n", *port, err)
 		os.Exit(1)
 	}
 	exit := func(code int) {
-		if err = tk.Close(); err != nil {
+		if err := tk.Close(); err != nil {
 			fmt.Printf("tk.Close: %v\n", err)
 		}
 		os.Exit(code)
@@ -178,15 +179,15 @@ func main() {
 
 	tm := NewTimer(tk)
 
-	err = tm.SetTimer(*timer)
+	err := tm.SetTimer(*timer)
 	if err != nil {
-		fmt.Print("SetTimer: %w", err)
+		fmt.Printf("SetTimer: %v\n", err)
 		exit(1)
 	}
 
 	err = tm.SetPrescaler(*prescaler)
 	if err != nil {
-		fmt.Print("SetPrescaler: %w", err)
+		fmt.Printf("SetPrescaler: %v\n", err)
 		exit(1)
 	}
 
@@ -194,7 +195,7 @@ func main() {
 
 	err = tm.StartTimer()
 	if err != nil {
-		fmt.Print("StartTimer: %w", err)
+		fmt.Printf("StartTimer: %v\n", err)
 		exit(1)
 	}
 

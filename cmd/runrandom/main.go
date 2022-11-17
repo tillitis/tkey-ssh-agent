@@ -60,7 +60,7 @@ Usage:
 
 	if devPath == "" {
 		var err error
-		devPath, err = util.DetectSerialPort()
+		devPath, err = util.DetectSerialPort(true)
 		if err != nil {
 			fmt.Printf("Failed to list ports: %v\n", err)
 			os.Exit(1)
@@ -71,16 +71,16 @@ Usage:
 
 	tk1.SilenceLogging()
 
+	tk := tk1.New()
 	le.Printf("Connecting to device on serial port %s...\n", devPath)
-	tk, err := tk1.New(devPath, speed)
-	if err != nil {
+	if err := tk.Connect(devPath, tk1.WithSpeed(speed)); err != nil {
 		le.Printf("Could not open %s: %v\n", devPath, err)
 		os.Exit(1)
 	}
 
 	randomGen := New(tk)
 	exit := func(code int) {
-		if err = randomGen.Close(); err != nil {
+		if err := randomGen.Close(); err != nil {
 			le.Printf("%v\n", err)
 		}
 		os.Exit(code)
@@ -94,7 +94,7 @@ Usage:
 			exit(1)
 		}
 		le.Printf("Device is in firmware mode. Loading app...\n")
-		if err = tk.LoadApp(appBinary, []byte{}); err != nil {
+		if err := tk.LoadApp(appBinary, []byte{}); err != nil {
 			le.Printf("LoadApp failed: %v", err)
 			exit(1)
 		}
@@ -151,7 +151,7 @@ func isWantedApp(randomGen RandomGen) bool {
 	return true
 }
 
-func isFirmwareMode(tk tk1.TillitisKey) bool {
+func isFirmwareMode(tk *tk1.TillitisKey) bool {
 	_, err := tk.GetNameVersion()
 	return err == nil
 }

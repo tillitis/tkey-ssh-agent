@@ -4,7 +4,8 @@
 // Package tk1 provides a connection to a Tillitis Key 1 security
 // stick. To create a new connection:
 //
-//	tk, err := tk1.New(*port, *speed)
+//	tk := tk1.New()
+//	err := tk.Connect(port)
 //
 // Then you can start using it by asking it to identify itself:
 //
@@ -53,21 +54,39 @@ const (
 // TillitisKey is a serial connection to a Tillitis Key 1 and the
 // commands that the firmware supports.
 type TillitisKey struct {
-	conn serial.Port
+	speed int
+	conn  serial.Port
 }
 
-// New opens a connection to the Tillitis Key 1 at the serial device
-// port at indicated speed.
-func New(port string, speed int) (TillitisKey, error) {
-	var tk TillitisKey
+// New allocates a new TK1. Use the Connect() method to actually
+// open a connection.
+func New() *TillitisKey {
+	tk := &TillitisKey{}
+	return tk
+}
+
+func WithSpeed(speed int) func(*TillitisKey) {
+	return func(tk *TillitisKey) {
+		tk.speed = speed
+	}
+}
+
+// Connect() connects to a TK1 serial port using the provided port
+// device, and speed as specified in New().
+func (tk *TillitisKey) Connect(port string, options ...func(*TillitisKey)) error {
 	var err error
 
-	tk.conn, err = serial.Open(port, &serial.Mode{BaudRate: speed})
-	if err != nil {
-		return tk, fmt.Errorf("Open %s: %w", port, err)
+	tk.speed = SerialSpeed
+	for _, opt := range options {
+		opt(tk)
 	}
 
-	return tk, nil
+	tk.conn, err = serial.Open(port, &serial.Mode{BaudRate: tk.speed})
+	if err != nil {
+		return fmt.Errorf("Open %s: %w", port, err)
+	}
+
+	return nil
 }
 
 // Close the connection to the TK1

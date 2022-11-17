@@ -42,16 +42,17 @@ func (c appCmd) String() string {
 }
 
 type RandomGen struct {
-	tk tk1.TillitisKey // A connection to a Tillitis Key 1
+	tk *tk1.TillitisKey // A connection to a Tillitis Key 1
 }
 
-// New() gets you a connection to the random app running on the
-// Tillitis Key 1. You're expected to pass an existing TK1 connection
-// to it, so use it like this:
+// New allocates a struct for communicating with the random app
+// running on the Tillitis Key 1. You're expected to pass an existing
+// TK1 connection to it, so use it like this:
 //
-//	tk, err := tk1.New(port, speed)
+//	tk := tk1.New()
+//	err := tk.Connect(port)
 //	randomGen := New(tk)
-func New(tk tk1.TillitisKey) RandomGen {
+func New(tk *tk1.TillitisKey) RandomGen {
 	var randomGen RandomGen
 
 	randomGen.tk = tk

@@ -43,7 +43,7 @@ func main() {
 
 	if *port == "" {
 		var err error
-		*port, err = util.DetectSerialPort()
+		*port, err = util.DetectSerialPort(true)
 		if err != nil {
 			fmt.Printf("Failed to list ports: %v\n", err)
 			os.Exit(1)
@@ -58,9 +58,9 @@ func main() {
 		os.Exit(1)
 	}
 
+	tk := tk1.New()
 	fmt.Printf("Connecting to device on serial port %s ...\n", *port)
-	tk, err := tk1.New(*port, *speed)
-	if err != nil {
+	if err = tk.Connect(*port, tk1.WithSpeed(*speed)); err != nil {
 		fmt.Printf("Could not open %s: %v\n", *port, err)
 		os.Exit(1)
 	}

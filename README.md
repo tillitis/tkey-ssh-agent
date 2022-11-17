@@ -269,13 +269,6 @@ $ SSH_AUTH_SOCK=/path/to/agent.sock ssh -F /dev/null localhost
 `-F /dev/null` is used to ignore your ~/.ssh/config which could
 interfere with this test.
 
-(The message `agent 27: ssh: parse error in message type 27` coming
-from tk-ssh-agent is due to https://github.com/golang/go/issues/51689
-and will eventually be fixed by
-https://go-review.googlesource.com/c/crypto/+/412154/ (until then it's
-also not possible to implement the upcoming SSH agent restrictions
-https://www.openssh.com/agent-restrict.html).)
-
 The tk-ssh-agent also supports the `--uss` and `--uss-file` flags, as
 described for `runapp` above.
 

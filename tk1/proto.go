@@ -99,10 +99,10 @@ func parseframe(b byte) (FramingHdr, error) {
 	var f FramingHdr
 
 	if b&0x80 != 0 {
-		return f, fmt.Errorf("bad version")
+		return f, fmt.Errorf("version bit #7 is not zero")
 	}
 	if b&0x4 != 0 {
-		return f, fmt.Errorf("must be zero")
+		return f, fmt.Errorf("unused bit #2 is not zero")
 	}
 
 	f.ID = byte((uint32(b) & 0x60) >> 5)
@@ -144,13 +144,13 @@ func parseframe(b byte) (FramingHdr, error) {
 // of 128 bytes, is 129 bytes in length.
 func NewFrameBuf(cmd Cmd, id int) ([]byte, error) {
 	if id > 3 {
-		return nil, fmt.Errorf("bad id")
+		return nil, fmt.Errorf("frame ID must be 0..3")
 	}
 	if cmd.Endpoint() > 3 {
-		return nil, fmt.Errorf("bad endpoint")
+		return nil, fmt.Errorf("endpoint must be 0..3")
 	}
 	if cmd.CmdLen() > 3 {
-		return nil, fmt.Errorf("bad cmdlen")
+		return nil, fmt.Errorf("cmdlen must be 0..3")
 	}
 
 	// Make a buffer with frame header + cmdLen payload
@@ -175,7 +175,7 @@ func Dump(s string, d []byte) {
 	if err != nil {
 		le.Printf("%s (parseframe error: %s):\n", s, err)
 	} else {
-		le.Printf("%s (frame len: 1+%d):\n", s, hdr.CmdLen.Bytelen())
+		le.Printf("%s (frame len: 1+%d bytes):\n", s, hdr.CmdLen.Bytelen())
 	}
 	le.Printf("%s", hex.Dump(d))
 }
@@ -197,13 +197,13 @@ func (tk TillitisKey) Write(d []byte) error {
 // frame read, the parsed header byte, and any error separately.
 func (tk TillitisKey) ReadFrame(expectedResp Cmd, expectedID int) ([]byte, FramingHdr, error) {
 	if expectedID > 3 {
-		return nil, FramingHdr{}, fmt.Errorf("bad expected ID")
+		return nil, FramingHdr{}, fmt.Errorf("frame ID to expect must be 0..3")
 	}
 	if expectedResp.Endpoint() > 3 {
-		return nil, FramingHdr{}, fmt.Errorf("bad expected endpoint")
+		return nil, FramingHdr{}, fmt.Errorf("endpoint to expect must be 0..3")
 	}
 	if expectedResp.CmdLen() > 3 {
-		return nil, FramingHdr{}, fmt.Errorf("bad expected cmdlen")
+		return nil, FramingHdr{}, fmt.Errorf("cmdlen to expect must be 0..3")
 	}
 
 	// Try to read the single header byte
@@ -223,7 +223,9 @@ func (tk TillitisKey) ReadFrame(expectedResp Cmd, expectedID int) ([]byte, Frami
 	}
 
 	if hdr.CmdLen != expectedResp.CmdLen() {
-		return nil, hdr, fmt.Errorf("Framing: Expected len %v, got %v", expectedResp.CmdLen(), hdr.CmdLen)
+		return nil, hdr, fmt.Errorf("Expected cmdlen %v (%d bytes), got %v (%d bytes)",
+			expectedResp.CmdLen(), expectedResp.CmdLen().Bytelen(),
+			hdr.CmdLen, hdr.CmdLen.Bytelen())
 	}
 
 	if hdr.Endpoint != expectedResp.Endpoint() {
@@ -243,7 +245,7 @@ func (tk TillitisKey) ReadFrame(expectedResp Cmd, expectedID int) ([]byte, Frami
 	}
 
 	if rx[1] != expectedResp.Code() {
-		return rx, hdr, fmt.Errorf("Expected 0x%x (%s), got 0x%x", expectedResp.Code(), expectedResp, rx[1])
+		return rx, hdr, fmt.Errorf("Expected cmd code 0x%x (%s), got 0x%x", expectedResp.Code(), expectedResp, rx[1])
 	}
 
 	return rx, hdr, nil

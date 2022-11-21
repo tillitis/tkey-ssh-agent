@@ -162,6 +162,34 @@ func (u *UDI) Unpack(raw []byte) {
 	u.Serial = binary.LittleEndian.Uint32(raw[4:8])
 }
 
+// GetUDI gets the UDI (Unique Device ID) from the TK1 firmware
+func (tk TillitisKey) GetUDI() (*UDI, error) {
+	id := 2
+	tx, err := NewFrameBuf(cmdGetUDI, id)
+	if err != nil {
+		return nil, err
+	}
+
+	Dump("GetUDI tx", tx)
+	if err = tk.Write(tx); err != nil {
+		return nil, err
+	}
+
+	rx, _, err := tk.ReadFrame(rspGetUDI, id)
+	if err != nil {
+		return nil, fmt.Errorf("ReadFrame: %w", err)
+	}
+
+	if rx[2] != StatusOK {
+		return nil, fmt.Errorf("GetUDI NOK")
+	}
+
+	udi := &UDI{}
+	udi.Unpack(rx[3 : 3+8])
+
+	return udi, nil
+}
+
 // LoadAppFromFile() loads and runs a raw binary file from fileName into the TK1.
 func (tk TillitisKey) LoadAppFromFile(fileName string, secretPhrase []byte) error {
 	content, err := os.ReadFile(fileName)

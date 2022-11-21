@@ -85,6 +85,14 @@ func main() {
 	fmt.Printf("Firmware has name0:%s name1:%s version:%d\n",
 		nameVer.Name0, nameVer.Name1, nameVer.Version)
 
+	udi, err := tk.GetUDI()
+	if err != nil {
+		fmt.Printf("GetUDI failed: %v\n", err)
+		exit(1)
+	}
+
+	fmt.Printf("Unique Device ID (UDI): %v\n", udi)
+
 	var secret []byte
 	if *enterUSS {
 		secret, err = util.InputUSS()

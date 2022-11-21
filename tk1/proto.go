@@ -63,6 +63,8 @@ var (
 	cmdGetAppDigest   = fwCmd{0x09, "cmdGetAppDigest", CmdLen1}
 	cmdLoadUSS        = fwCmd{0x0a, "cmdLoadUSS", CmdLen128}
 	rspLoadUSS        = fwCmd{0x0b, "rspLoadUSS", CmdLen4}
+	cmdGetUDI         = fwCmd{0x0c, "cmdGetUDI", CmdLen1}
+	rspGetUDI         = fwCmd{0x0d, "rspGetUDI", CmdLen32}
 	// ...
 	rspGetAppDigest = fwCmd{0x10, "rspGetAppDigest", CmdLen128} // encoded as 0x10 for backwards compatibility
 )

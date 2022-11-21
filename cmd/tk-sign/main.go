@@ -85,7 +85,7 @@ func main() {
 		fmt.Printf("GetPubKey failed: %v\n", err)
 		exit(1)
 	}
-	fmt.Printf("Public Key from device (UID %v): %x\n", udi, pubkey)
+	fmt.Printf("Public Key from device (UDI %v): %x\n", udi, pubkey)
 
 	fmt.Printf("Sending a %v bytes message for signing.\n", len(message))
 	fmt.Printf("Device will flash green when touch is required ...\n")

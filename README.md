@@ -19,7 +19,7 @@ change. To avoid unexpected changes, please use a tagged release.
 
 To build you need the `clang`, `llvm`, `lld`, `golang` packages
 installed. clang/llvm need to have riscv32 support, check this with
-`llc --version | grep riscv32`. Ubuntu 22.04 LTS (Jammy) is known to
+`llc --version | grep riscv32`. Ubuntu 22.10 (Kinetic) is known to
 work. Please see
 [toolchain_setup.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/toolchain_setup.md)
 (in the tillitis-key1 repository) for detailed information on the
@@ -32,7 +32,7 @@ $ make
 ```
 
 If your available `objcopy` is anything other than the default
-`llvm-objcopy-14`, then define `OBJCOPY` to whatever they're called on
+`llvm-objcopy`, then define `OBJCOPY` to whatever they're called on
 your system.
 
 The signerapp can be run both on the hardware Tillitis Key 1, and on a

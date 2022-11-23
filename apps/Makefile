@@ -1,6 +1,6 @@
-OBJCOPY ?= llvm-objcopy-14
+OBJCOPY ?= llvm-objcopy
 
-CC = clang-14
+CC = clang
 
 INCLUDE=include
 
@@ -10,7 +10,7 @@ CFLAGS = -target riscv32-unknown-none-elf -march=rv32imc -mabi=ilp32 -mcmodel=me
    -static -std=gnu99 -O2 -ffast-math -fno-common -fno-builtin-printf \
    -fno-builtin-putchar -nostdlib -mno-relax -Wall -flto -I $(INCLUDE) -DNODEBUG
 
-AS = clang-14
+AS = clang
 ASFLAGS = -target riscv32-unknown-none-elf -march=rv32imc -mabi=ilp32 -mno-relax
 
 LDFLAGS=-T app.lds -L libcommon/ -lcommon -L libcrt0/ -lcrt0

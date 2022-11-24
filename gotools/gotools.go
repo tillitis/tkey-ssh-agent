@@ -1,9 +1,7 @@
 // Copyright (C) 2022 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
-//go:build tools
-
-package tools
+package gotools
 
 import (
 	// Import tools we use

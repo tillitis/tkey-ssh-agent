@@ -8,4 +8,4 @@
 /runsign.sh
 /runtimer
 /runrandom
-/golangci-lint
+/gotools/golangci-lint

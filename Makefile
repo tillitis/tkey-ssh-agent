@@ -44,12 +44,6 @@ clean:
 	$(MAKE) -C apps clean
 
 .PHONY: lint
-lint: golangci-lint
-	./golangci-lint run
-
-# .PHONY to let go-build handle deps and rebuilds
-.PHONY: golangci-lint
-golangci-lint:
-	go mod download github.com/golangci/golangci-lint
-	go mod tidy
-	go build github.com/golangci/golangci-lint/cmd/golangci-lint
+lint:
+	$(MAKE) -C gotools
+	./gotools/golangci-lint run

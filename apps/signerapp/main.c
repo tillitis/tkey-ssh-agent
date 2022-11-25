@@ -20,8 +20,8 @@ static volatile uint32_t *udi =   (volatile uint32_t *)TK1_MMIO_TK1_UDI_FIRST;
 
 #define MAX_SIGN_SIZE 4096
 
-const uint8_t app_name0[4] = " 1kt"; // "tk1 " backwards
-const uint8_t app_name1[4] = "ngis"; // "sign" backwards
+const uint8_t app_name0[4] = "tk1 ";
+const uint8_t app_name1[4] = "sign";
 const uint32_t app_version = 0x00000001;
 
 void wait_touch_ledflash(int ledvalue, int loopcount)

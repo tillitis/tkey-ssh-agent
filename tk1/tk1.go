@@ -100,8 +100,8 @@ type NameVersion struct {
 }
 
 func (n *NameVersion) Unpack(raw []byte) {
-	n.Name0 = fmt.Sprintf("%c%c%c%c", raw[3], raw[2], raw[1], raw[0])
-	n.Name1 = fmt.Sprintf("%c%c%c%c", raw[7], raw[6], raw[5], raw[4])
+	n.Name0 = fmt.Sprintf("%c%c%c%c", raw[0], raw[1], raw[2], raw[3])
+	n.Name1 = fmt.Sprintf("%c%c%c%c", raw[4], raw[5], raw[6], raw[7])
 	n.Version = binary.LittleEndian.Uint32(raw[8:12])
 }
 

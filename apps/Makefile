@@ -33,6 +33,8 @@ libcommon/libcommon.a: $(LIBOBJS)
 
 $(LIBOBJS): include/types.h include/tk1_mem.h include/lib.h include/proto.h
 
+LIBS=libcrt0/libcrt0.a libcommon/libcommon.a
+
 # Turn elf into bin for device
 %.bin: %.elf
 	$(OBJCOPY) --input-target=elf32-littleriscv --output-target=binary $^ $@
@@ -43,7 +45,7 @@ SIGNEROBJS=signerapp/app_proto.o \
     signerapp/monocypher/monocypher.o \
     signerapp/monocypher/monocypher-ed25519.o
 
-signerapp/app.elf: libcrt0/libcrt0.a libcommon/libcommon.a $(SIGNEROBJS) app.lds
+signerapp/app.elf: $(LIBS) $(SIGNEROBJS) app.lds
 	$(CC) $(CFLAGS) $(SIGNEROBJS) $(LDFLAGS) -o $@
 
 $(SIGNEROBJS): $(INCLUDE)/tk1_mem.h signerapp/app_proto.h \
@@ -53,7 +55,7 @@ $(SIGNEROBJS): $(INCLUDE)/tk1_mem.h signerapp/app_proto.h \
 # A simpler timer app
 TIMEROBJS = timer/main.o timer/app_proto.o
 
-timer/timer.elf: libcrt0/libcrt0.a libcommon/libcommon.a $(TIMEROBJS) app.lds
+timer/timer.elf: $(LIBS) $(TIMEROBJS) app.lds
 	$(CC) $(CFLAGS) $(TIMEROBJS) $(LDFLAGS) -o $@
 
 $(TIMEROBJS): $(INCLUDE)/tk1_mem.h timer/app_proto.h
@@ -64,7 +66,7 @@ RANDOMOBJS=random/main.o random/app_proto.o
 random/random.bin: random/random.elf
 	$(OBJCOPY) --input-target=elf32-littleriscv --output-target=binary $^ $@
 
-random/random.elf: libcrt0/libcrt0.a libcommon/libcommon.a $(RANDOMOBJS) app.lds
+random/random.elf: $(LIBS) $(RANDOMOBJS) app.lds
 	$(CC) $(CFLAGS) $(RANDOMOBJS) $(LDFLAGS) -o $@
 
 $(RANDOMOBJS): $(INCLUDE)/tk1_mem.h random/app_proto.h
@@ -75,7 +77,7 @@ RNG_STREAM_OBJS=rng_stream/main.o blake2s/blake2s.o
 rng_stream/rng_stream.bin: rng_stream/rng_stream.elf
 	$(OBJCOPY) --input-target=elf32-littleriscv --output-target=binary $^ $@
 
-rng_stream/rng_stream.elf: libcrt0/libcrt0.a libcommon/libcommon.a $(RNG_STREAM_OBJS) app.lds
+rng_stream/rng_stream.elf: $(LIBS) $(RNG_STREAM_OBJS) app.lds
 	$(CC) $(CFLAGS) $(RNG_STREAM_OBJS) $(LDFLAGS) -o $@
 
 $(RNG_STREAM_OBJS): $(INCLUDE)/tk1_mem.h
@@ -87,7 +89,7 @@ clean:
 	$(RM) -f timer/timer.bin timer/timer.elf $(TIMEROBJS)
 	$(RM) -f random/random.bin random/random.elf $(RANDOMOBJS)
 	$(RM) -f rng_stream/rng_stream.bin rng_stream/rng_stream.elf $(RNG_STREAM_OBJS)
-	$(RM) -f libcommon/libcommon.a $(LIBOBJS) libcrt0/libcrt0.a libcrt0/crt0.o
+	$(RM) -f $(LIBS) $(LIBOBJS) libcrt0/crt0.o
 
 FMTFILES=include/*.h libcommon/*.c signerapp/*.[ch] timer/*.[ch] random/*.[ch] rng_stream/*.[ch]
 .PHONY: fmt

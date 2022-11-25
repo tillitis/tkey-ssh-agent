@@ -63,9 +63,6 @@ $(TIMEROBJS): $(INCLUDE)/tk1_mem.h timer/app_proto.h
 # Random number generator app
 RANDOMOBJS=random/main.o random/app_proto.o
 
-random/random.bin: random/random.elf
-	$(OBJCOPY) --input-target=elf32-littleriscv --output-target=binary $^ $@
-
 random/random.elf: $(LIBS) $(RANDOMOBJS) app.lds
 	$(CC) $(CFLAGS) $(RANDOMOBJS) $(LDFLAGS) -o $@
 
@@ -73,9 +70,6 @@ $(RANDOMOBJS): $(INCLUDE)/tk1_mem.h random/app_proto.h
 
 # Streaming RNG random number app
 RNG_STREAM_OBJS=rng_stream/main.o blake2s/blake2s.o
-
-rng_stream/rng_stream.bin: rng_stream/rng_stream.elf
-	$(OBJCOPY) --input-target=elf32-littleriscv --output-target=binary $^ $@
 
 rng_stream/rng_stream.elf: $(LIBS) $(RNG_STREAM_OBJS) app.lds
 	$(CC) $(CFLAGS) $(RNG_STREAM_OBJS) $(LDFLAGS) -o $@

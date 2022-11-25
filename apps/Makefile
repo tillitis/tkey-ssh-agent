@@ -27,10 +27,8 @@ libcrt0/libcrt0.a: libcrt0/crt0.o
 
 # Common C functions
 LIBOBJS=libcommon/lib.o libcommon/proto.o
-
 libcommon/libcommon.a: $(LIBOBJS)
 	 ar -q $@ libcommon/lib.o libcommon/proto.o
-
 $(LIBOBJS): include/types.h include/tk1_mem.h include/lib.h include/proto.h
 
 LIBS=libcrt0/libcrt0.a libcommon/libcommon.a
@@ -44,36 +42,28 @@ SIGNEROBJS=signerapp/app_proto.o \
     signerapp/main.o \
     signerapp/monocypher/monocypher.o \
     signerapp/monocypher/monocypher-ed25519.o
-
 signerapp/app.elf: $(LIBS) $(SIGNEROBJS) app.lds
 	$(CC) $(CFLAGS) $(SIGNEROBJS) $(LDFLAGS) -o $@
-
 $(SIGNEROBJS): $(INCLUDE)/tk1_mem.h signerapp/app_proto.h \
     signerapp/monocypher/monocypher.h \
     signerapp/monocypher/monocypher-ed25519.h
 
 # A simpler timer app
 TIMEROBJS = timer/main.o timer/app_proto.o
-
 timer/timer.elf: $(LIBS) $(TIMEROBJS) app.lds
 	$(CC) $(CFLAGS) $(TIMEROBJS) $(LDFLAGS) -o $@
-
 $(TIMEROBJS): $(INCLUDE)/tk1_mem.h timer/app_proto.h
 
 # Random number generator app
 RANDOMOBJS=random/main.o random/app_proto.o
-
 random/random.elf: $(LIBS) $(RANDOMOBJS) app.lds
 	$(CC) $(CFLAGS) $(RANDOMOBJS) $(LDFLAGS) -o $@
-
 $(RANDOMOBJS): $(INCLUDE)/tk1_mem.h random/app_proto.h
 
 # Streaming RNG random number app
 RNG_STREAM_OBJS=rng_stream/main.o blake2s/blake2s.o
-
 rng_stream/rng_stream.elf: $(LIBS) $(RNG_STREAM_OBJS) app.lds
 	$(CC) $(CFLAGS) $(RNG_STREAM_OBJS) $(LDFLAGS) -o $@
-
 $(RNG_STREAM_OBJS): $(INCLUDE)/tk1_mem.h
 
 

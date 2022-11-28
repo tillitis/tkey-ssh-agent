@@ -6,7 +6,7 @@ INCLUDE=include
 
 # If you want libcommon's puts() et cetera to output something on our
 # QEMU debug port, remove -DNODEBUG below
-CFLAGS = -target riscv32-unknown-none-elf -march=rv32imc -mabi=ilp32 -mcmodel=medany \
+CFLAGS = -target riscv32-unknown-none-elf -march=rv32iczmmul -mabi=ilp32 -mcmodel=medany \
    -static -std=gnu99 -O2 -ffast-math -fno-common -fno-builtin-printf \
    -fno-builtin-putchar -nostdlib -mno-relax -Wall -flto -I $(INCLUDE) -DNODEBUG
 
@@ -23,12 +23,12 @@ all: signerapp/app.bin timer/timer.bin random/random.bin rng_stream/rng_stream.b
 
 # C runtime library
 libcrt0/libcrt0.a: libcrt0/crt0.o
-	 ar -q $@ libcrt0/crt0.o
+	llvm-ar -qc $@ libcrt0/crt0.o
 
 # Common C functions
 LIBOBJS=libcommon/lib.o libcommon/proto.o
 libcommon/libcommon.a: $(LIBOBJS)
-	 ar -q $@ libcommon/lib.o libcommon/proto.o
+	llvm-ar -qc $@ libcommon/lib.o libcommon/proto.o
 $(LIBOBJS): include/types.h include/tk1_mem.h include/lib.h include/proto.h
 
 LIBS=libcrt0/libcrt0.a libcommon/libcommon.a

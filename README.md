@@ -44,8 +44,8 @@ There is a separate section below which explains running in QEMU.
 
 ## Running apps
 
-Plug the USB stick into your computer. If the LED at in one of the
-outer corners of the USB stick is flashing white, then it has been
+Plug the USB stick into your computer. If the LED in one of the outer
+corners of the USB stick is flashing white, then it has been
 programmed with the standard FPGA bitstream (including the firmware).
 If it is not then please refer to
 [quickstart.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/quickstart.md)
@@ -169,9 +169,9 @@ The file with the message can currently be at most 4096 bytes long. If
 the `--port` flags needs to be used, you can pass it after the message
 argument.
 
-The host program `runapp` only loads and starts an app. Then you will
-have to switch to a different program to speak your specific app
-protocol, for instance the `tk-sign` program provided here.
+The host program `runapp` only loads and starts an app. You'll then
+have to switch to a different program that speaks your apps specific
+protocol. For instance the `tk-sign` program provided here.
 
 To run `runapp` you need to specify both the serial port (unless
 you're using the default `/dev/ttyACM0`) and the raw app binary that
@@ -181,10 +181,11 @@ should be run. The port used below is just an example.
 $ ./runapp --port /dev/pts/1 --file apps/signerapp/app.bin
 ```
 
-The `runapp` also supports sending a User Supplied Secret (USS) to the
-firmware when loading the app. By adding the flag `--uss`, you will be
-asked to type a phrase which will be hashed to become the USS digest
-(the final newline is removed from the phrase before hashing).
+While the app is being loaded, the LED on the USB stick will be steady
+white. The `runapp` also supports sending a User Supplied Secret (USS)
+to the firmware when loading the app. By adding the flag `--uss`, you
+will be asked to type a phrase which will be hashed to become the USS
+digest (the final newline is removed from the phrase before hashing).
 
 Alternatively, you may use `--uss-file=filename` to make it read the
 contents of a file, which is then hashed as the USS. The filename can

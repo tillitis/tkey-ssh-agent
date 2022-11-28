@@ -54,7 +54,7 @@ line2="[[:space:]]*wait_touch_.*"
 if [[ "${1:-}" = "patch" ]]; then
   commentout "$file1" "$line1"
   commentout "$file2" "$line2"
-  make -C apps signerapp/app.bin
+  make -C apps
   make runapp tk-sign
   if ! is_commented "$file1" "$line1" \
       || ! is_commented "$file2" "$line2"; then

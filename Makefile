@@ -26,15 +26,13 @@ runtimer:
 
 # .PHONY to let go-build handle deps and rebuilds
 .PHONY: runrandom
-runrandom:
-	$(MAKE) -C apps random/random.bin
+runrandom: apps
 	cp -af apps/random/random.bin cmd/runrandom/app.bin
 	go build ./cmd/runrandom
 
 # .PHONY to let go-build handle deps and rebuilds
 .PHONY: tk-ssh-agent
-tk-ssh-agent:
-	$(MAKE) -C apps signerapp/app.bin
+tk-ssh-agent: apps
 	cp -af apps/signerapp/app.bin cmd/tk-ssh-agent/app.bin
 	go build ./cmd/tk-ssh-agent
 

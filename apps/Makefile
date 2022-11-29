@@ -11,7 +11,7 @@ CFLAGS = -target riscv32-unknown-none-elf -march=rv32iczmmul -mabi=ilp32 -mcmode
    -fno-builtin-putchar -nostdlib -mno-relax -Wall -flto -I $(INCLUDE) -DNODEBUG
 
 AS = clang
-ASFLAGS = -target riscv32-unknown-none-elf -march=rv32imc -mabi=ilp32 -mno-relax
+ASFLAGS = -target riscv32-unknown-none-elf -march=rv32iczmmul -mabi=ilp32 -mcmodel=medany -mno-relax
 
 LDFLAGS=-T app.lds -L libcommon/ -lcommon -L libcrt0/ -lcrt0
 
@@ -19,7 +19,7 @@ RM=/bin/rm
 
 
 .PHONY: all
-all: signerapp/app.bin timer/timer.bin random/random.bin rng_stream/rng_stream.bin
+all: signerapp/app.bin timer/timer.bin random/random.bin rng_stream/rng_stream.bin blink/blink.bin
 
 # C runtime library
 libcrt0/libcrt0.a: libcrt0/crt0.o
@@ -66,6 +66,9 @@ rng_stream/rng_stream.elf: $(LIBS) $(RNG_STREAM_OBJS) app.lds
 	$(CC) $(CFLAGS) $(RNG_STREAM_OBJS) $(LDFLAGS) -o $@
 $(RNG_STREAM_OBJS): $(INCLUDE)/tk1_mem.h
 
+# Blinkenlights assembler app
+blink/blink.elf: blink/blink.o
+	ld.lld -o blink/blink.elf blink/blink.o --oformat elf
 
 .PHONY: clean
 clean:
@@ -74,6 +77,7 @@ clean:
 	$(RM) -f random/random.bin random/random.elf $(RANDOMOBJS)
 	$(RM) -f rng_stream/rng_stream.bin rng_stream/rng_stream.elf $(RNG_STREAM_OBJS)
 	$(RM) -f $(LIBS) $(LIBOBJS) libcrt0/crt0.o
+	$(RM) -f blink/blink.bin blink/blink.elf blink/blink.o
 
 FMTFILES=include/*.h libcommon/*.c signerapp/*.[ch] timer/*.[ch] random/*.[ch] rng_stream/*.[ch]
 .PHONY: fmt

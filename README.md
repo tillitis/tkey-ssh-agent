@@ -6,7 +6,7 @@ Current list of apps:
 - The Ed25519 signerapp. Used as root of trust and SSH authentication
 - The random app.
 - The RNG stream app. Providing arbitrary high quality random numbers
-- fooapp. A minimalistic example application
+- blink. A minimalistic example application
 
 For more information about the apps, see subsections below.
 
@@ -316,10 +316,10 @@ reseed rate can be changed during compile time by adjusting the
 RESEED_TIME define in main.c.
 
 
-## fooapp
+## blink
 
-In `fooapp/` there is also a very, very simple app written in
-assembler, foo.bin (foo.S) that blinks the LED.
+In `blink/` there is also a very, very simple app written in
+assembler, `blink.bin` (blink.S) that blinks the LED.
 
 
 ## Developing apps

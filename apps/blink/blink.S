@@ -1,10 +1,14 @@
 // Copyright (C) 2022 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
-        li a0, 0xff000024
+	.section ".text.init"
+	.global _start
+
+_start:
+        li a0, 0xff000024 # LED MMIO
         li a1, 0x1
 loop:
-        sw a1, 0(a0) # Store 0x1 at LED
+        sw a1, 0(a0)
         addi a1, a1, 1
 
         li a2, 0

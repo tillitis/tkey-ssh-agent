@@ -1,0 +1,12 @@
+#!/bin/sh
+
+set -e
+
+case "$1" in
+    configure)
+        if udevadm --version >/dev/null; then
+            udevadm control --reload || true
+            udevadm trigger --action=add --subsystem-match=tty || true
+        fi
+    ;;
+esac

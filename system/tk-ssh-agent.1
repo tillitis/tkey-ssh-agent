@@ -1,0 +1,49 @@
+.TH TK-SSH-AGENT "1" "November 2022" "tk-ssh-agent" "User Commands"
+
+.SH NAME
+tk-ssh-agent \- an ssh-agent backed by Tillitis Key
+
+.SH SETUP
+tk-ssh-agent is an alternative ssh-agent backed by a private ed25519 key
+residing in the hardware Tillitis Key, a USB stick.
+
+Run the following to enable automatic startup of tk-ssh-agent when you log in,
+and also start it right now:
+.IP
+\fBsystemctl --user enable --now tk-ssh-agent\fR
+.PP
+To make ssh(1), ssh-add(1) and other tools use tk-ssh-agent, you must set the
+\fBSSH_AUTH_SOCK\fR environment variable for them, so they can find and
+communicate with the SSH agent. For your current shell this can be done like
+this (bash/zsh):
+.IP
+\fBexport SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/tk-ssh-agent/sock"\fR
+.PP
+This line can also be added to the startup file for your shell, e.g. in
+\fB~/.bashrc\fR. This would make all tools that honour \fBSSH_AUTH_SOCK\fR use
+tk-ssh-agent.
+.PP
+With \fBSSH_AUTH_SOCK\fR correctly set, you can run \fBssh-add\ -L\fR to see the
+current public ed25519 key of your Tillitis Key.
+.PP
+Alternatvely, you can configure ssh(1) to use a specific SSH agent
+("IdentityAgent") depending on the host you want to access. Add the following
+to \fB~/.ssh/config\fR to make it use tk-ssh-agent when connecting to
+"example.com":
+.IP
+\fBHost example.com
+    IdentityAgent ${XDG_RUNTIME_DIR}/tk-ssh-agent/sock\fR
+.PP
+Or use tk-ssh-agent for all hosts except "example.com":
+.IP
+\fBHost example.com
+    IdentityAgent $SSH_AUTH_SOCK
+
+Host *
+    IdentityAgent ${XDG_RUNTIME_DIR}/tk-ssh-agent/sock\fR
+
+.SH DESCRIPTION
+See \fBtk-ssh-agent\ -h\fR for detailed usage information.
+
+.SH "SEE ALSO"
+Tillitis Key apps: https://github.com/tillitis/tillitis-key1-apps

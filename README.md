@@ -61,10 +61,17 @@ have other devices plugged in). The host programs tries to auto-detect
 serial ports of Tillitis USB sticks, but if more than one is found
 you'll need to choose one using the `--port` flag.
 
-However, you should make sure that you can access the serial port as
-your regular user. One way to do that is by becoming a member of the
-group that owns the serial port. On Ubuntu that group is `dialout`,
-and you can do it like this:
+However, you should make sure that you can read and write to the
+serial port as your regular user.
+
+One way to accomplish this is by installing the provided
+`system/60-tillitis-key.rules` in `/etc/udev/rules.d/` and running
+`udevadm control --reload`. Now when a Tillitis Key is plugged in, its
+device path (like `/dev/ttyACM0`) should be read/writable by you who
+are logged in locally (see `loginctl`).
+
+Another way is becoming a member of the group that owns the serial
+port. On Ubuntu that group is `dialout`, and you can do it like this:
 
 ```
 $ id -un
@@ -277,6 +284,22 @@ You can use `-k` (long option: `--show-pubkey`) to only output the
 pubkey. The pubkey is printed to stdout for easy redirection, but some
 messages are still present on stderr.
 
+#### Installing tk-ssh-agent
+
+For Linux, we provide udev rules to automatically let `tk-ssh-agent`
+know when a Tillitis Key is inserted or removed. You can install
+`system/90-tk-ssh-agent.rules` in `/etc/udev/rules.d/` and run
+`udevadm control --reload`. Now the `tk-ssh-agent` will get a SIGHUP
+every time you insert or remove the Tillitis Key. The
+[`Makefile`](Makefile) has an `install` target that installs
+tk-ssh-agent and the rules for you. First `make` then `sudo make
+install`, then `sudo make reload-rules` to apply the rules to the
+running system. This also installs a man page which contains some
+useful information, try `man ./system/tk-ssh-agent.1` to read it
+before installing.
+
+There is also a Work In Progress Debian/Ubuntu package which can be
+build using the script `debian/build-pkg.sh`.
 
 ## The random app and runrandom host program
 

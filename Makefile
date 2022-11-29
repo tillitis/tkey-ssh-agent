@@ -3,6 +3,37 @@ RM=/bin/rm
 .PHONY: all
 all: apps runapp tk-sign runsign.sh tk-ssh-agent runtimer runrandom
 
+DESTDIR=/
+PREFIX=/usr/local
+SYSTEMDDIR=/etc/systemd
+UDEVDIR=/etc/udev
+destbin=$(DESTDIR)/$(PREFIX)/bin
+destman1=$(DESTDIR)/$(PREFIX)/share/man/man1
+destunit=$(DESTDIR)/$(SYSTEMDDIR)/user
+destrules=$(DESTDIR)/$(UDEVDIR)/rules.d
+.PHONY: install
+install:
+	install -Dm755 tk-ssh-agent $(destbin)/tk-ssh-agent
+	strip $(destbin)/tk-ssh-agent
+	install -Dm644 system/tk-ssh-agent.1 $(destman1)/tk-ssh-agent.1
+	gzip -n9f $(destman1)/tk-ssh-agent.1
+	install -Dm644 system/tk-ssh-agent.service.tmpl $(destunit)/tk-ssh-agent.service
+	sed -i -e "s,##BINDIR##,$(PREFIX)/bin," $(destunit)/tk-ssh-agent.service
+	install -Dm644 system/60-tillitis-key.rules $(destrules)/60-tillitis-key.rules
+	install -Dm644 system/90-tk-ssh-agent.rules $(destrules)/90-tk-ssh-agent.rules
+.PHONY: uninstall
+uninstall:
+	rm -f \
+	$(destbin)/tk-ssh-agent \
+	$(destunit)/tk-ssh-agent.service \
+	$(destrules)/60-tillitis-key.rules \
+	$(destrules)/90-tk-ssh-agent.rules \
+	$(destman1)/tk-ssh-agent.1.gz
+.PHONY: reload-rules
+reload-rules:
+	udevadm control --reload
+	udevadm trigger
+
 .PHONY: apps
 apps:
 	$(MAKE) -C apps
@@ -34,7 +65,7 @@ runrandom: apps
 .PHONY: tk-ssh-agent
 tk-ssh-agent: apps
 	cp -af apps/signerapp/app.bin cmd/tk-ssh-agent/app.bin
-	go build ./cmd/tk-ssh-agent
+	CGO_ENABLED=0 go build -trimpath ./cmd/tk-ssh-agent
 
 .PHONY: clean
 clean:

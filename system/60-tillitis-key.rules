@@ -1,0 +1,5 @@
+# Mark device as a security token. /usr/lib/udev/rules.d/70-uaccess.rules will
+# add TAG "uaccess", which will result in file ACLs so that local user (see
+# loginctl) can read/write to the serial port in /dev.
+ATTRS{idVendor}=="1207", ATTRS{idProduct}=="8887",\
+ENV{ID_SECURITY_TOKEN}="1"

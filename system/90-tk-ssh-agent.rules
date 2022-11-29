@@ -1,0 +1,4 @@
+# When device is added/removed, signal tk-ssh-agent so it can reconnect.
+ACTION=="add|remove", SUBSYSTEM=="tty",\
+ATTRS{idVendor}=="1207", ATTRS{idProduct}=="8887",\
+RUN+="/usr/bin/pkill -HUP ^tk-ssh-agent$"

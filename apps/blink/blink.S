@@ -12,8 +12,8 @@ loop:
         addi a1, a1, 1
 
         li a2, 0
+        li a3, 100000        
 delay:
-        li a3, 100000
         addi a2, a2, 1
         blt a2, a3, delay
         j loop

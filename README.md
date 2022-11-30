@@ -383,5 +383,7 @@ will be printed as a character by qemu on the console.
 
 ## Licensing
 
-See [LICENSES](./LICENSES/README.md) for more information about the projects'
-licenses.
+See [LICENSES](./LICENSES/README.md) for more information about the
+project's licenses.
+
+All contributors must adhere to the [Developer Certificate of Origin](dco.md).

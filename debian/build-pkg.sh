@@ -40,4 +40,4 @@ sed -e "s/##VERSION##/$pkgversion/" \
     -e "s/##MAINTAINER##/$pkgmaintainer/" \
     deb/control.tmpl >"$destdir/DEBIAN/control"
 
-dpkg-deb --root-owner-group --build "$destdir" .
+dpkg-deb --root-owner-group -Zgzip --build "$destdir" .

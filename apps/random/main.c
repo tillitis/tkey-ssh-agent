@@ -16,8 +16,8 @@ static volatile uint32_t *trng_entropy = (volatile uint32_t *)TK1_MMIO_TRNG_ENTR
 #define LED_BLUE   (1 << TK1_MMIO_TK1_LED_B_BIT)
 // clang-format on
 
-const uint8_t app_name0[4] = " 1kt"; // "tk1 " backwards
-const uint8_t app_name1[4] = "dnar"; // "rand" backwards
+const uint8_t app_name0[4] = "tk1 ";
+const uint8_t app_name1[4] = "rand";
 const uint32_t app_version = 0x00000001;
 
 // RSP_GET_RANDOM cmdlen - (responsecode + status)

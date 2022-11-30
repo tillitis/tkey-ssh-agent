@@ -5,9 +5,10 @@ if [ $# -lt 1 ]; then
 Usage: runsign.sh path-to-message [common tkey-runapp and tkey-sign flags]
 
 runsign.sh is a helper script that uses tkey-runapp to load the signerapp onto
-TK1 and start it. It then uses tkey-sign to request a signature of the contents
-of the provided file (message). If --port or --speed flags needs to be passed
-to tkey-runapp and tkey-sign, they can be passed after the message argument.
+TKey and start it. It then uses tkey-sign to request a signature of the
+contents of the provided file (message). If --port or --speed flags needs to be
+passed to tkey-runapp and tkey-sign, they can be passed after the message
+argument.
 EOF
   exit 2
 fi

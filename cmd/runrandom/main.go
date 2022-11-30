@@ -42,7 +42,7 @@ func main() {
 		"Fetch `COUNT` number of random bytes.")
 	pflag.Usage = func() {
 		fmt.Fprintf(os.Stderr, `runrandom is a host program for the random-app, used to fetch random numbers
-from the TRNG on Tillitis Key 1. This program embeds the random-app binary,
+from the TRNG on the Tillitis TKey. This program embeds the random-app binary,
 which it loads onto the USB stick and starts.
 
 Usage:
@@ -89,7 +89,7 @@ Usage:
 
 	if !isWantedApp(randomGen) {
 		if !isFirmwareMode(tk) {
-			fmt.Printf("If the serial port is correct, then Tillitis Key might not be in firmware-\n" +
+			fmt.Printf("If the serial port is correct, then the TKey might not be in firmware-\n" +
 				"mode, and have an app running already. Please unplug and plug it in again.\n")
 			exit(1)
 		}

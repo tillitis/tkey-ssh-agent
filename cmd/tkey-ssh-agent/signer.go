@@ -38,8 +38,8 @@ const (
 	wantAppName0 = "tk1 "
 	wantAppName1 = "sign"
 	// Custom errors
-	ErrMaybeWrongDevice = constError("no Tillitis Key on the serial port, or it's not in firmware mode (and already running wrong app)")
-	ErrNoDevice         = constError("no Tillitis Key connected")
+	ErrMaybeWrongDevice = constError("no TKey on the serial port, or it's not in firmware mode (and already running wrong app)")
+	ErrNoDevice         = constError("no TKey connected")
 )
 
 type Signer struct {
@@ -130,7 +130,7 @@ func (s *Signer) maybeLoadApp() error {
 		return ErrMaybeWrongDevice
 	}
 
-	le.Printf("Tillitis Key is in firmware mode.\n")
+	le.Printf("The TKey is in firmware mode.\n")
 	var err error
 	var secret []byte
 	if s.enterUSS {
@@ -201,7 +201,7 @@ func (s *Signer) connect() {
 		le.Printf("Auto-detected serial port %s\n", devPath)
 	}
 
-	le.Printf("Connecting to Tillitis Key on serial port %s\n", devPath)
+	le.Printf("Connecting to TKey on serial port %s\n", devPath)
 	if err := s.tk.Connect(devPath, tk1.WithSpeed(s.speed)); err != nil {
 		le.Printf("Failed to connect: %v", err)
 		s.connected.Store(false)

@@ -9,7 +9,7 @@ set -eu
 # which will patch the sources to disable the touch requirement, and compile
 # the binaries.
 #
-# The script expects that TK1 to be in firmware mode, so it can load the
+# The script expects that the TKey is in firmware mode, so it can load the
 # correct signerapp.
 #
 # Arguments to this script will be passed to tkey-runapp and tkey-sign, so

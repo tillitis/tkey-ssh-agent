@@ -70,7 +70,7 @@ func (s *SSHAgent) List() ([]*agent.Key, error) {
 	return []*agent.Key{{
 		Format:  sshPub.Type(),
 		Blob:    sshPub.Marshal(),
-		Comment: fmt.Sprintf("TK1-%s", udi),
+		Comment: fmt.Sprintf("TKey-%s", udi),
 	}}, nil
 }
 
@@ -96,14 +96,14 @@ func (s *SSHAgent) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, error) 
 	}
 
 	timer := time.AfterFunc(4*time.Second, func() {
-		err = beeep.Notify(progname, "Touch your Tillitis Key to confirm SSH login.", "")
+		err = beeep.Notify(progname, "Touch your Tillitis TKey to confirm SSH login.", "")
 		if err != nil {
 			le.Printf("Notify failed: %s\n", err)
 		}
 	})
 	defer timer.Stop()
 
-	le.Printf("Sign: user will have to touch the Tillitis Key\n")
+	le.Printf("Sign: user will have to touch the TKey\n")
 	signature, err := sshSigner.Sign(rand.Reader, data)
 	if err != nil {
 		return nil, fmt.Errorf("Signer.Sign: %w", err)

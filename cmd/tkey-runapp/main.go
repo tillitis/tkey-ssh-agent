@@ -77,7 +77,7 @@ func main() {
 	nameVer, err := tk.GetNameVersion()
 	if err != nil {
 		fmt.Printf("GetNameVersion failed: %v\n", err)
-		fmt.Printf("If the serial port is correct, then Tillitis Key might not be in firmware-\n" +
+		fmt.Printf("If the serial port is correct, then the TKey might not be in firmware-\n" +
 			"mode, and have an app running already. Please unplug and plug it in again.\n")
 		exit(1)
 	}

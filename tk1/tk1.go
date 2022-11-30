@@ -1,7 +1,7 @@
 // Copyright (C) 2022 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
-// Package tk1 provides a connection to a Tillitis Key 1 security
+// Package tk1 provides a connection to a Tillitis TKey security
 // stick. To create a new connection:
 //
 //	tk := tk1.New()
@@ -44,22 +44,22 @@ func SilenceLogging() {
 }
 
 const (
-	// Speed in bps for talking to Tillitis Key 1
+	// Speed in bps for talking to the TKey
 	SerialSpeed = 62500
 	// Codes used in app proto responses
 	StatusOK  = 0x00
 	StatusBad = 0x01
 )
 
-// TillitisKey is a serial connection to a Tillitis Key 1 and the
-// commands that the firmware supports.
+// TillitisKey is a serial connection to a TKey and the commands that
+// the firmware supports.
 type TillitisKey struct {
 	speed int
 	conn  serial.Port
 }
 
-// New allocates a new TK1. Use the Connect() method to actually
-// open a connection.
+// New allocates a new TillitisKey. Use the Connect() method to
+// actually open a connection.
 func New() *TillitisKey {
 	tk := &TillitisKey{}
 	return tk
@@ -71,8 +71,8 @@ func WithSpeed(speed int) func(*TillitisKey) {
 	}
 }
 
-// Connect() connects to a TK1 serial port using the provided port
-// device, and speed as specified in New().
+// Connect connects to a TKey serial port using the provided port
+// device and options.
 func (tk *TillitisKey) Connect(port string, options ...func(*TillitisKey)) error {
 	var err error
 
@@ -89,7 +89,7 @@ func (tk *TillitisKey) Connect(port string, options ...func(*TillitisKey)) error
 	return nil
 }
 
-// Close the connection to the TK1
+// Close the connection to the TKey
 func (tk TillitisKey) Close() error {
 	if err := tk.conn.Close(); err != nil {
 		return fmt.Errorf("conn.Close: %w", err)
@@ -97,10 +97,10 @@ func (tk TillitisKey) Close() error {
 	return nil
 }
 
-// SetReadTimeout sets the timeout of the underlying serial connection to the
-// TK1. Pass 0 seconds to not have any timeout. Note that the timeout
-// implemented in the serial lib only works for simple Read(). E.g.
-// io.ReadFull() will Read() until the buffer is full.
+// SetReadTimeout sets the timeout of the underlying serial connection
+// to the TKey. Pass 0 seconds to not have any timeout. Note that the
+// timeout implemented in the serial lib only works for simple Read().
+// E.g. io.ReadFull() will Read() until the buffer is full.
 func (tk TillitisKey) SetReadTimeout(seconds int) error {
 	var t time.Duration = -1
 	if seconds > 0 {
@@ -124,7 +124,7 @@ func (n *NameVersion) Unpack(raw []byte) {
 	n.Version = binary.LittleEndian.Uint32(raw[8:12])
 }
 
-// GetNameVersion gets the name and version from the TK1 firmware
+// GetNameVersion gets the name and version from the TKey firmware
 func (tk TillitisKey) GetNameVersion() (*NameVersion, error) {
 	id := 2
 	tx, err := NewFrameBuf(cmdGetNameVersion, id)
@@ -181,7 +181,7 @@ func (u *UDI) Unpack(raw []byte) {
 	u.Serial = binary.LittleEndian.Uint32(raw[4:8])
 }
 
-// GetUDI gets the UDI (Unique Device ID) from the TK1 firmware
+// GetUDI gets the UDI (Unique Device ID) from the TKey firmware
 func (tk TillitisKey) GetUDI() (*UDI, error) {
 	id := 2
 	tx, err := NewFrameBuf(cmdGetUDI, id)
@@ -210,7 +210,7 @@ func (tk TillitisKey) GetUDI() (*UDI, error) {
 }
 
 // LoadAppFromFile loads and runs a raw binary file from fileName into
-// the TK1.
+// the TKey.
 func (tk TillitisKey) LoadAppFromFile(fileName string, secretPhrase []byte) error {
 	content, err := os.ReadFile(fileName)
 	if err != nil {
@@ -221,8 +221,8 @@ func (tk TillitisKey) LoadAppFromFile(fileName string, secretPhrase []byte) erro
 }
 
 // LoadApp loads the USS (User Supplied Secret), and contents of bin
-// into the TK1, running the app after verifying that the digest
-// calculated on the host is the same as the digest from the TK1.
+// into the TKey, running the app after verifying that the digest
+// calculated on the host is the same as the digest from the TKey.
 //
 // The USS is a 32 bytes digest hashed from secretPhrase (which is
 // provided by the user). If secretPhrase is an empty slice, 32 bytes
@@ -278,7 +278,7 @@ func (tk TillitisKey) LoadApp(bin []byte, secretPhrase []byte) error {
 	return nil
 }
 
-// loadApp sets the size and USS of the app to be loaded into the TK1.
+// loadApp sets the size and USS of the app to be loaded into the TKey.
 func (tk TillitisKey) loadApp(size int, secretPhrase []byte) error {
 	id := 2
 	tx, err := NewFrameBuf(cmdLoadApp, id)
@@ -318,7 +318,7 @@ func (tk TillitisKey) loadApp(size int, secretPhrase []byte) error {
 	return nil
 }
 
-// loadAppData loads a chunk of the raw app binary into the TK1.
+// loadAppData loads a chunk of the raw app binary into the TKey.
 func (tk TillitisKey) loadAppData(content []byte, last bool) ([32]byte, int, error) {
 	id := 2
 	tx, err := NewFrameBuf(cmdLoadAppData, id)

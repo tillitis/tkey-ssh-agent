@@ -1,6 +1,6 @@
-# Tillitis Key 1 Apps
+# Tillitis TKey Apps
 
-This repository contains applications to run on the Tillitis Key 1.
+This repository contains applications to run on the TKey.
 
 Current list of apps:
 - The Ed25519 signerapp. Used as root of trust and SSH authentication
@@ -35,12 +35,11 @@ If your available `objcopy` is anything other than the default
 `llvm-objcopy`, then define `OBJCOPY` to whatever they're called on
 your system.
 
-The signerapp can be run both on the hardware Tillitis Key 1, and on a
-QEMU machine that emulates the platform. In both cases, the host
-program (`tkey-runapp`, `tkey-sign` or `tkey-ssh-agent` running on
-your computer) will talk to the app over a serial port, virtual or
-real. There is a separate section below which explains running in
-QEMU.
+The signerapp can be run both on the hardware TKey, and on a QEMU
+machine that emulates the platform. In both cases, the host program
+(`tkey-runapp`, `tkey-sign` or `tkey-ssh-agent` running on your
+computer) will talk to the app over a serial port, virtual or real.
+There is a separate section below which explains running in QEMU.
 
 
 ## Running apps
@@ -56,7 +55,7 @@ programming of the USB stick.
 ### Users on Linux
 
 Running `lsusb` should list the USB stick as `1207:8887 Tillitis
-MTA1-USB-V1`. On Linux, Tillitis Key 1's serial port device path is
+MTA1-USB-V1`. On Linux, the TKey's serial port device path is
 typically `/dev/ttyACM0` (but it may end with another digit, if you
 have other devices plugged in). The host programs tries to auto-detect
 serial ports of Tillitis USB sticks, but if more than one is found
@@ -67,9 +66,9 @@ serial port as your regular user.
 
 One way to accomplish this is by installing the provided
 `system/60-tkey.rules` in `/etc/udev/rules.d/` and running `udevadm
-control --reload`. Now when a Tillitis Key is plugged in, its device
-path (like `/dev/ttyACM0`) should be read/writable by you who are
-logged in locally (see `loginctl`).
+control --reload`. Now when a TKey is plugged in, its device path
+(like `/dev/ttyACM0`) should be read/writable by you who are logged in
+locally (see `loginctl`).
 
 Another way is becoming a member of the group that owns the serial
 port. On Ubuntu that group is `dialout`, and you can do it like this:
@@ -87,8 +86,8 @@ system, and then log back in again. Then logout from your system and
 log back in again. You can also (following the above example) run
 `newgrp dialout` in the terminal that you're working in.
 
-Your Tillitis Key 1 is now running the firmware. Its LED flashing
-white, indicating that it is ready to receive an app to run.
+Your TKey is now running the firmware. Its LED flashing white,
+indicating that it is ready to receive an app to run.
 
 #### User on MacOS
 
@@ -262,10 +261,10 @@ This will start the ssh-agent and tell it to listen on the specified
 socket `./agent.sock`.
 
 It will also output the SSH ed25519 public key for this instance of
-the app on this specific Tillitis Key USB stick. So again; if the
-signerapp binary, the USS, or the UDS in the physical USB stick
-change, then the private key will also change -- and thus the derived
-public key, your public identity in the world of SSH.
+the app on this specific TKey USB stick. So again; if the signerapp
+binary, the USS, or the UDS in the physical USB stick change, then the
+private key will also change -- and thus the derived public key, your
+public identity in the world of SSH.
 
 If you copy-paste the public key into your `~/.ssh/authorized_keys`
 you can try to log onto your local computer (if sshd is running
@@ -289,25 +288,24 @@ messages are still present on stderr.
 #### Installing tkey-ssh-agent
 
 For Linux, we provide udev rules to automatically let `tkey-ssh-agent`
-know when a Tillitis Key is inserted or removed. You can install
+know when a TKey is inserted or removed. You can install
 `system/90-tkey-ssh-agent.rules` in `/etc/udev/rules.d/` and run
 `udevadm control --reload`. Now the `tkey-ssh-agent` will get a SIGHUP
-every time you insert or remove the Tillitis Key. The
-[`Makefile`](Makefile) has an `install` target that installs
-tkey-ssh-agent and the rules for you. First `make` then `sudo make
-install`, then `sudo make reload-rules` to apply the rules to the
-running system. This also installs a man page which contains some
-useful information, try `man ./system/tkey-ssh-agent.1` to read it
-before installing.
+every time you insert or remove the TKey. The [`Makefile`](Makefile)
+has an `install` target that installs tkey-ssh-agent and the rules for
+you. First `make` then `sudo make install`, then `sudo make
+reload-rules` to apply the rules to the running system. This also
+installs a man page which contains some useful information, try `man
+./system/tkey-ssh-agent.1` to read it before installing.
 
 There is also a Work In Progress Debian/Ubuntu package which can be
 build using the script `debian/build-pkg.sh`.
 
 ## The random app and runrandom host program
 
-The random app is a random number generator that uses Tillitis Key 1's
-TRNG (True Random Number Generator). The hardware stick will flash the
-red and blue LEDs while the app is running and show the same colors
+The random app is a random number generator that uses TKey's TRNG
+(True Random Number Generator). The hardware stick will flash the red
+and blue LEDs while the app is running and show the same colors
 steadily while generating/delivering the numbers.
 
 The companion host program `runrandom` can be used to output random
@@ -325,7 +323,7 @@ $ ./runrandom -b 42 | hexdump
 ## The RNG stream app
 
 This app generates a continuous stream of high quality random numbers
-that can be read from Tillitis Key's serial port device. In Linux for
+that can be read from the TKey's serial port device. In Linux for
 example like: `dd bs=1 count=1024 if=/dev/ttyACM0 of=rngdata` (or just
 a plain `cat`).
 

@@ -47,12 +47,12 @@ func (c appCmd) String() string {
 }
 
 type Timer struct {
-	tk *tk1.TillitisKey // A connection to a Tillitis Key 1
+	tk *tk1.TillitisKey // A connection to a TKey
 }
 
 // New allocates a struct for communicating with the timer app running
-// on the Tillitis Key 1. You're expected to pass an existing TK1
-// connection to it, so use it like this:
+// on the TKey. You're expected to pass an existing connection to it,
+// so use it like this:
 //
 //	tk := tk1.New()
 //	err := tk.Connect(port)

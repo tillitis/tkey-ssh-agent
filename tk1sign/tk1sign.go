@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: GPL-2.0-only
 
 // Package tk1sign provides a connection to the ed25519 signerapp
-// running on the Tillitis Key 1. You're expected to pass an existing
-// TK1 connection to it, so use it like this:
+// running on the TKey. You're expected to pass an existing connection
+// to it, so use it like this:
 //
 //	tk := tk1.New()
 //	err := tk.Connect(port)
 //	signer := tk1sign.New(tk)
 //
-// Then use it like this to get the public key of the TK1:
+// Then use it like this to get the public key of the TKey:
 //
 //	pubkey, err := signer.GetPubkey()
 //
@@ -62,12 +62,12 @@ func (c appCmd) String() string {
 }
 
 type Signer struct {
-	tk *tk1.TillitisKey // A connection to a Tillitis Key 1
+	tk *tk1.TillitisKey // A connection to a TKey
 }
 
 // New allocates a struct for communicating with the ed25519 signerapp
-// running on the Tillitis Key 1. You're expected to pass an existing
-// TK1 connection to it, so use it like this:
+// running on the TKey. You're expected to pass an existing connection
+// to it, so use it like this:
 //
 //	tk := tk1.New()
 //	err := tk.Connect(port)
@@ -80,7 +80,7 @@ func New(tk *tk1.TillitisKey) Signer {
 	return signer
 }
 
-// Close closes the connection to the TK1
+// Close closes the connection to the TKey
 func (s Signer) Close() error {
 	if err := s.tk.Close(); err != nil {
 		return fmt.Errorf("tk.Close: %w", err)

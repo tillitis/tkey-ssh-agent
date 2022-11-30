@@ -20,8 +20,8 @@ const (
 	tillitisUSBVID = "1207"
 	tillitisUSBPID = "8887"
 	// Custom errors
-	ErrNoDevice    = constError("no Tillitis Key connected")
-	ErrManyDevices = constError("more than one Tillitis Key connected")
+	ErrNoDevice    = constError("no TKey connected")
+	ErrManyDevices = constError("more than one TKey connected")
 )
 
 type SerialPort struct {
@@ -36,14 +36,14 @@ func DetectSerialPort(verbose bool) (string, error) {
 	}
 	if len(ports) == 0 {
 		if verbose {
-			fmt.Fprintf(os.Stderr, "Could not detect any Tillitis Key serial ports. You may pass\n"+
+			fmt.Fprintf(os.Stderr, "Could not detect any TKey serial ports. You may pass\n"+
 				"a known path using the --port flag.\n")
 		}
 		return "", ErrNoDevice
 	}
 	if len(ports) > 1 {
 		if verbose {
-			fmt.Fprintf(os.Stderr, "Detected %d Tillitis Key serial ports:\n", len(ports))
+			fmt.Fprintf(os.Stderr, "Detected %d TKey serial ports:\n", len(ports))
 			for _, p := range ports {
 				fmt.Fprintf(os.Stderr, "%s with serial number %s\n", p.DevPath, p.SerialNumber)
 			}

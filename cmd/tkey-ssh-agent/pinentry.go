@@ -10,7 +10,7 @@ func getSecret(udi string, pinentryProgram string) ([]byte, error) {
 	// Displaying the Unique Device Identifier (UDI) so the user will
 	// know which stick they have plugged in.
 	desc := fmt.Sprintf("%s needs a User Supplied Secret\n"+
-		"(USS) for your Tillitis Key with number:\n"+
+		"(USS) for your Tillitis TKey with number:\n"+
 		"%v", progname, udi)
 
 	// The default pinentry program (binaryName) in the client is

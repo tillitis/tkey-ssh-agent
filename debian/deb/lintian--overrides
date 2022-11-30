@@ -1,2 +1,2 @@
 # Go program linked statically.
-tk-ssh-agent: statically-linked-binary
+tkey-ssh-agent: statically-linked-binary

@@ -20,7 +20,7 @@ import (
 // Use when printing err/diag msgs
 var le = log.New(os.Stderr, "", 0)
 
-const progname = "tk-ssh-agent"
+const progname = "tkey-ssh-agent"
 
 func main() {
 	syscall.Umask(0o077)

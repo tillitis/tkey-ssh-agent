@@ -2,9 +2,9 @@
 *.o
 *.bin
 *.elf
-/tk-ssh-agent
-/runapp
-/tk-sign
+/tkey-ssh-agent
+/tkey-runapp
+/tkey-sign
 /runsign.sh
 /runtimer
 /runrandom

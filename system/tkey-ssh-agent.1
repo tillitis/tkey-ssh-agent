@@ -1,0 +1,85 @@
+.TH TKEY-SSH-AGENT "1" "November 2022" "tkey-ssh-agent" "User Commands"
+
+.SH NAME
+tkey-ssh-agent \- an ssh-agent backed by Tillitis TKey
+
+.SH SETUP
+.PP
+tkey-ssh-agent is an alternative ssh-agent backed by a private ed25519 key
+residing in the hardware TKey, a USB stick.
+.PP
+Run the following to enable automatic startup of tkey-ssh-agent when you log
+in, and also start it right now:
+.PP
+  systemctl --user enable --now tkey-ssh-agent
+.PP
+To make ssh(1), ssh-add(1) and other tools use tkey-ssh-agent, you must set the
+\fBSSH_AUTH_SOCK\fR environment variable for them, so they can find and
+communicate with the SSH agent. For your current shell this can be done like
+this (bash/zsh):
+.PP
+  export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/tkey-ssh-agent/sock"
+.PP
+This line can also be added to the startup file for your shell, e.g. in
+\fB~/.bashrc\fR. This would make all tools that honour \fBSSH_AUTH_SOCK\fR use
+tkey-ssh-agent.
+.PP
+With \fBSSH_AUTH_SOCK\fR correctly set, you can run \fBssh-add\ -L\fR to see the
+current public ed25519 key of your TKey.
+.PP
+Alternatvely, you can configure ssh(1) to use a specific SSH agent
+("IdentityAgent") depending on the host you want to access. Add the following
+to \fB~/.ssh/config\fR to make it use tkey-ssh-agent when connecting to
+"example.com":
+.PP
+  Host example.com
+.br
+    IdentityAgent ${XDG_RUNTIME_DIR}/tkey-ssh-agent/sock
+.PP
+Or use tkey-ssh-agent for all hosts except "example.com":
+.PP
+  Host example.com
+.br
+    IdentityAgent $SSH_AUTH_SOCK
+.br
+  Host *
+.br
+    IdentityAgent ${XDG_RUNTIME_DIR}/tkey-ssh-agent/sock\fR
+.PP
+The systemd unit runs tkey-ssh-agent with \fB--uss\fR, meaning that when it
+connects to the TKey, a User Supplied Secret (USS) will be loaded onto the USB
+stick along with the signer application. In short, changing the USS results in
+a different ed25519-key, a new identity. There is a more detailed explanation
+here: https://github.com/tillitis/tillitis-key1-apps#readme
+.PP
+The USS needs to be input interactively and is done using a pinentry(1)
+program. The pinentry program to use is found by looking in your
+\fBgpg-agent.conf\fR for pinentry-program, or 'pinentry' if not found there.
+Using 'pinentry-curses' will not work when the agent is not running in a
+terminal. If you want the tkey-ssh-agent to use a particular pinentry program
+by passing \fB--pinentry\fR, or make it read the USS from a file with
+\fB--uss-file\fR, or disable the use of USS, then you may create a drop-in file
+to override the systemd unit. This can for example be accomplished by running:
+.PP
+  systemctl --user edit tkey-ssh-agent
+.PP
+and editing the file brought up in your editor. Here an example to always
+use 'pinentry-qt':
+.PP
+  [Service]
+.br
+  ExecStart=
+.br
+  ExecStart=/usr/bin/tkey-ssh-agent\ --uss\ --agent-socket\ /%t/tkey-ssh-agent/sock\ --pinentry\ pinentry-qt
+.PP
+.SH DESCRIPTION
+
+.SH "SEE ALSO"
+.PP
+TKey apps and host programs:
+.br
+https://github.com/tillitis/tillitis-key1-apps
+.PP
+Tillitis:
+.br
+https://www.tillitis.se

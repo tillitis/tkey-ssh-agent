@@ -1,8 +1,8 @@
 #!/bin/bash
 set -eu
 
-# This script uses runapp to load a signerapp that has been patched to
-# disable the touch requirement. Then it runs tk-sign forever, signing 128
+# This script uses tkey-runapp to load a signerapp that has been patched to
+# disable the touch requirement. Then it runs tkey-sign forever, signing 128
 # bytes of new random data on every iteration.
 #
 # User is expected to first run this script once with the argument "patch",
@@ -12,8 +12,8 @@ set -eu
 # The script expects that TK1 to be in firmware mode, so it can load the
 # correct signerapp.
 #
-# Arguments to this script will be passed to runapp and tk-sign, so --port and
-# --speed can be used.
+# Arguments to this script will be passed to tkey-runapp and tkey-sign, so
+# --port and --speed can be used.
 #
 # If the environment variable USB_DEVICE is set, --port $USB_DEVICE is passed
 # to these programs.
@@ -46,7 +46,7 @@ commentout() {
   mv -f "$tmpf" "$file"
 }
 
-file1=cmd/tk-sign/main.go
+file1=cmd/tkey-sign/main.go
 line1="[[:space:]]*fmt.Print.*will.flash.*touch.*required.*"
 file2=apps/signerapp/main.c
 line2="[[:space:]]*wait_touch_.*"
@@ -55,7 +55,7 @@ if [[ "${1:-}" = "patch" ]]; then
   commentout "$file1" "$line1"
   commentout "$file2" "$line2"
   make -C apps
-  make runapp tk-sign
+  make tkey-runapp tkey-sign
   if ! is_commented "$file1" "$line1" \
       || ! is_commented "$file2" "$line2"; then
     printf "Something went wrong when patching.\n"
@@ -78,7 +78,7 @@ if [[ -n "${USB_DEVICE:-}" ]]; then
 fi
 
 # We expect to load the app ourselves, exiting if we couldn't
-if ! ./runapp "$@" --file apps/signerapp/app.bin; then
+if ! ./tkey-runapp "$@" --file apps/signerapp/app.bin; then
   exit 1
 fi
 
@@ -93,7 +93,7 @@ start=$(date +%s)
 while true; do
   # 128 bytes becomes 1 msg with 127 bytes and 1 msg with 1 byte
   dd 2>/dev/null if=/dev/urandom of="$msgf" bs=128 count=1
-  if ! ./tk-sign "$@" --file "$msgf"; then
+  if ! ./tkey-sign "$@" --file "$msgf"; then
     exit 1
   fi
   c=$(( c+1 ))

@@ -1,15 +1,15 @@
 [Unit]
-Description=ssh-agent backed by Tillitis Key
+Description: ssh-agent backed by Tillitis TKey
 Documentation=https://github.com/tillitis/tillitis-key1-apps
 
 [Service]
-ExecStart=##BINDIR##/tk-ssh-agent --uss --agent-socket /%t/tk-ssh-agent/sock
+ExecStart=##BINDIR##/tkey-ssh-agent --uss --agent-socket /%t/tkey-ssh-agent/sock
 ExecReload=/usr/bin/kill -HUP $MAINPID
 NoNewPrivileges=yes
 KeyringMode=private
 UMask=0177
 ProtectSystem=strict
-RuntimeDirectory=tk-ssh-agent
+RuntimeDirectory=tkey-ssh-agent
 RuntimeDirectoryMode=0700
 ReadWritePaths=/dev /run
 RestrictAddressFamilies=AF_UNIX

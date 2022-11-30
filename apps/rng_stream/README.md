@@ -15,7 +15,7 @@ by feeding the existing random source (/dev/random) with data from
  the generator.
 
 ## Usage
-Load the app into the TK1 device using 'runapp'. When the
+Load the app into the TK1 device using 'tkey-runapp'. When the
 application has been loaded it will start sending random
 bytes to the host.
 

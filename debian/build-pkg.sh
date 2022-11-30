@@ -3,10 +3,10 @@ set -eu
 
 # # TODO
 #
-# lintian ./tk-ssh-agent_0.1-1_amd64.deb
-# E: tk-ssh-agent: no-changelog usr/share/doc/tk-ssh-agent/changelog.Debian.gz (non-native package)
+# lintian ./tkey-ssh-agent_0.1-1_amd64.deb
+# E: tkey-ssh-agent: no-changelog usr/share/doc/tkey-ssh-agent/changelog.Debian.gz (non-native package)
 
-pkgname="tk-ssh-agent"
+pkgname="tkey-ssh-agent"
 upstream_version="0.1"
 debian_revision="1"
 pkgversion="$upstream_version-$debian_revision"
@@ -23,7 +23,7 @@ rm -rf "$destdir"
 mkdir "$destdir"
 
 pushd ..
-make tk-ssh-agent
+make tkey-ssh-agent
 make DESTDIR="$destdir" \
      PREFIX=/usr \
      SYSTEMDDIR=/usr/lib/systemd \
@@ -31,8 +31,8 @@ make DESTDIR="$destdir" \
      install
 popd
 
-install -Dm644 deb/copyright "$destdir"/usr/share/doc/tk-ssh-agent/copyright
-install -Dm644 deb/lintian--overrides "$destdir"/usr/share/lintian/overrides/tk-ssh-agent
+install -Dm644 deb/copyright "$destdir"/usr/share/doc/tkey-ssh-agent/copyright
+install -Dm644 deb/lintian--overrides "$destdir"/usr/share/lintian/overrides/tkey-ssh-agent
 mkdir "$destdir/DEBIAN"
 cp -af deb/postinst "$destdir/DEBIAN/"
 sed -e "s/##VERSION##/$pkgversion/" \

@@ -1,7 +1,7 @@
 RM=/bin/rm
 
 .PHONY: all
-all: apps runapp tk-sign runsign.sh tk-ssh-agent runtimer runrandom
+all: apps tkey-runapp tkey-sign runsign.sh tkey-ssh-agent runtimer runrandom
 
 DESTDIR=/
 PREFIX=/usr/local
@@ -13,22 +13,22 @@ destunit=$(DESTDIR)/$(SYSTEMDDIR)/user
 destrules=$(DESTDIR)/$(UDEVDIR)/rules.d
 .PHONY: install
 install:
-	install -Dm755 tk-ssh-agent $(destbin)/tk-ssh-agent
-	strip $(destbin)/tk-ssh-agent
-	install -Dm644 system/tk-ssh-agent.1 $(destman1)/tk-ssh-agent.1
-	gzip -n9f $(destman1)/tk-ssh-agent.1
-	install -Dm644 system/tk-ssh-agent.service.tmpl $(destunit)/tk-ssh-agent.service
-	sed -i -e "s,##BINDIR##,$(PREFIX)/bin," $(destunit)/tk-ssh-agent.service
-	install -Dm644 system/60-tillitis-key.rules $(destrules)/60-tillitis-key.rules
-	install -Dm644 system/90-tk-ssh-agent.rules $(destrules)/90-tk-ssh-agent.rules
+	install -Dm755 tkey-ssh-agent $(destbin)/tkey-ssh-agent
+	strip $(destbin)/tkey-ssh-agent
+	install -Dm644 system/tkey-ssh-agent.1 $(destman1)/tkey-ssh-agent.1
+	gzip -n9f $(destman1)/tkey-ssh-agent.1
+	install -Dm644 system/tkey-ssh-agent.service.tmpl $(destunit)/tkey-ssh-agent.service
+	sed -i -e "s,##BINDIR##,$(PREFIX)/bin," $(destunit)/tkey-ssh-agent.service
+	install -Dm644 system/60-tkey.rules $(destrules)/60-tkey.rules
+	install -Dm644 system/90-tkey-ssh-agent.rules $(destrules)/90-tkey-ssh-agent.rules
 .PHONY: uninstall
 uninstall:
 	rm -f \
-	$(destbin)/tk-ssh-agent \
-	$(destunit)/tk-ssh-agent.service \
-	$(destrules)/60-tillitis-key.rules \
-	$(destrules)/90-tk-ssh-agent.rules \
-	$(destman1)/tk-ssh-agent.1.gz
+	$(destbin)/tkey-ssh-agent \
+	$(destunit)/tkey-ssh-agent.service \
+	$(destrules)/60-tkey.rules \
+	$(destrules)/90-tkey-ssh-agent.rules \
+	$(destman1)/tkey-ssh-agent.1.gz
 .PHONY: reload-rules
 reload-rules:
 	udevadm control --reload
@@ -39,14 +39,14 @@ apps:
 	$(MAKE) -C apps
 
 # .PHONY to let go-build handle deps and rebuilds
-.PHONY: runapp
-runapp:
-	go build ./cmd/runapp
+.PHONY: tkey-runapp
+tkey-runapp:
+	go build ./cmd/tkey-runapp
 
 # .PHONY to let go-build handle deps and rebuilds
-.PHONY: tk-sign
-tk-sign:
-	go build ./cmd/tk-sign
+.PHONY: tkey-sign
+tkey-sign:
+	go build ./cmd/tkey-sign
 
 runsign.sh: apps/signerapp/runsign.sh
 	cp -af $< $@
@@ -62,14 +62,14 @@ runrandom: apps
 	go build ./cmd/runrandom
 
 # .PHONY to let go-build handle deps and rebuilds
-.PHONY: tk-ssh-agent
-tk-ssh-agent: apps
-	cp -af apps/signerapp/app.bin cmd/tk-ssh-agent/app.bin
-	CGO_ENABLED=0 go build -trimpath ./cmd/tk-ssh-agent
+.PHONY: tkey-ssh-agent
+tkey-ssh-agent: apps
+	cp -af apps/signerapp/app.bin cmd/tkey-ssh-agent/app.bin
+	CGO_ENABLED=0 go build -trimpath ./cmd/tkey-ssh-agent
 
 .PHONY: clean
 clean:
-	$(RM) -f runapp tk-sign runsign.sh tk-ssh-agent cmd/tk-ssh-agent/app.bin runtimer runrandom cmd/runrandom/app.bin
+	$(RM) -f tkey-runapp tkey-sign runsign.sh tkey-ssh-agent cmd/tkey-ssh-agent/app.bin runtimer runrandom cmd/runrandom/app.bin
 	$(MAKE) -C apps clean
 
 .PHONY: lint

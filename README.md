@@ -37,9 +37,10 @@ your system.
 
 The signerapp can be run both on the hardware Tillitis Key 1, and on a
 QEMU machine that emulates the platform. In both cases, the host
-program (`runapp`, `tk-sign` or `tk-ssh-agent` running on your
-computer) will talk to the app over a serial port, virtual or real.
-There is a separate section below which explains running in QEMU.
+program (`tkey-runapp`, `tkey-sign` or `tkey-ssh-agent` running on
+your computer) will talk to the app over a serial port, virtual or
+real. There is a separate section below which explains running in
+QEMU.
 
 
 ## Running apps
@@ -65,10 +66,10 @@ However, you should make sure that you can read and write to the
 serial port as your regular user.
 
 One way to accomplish this is by installing the provided
-`system/60-tillitis-key.rules` in `/etc/udev/rules.d/` and running
-`udevadm control --reload`. Now when a Tillitis Key is plugged in, its
-device path (like `/dev/ttyACM0`) should be read/writable by you who
-are logged in locally (see `loginctl`).
+`system/60-tkey.rules` in `/etc/udev/rules.d/` and running `udevadm
+control --reload`. Now when a Tillitis Key is plugged in, its device
+path (like `/dev/ttyACM0`) should be read/writable by you who are
+logged in locally (see `loginctl`).
 
 Another way is becoming a member of the group that owns the serial
 port. On Ubuntu that group is `dialout`, and you can do it like this:
@@ -154,19 +155,19 @@ these to stderr.
 
 This is a message signer, for root of trust and SSH authentication
 using ed25519. There are two host programs which can communicate with
-the app. `tk-sign` just performs a complete test signing.
-`tk-ssh-agent` is an ssh-agent that allow using the signer for SSH
+the app. `tkey-sign` just performs a complete test signing.
+`tkey-ssh-agent` is an ssh-agent that allow using the signer for SSH
 remote access.
 
-### Using runsign.sh, runapp, and tk-sign
+### Using runsign.sh, tkey-runapp, and tkey-sign
 
 If you're running on hardware, the LED on the USB stick is expected to
 be flashing white, indicating that firmware is ready to receive an app
 to run.
 
-There's a script called `runsign.sh` which runs `runapp` to load and
-start the signerapp. It then runs `tk-sign` which asks the app to sign
-a message and verifies it. You can use it like this:
+There's a script called `runsign.sh` which runs `tkey-runapp` to load
+and start the signerapp. It then runs `tkey-sign` which asks the app
+to sign a message and verifies it. You can use it like this:
 
 ```
 ./runsign.sh file-with-message
@@ -176,23 +177,24 @@ The file with the message can currently be at most 4096 bytes long. If
 the `--port` flags needs to be used, you can pass it after the message
 argument.
 
-The host program `runapp` only loads and starts an app. You'll then
-have to switch to a different program that speaks your apps specific
-protocol. For instance the `tk-sign` program provided here.
+The host program `tkey-runapp` only loads and starts an app. You'll
+then have to switch to a different program that speaks your apps
+specific protocol. For instance the `tkey-sign` program provided here.
 
-To run `runapp` you need to specify both the serial port (unless
+To run `tkey-runapp` you need to specify both the serial port (unless
 you're using the default `/dev/ttyACM0`) and the raw app binary that
 should be run. The port used below is just an example.
 
 ```
-$ ./runapp --port /dev/pts/1 --file apps/signerapp/app.bin
+$ ./tkey-runapp --port /dev/pts/1 --file apps/signerapp/app.bin
 ```
 
 While the app is being loaded, the LED on the USB stick will be steady
-white. The `runapp` also supports sending a User Supplied Secret (USS)
-to the firmware when loading the app. By adding the flag `--uss`, you
-will be asked to type a phrase which will be hashed to become the USS
-digest (the final newline is removed from the phrase before hashing).
+white. The `tkey-runapp` also supports sending a User Supplied Secret
+(USS) to the firmware when loading the app. By adding the flag
+`--uss`, you will be asked to type a phrase which will be hashed to
+become the USS digest (the final newline is removed from the phrase
+before hashing).
 
 Alternatively, you may use `--uss-file=filename` to make it read the
 contents of a file, which is then hashed as the USS. The filename can
@@ -210,11 +212,11 @@ USS will change, and so will your identity. To learn more, read the
 [system_description.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/system_description/system_description.md)
 (in the tillitis-key1 repository).
 
-`tk-sign` is used in a similar way, assuming `runapp` has been used to
-load the signerapp:
+`tkey-sign` is used in a similar way, assuming `tkey-runapp` has been
+used to load the signerapp:
 
 ```
-./tk-sign --port /dev/pts/1 --file file-with-message-to-sign
+./tkey-sign --port /dev/pts/1 --file file-with-message-to-sign
 ```
 
 If you're using real hardware, the LED on the USB stick is a steady
@@ -242,18 +244,18 @@ alternatively run the `reset-tk1` script (in the tillitis-key1 repo).
 
 That was fun, now let's try the ssh-agent!
 
-### Using tk-ssh-agent
+### Using tkey-ssh-agent
 
 This host program for the signerapp is a complete, alternative
 ssh-agent with practical use. The signerapp binary gets built into the
-tk-ssh-agent, which will load it onto USB stick when started. Like the
-other host programs, tk-ssh-agent tries to auto-detect serial ports of
-Tillitis USB sticks. If more than one is found, or if you're running
-on QEMU, then you'll need to use the `--port` flag. An example of
-that:
+tkey-ssh-agent, which will load it onto USB stick when started. Like
+the other host programs, tkey-ssh-agent tries to auto-detect serial
+ports of Tillitis USB sticks. If more than one is found, or if you're
+running on QEMU, then you'll need to use the `--port` flag. An example
+of that:
 
 ```
-$ ./tk-ssh-agent -a ./agent.sock --port /dev/pts/1
+$ ./tkey-ssh-agent -a ./agent.sock --port /dev/pts/1
 ```
 
 This will start the ssh-agent and tell it to listen on the specified
@@ -277,25 +279,25 @@ $ SSH_AUTH_SOCK=/path/to/agent.sock ssh -F /dev/null localhost
 `-F /dev/null` is used to ignore your ~/.ssh/config which could
 interfere with this test.
 
-The tk-ssh-agent also supports the `--uss` and `--uss-file` flags, as
-described for `runapp` above.
+The tkey-ssh-agent also supports the `--uss` and `--uss-file` flags,
+as described for `tkey-runapp` above.
 
 You can use `-k` (long option: `--show-pubkey`) to only output the
 pubkey. The pubkey is printed to stdout for easy redirection, but some
 messages are still present on stderr.
 
-#### Installing tk-ssh-agent
+#### Installing tkey-ssh-agent
 
-For Linux, we provide udev rules to automatically let `tk-ssh-agent`
+For Linux, we provide udev rules to automatically let `tkey-ssh-agent`
 know when a Tillitis Key is inserted or removed. You can install
-`system/90-tk-ssh-agent.rules` in `/etc/udev/rules.d/` and run
-`udevadm control --reload`. Now the `tk-ssh-agent` will get a SIGHUP
+`system/90-tkey-ssh-agent.rules` in `/etc/udev/rules.d/` and run
+`udevadm control --reload`. Now the `tkey-ssh-agent` will get a SIGHUP
 every time you insert or remove the Tillitis Key. The
 [`Makefile`](Makefile) has an `install` target that installs
-tk-ssh-agent and the rules for you. First `make` then `sudo make
+tkey-ssh-agent and the rules for you. First `make` then `sudo make
 install`, then `sudo make reload-rules` to apply the rules to the
 running system. This also installs a man page which contains some
-useful information, try `man ./system/tk-ssh-agent.1` to read it
+useful information, try `man ./system/tkey-ssh-agent.1` to read it
 before installing.
 
 There is also a Work In Progress Debian/Ubuntu package which can be
@@ -327,7 +329,7 @@ that can be read from Tillitis Key's serial port device. In Linux for
 example like: `dd bs=1 count=1024 if=/dev/ttyACM0 of=rngdata` (or just
 a plain `cat`).
 
-The app can be loaded and started using the `runapp` as described
+The app can be loaded and started using the `tkey-runapp` as described
 above.
 
 The RNG is a Hash_DRBG implementation using the BLAKE2s hash function

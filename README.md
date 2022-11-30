@@ -14,6 +14,7 @@ Note that development is ongoing. For example, changes might be made
 to the signerapp, causing the public/private keys it provides to
 change. To avoid unexpected changes, please use a tagged release.
 
+See [Release notes](docs/release_notes.md).
 
 ## Building apps
 

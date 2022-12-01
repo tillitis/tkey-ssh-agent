@@ -8,7 +8,7 @@ INCLUDE=include
 # QEMU debug port, remove -DNODEBUG below
 CFLAGS = -target riscv32-unknown-none-elf -march=rv32iczmmul -mabi=ilp32 -mcmodel=medany \
    -static -std=gnu99 -O2 -ffast-math -fno-common -fno-builtin-printf \
-   -fno-builtin-putchar -nostdlib -mno-relax -Wall -flto -I $(INCLUDE) -DNODEBUG
+   -fno-builtin-putchar -nostdlib -mno-relax -Wall -flto -I $(INCLUDE) -I . -DNODEBUG
 
 AS = clang
 ASFLAGS = -target riscv32-unknown-none-elf -march=rv32iczmmul -mabi=ilp32 -mcmodel=medany -mno-relax
@@ -31,6 +31,12 @@ libcommon/libcommon.a: $(LIBOBJS)
 	llvm-ar -qc $@ libcommon/lib.o libcommon/proto.o
 $(LIBOBJS): include/types.h include/tk1_mem.h include/lib.h include/proto.h
 
+# Monocypher
+MONOOBJS=monocypher/monocypher.o monocypher/monocypher-ed25519.o
+monocypher/libmonocypher.a: $(MONOOBJS)
+	llvm-ar -qc $@ $(MONOOBJS)
+$MONOOBJS: monocypher/monocypher-ed25519.h monocypher/monocypher.h
+
 LIBS=libcrt0/libcrt0.a libcommon/libcommon.a
 
 # Turn elf into bin for device
@@ -39,14 +45,11 @@ LIBS=libcrt0/libcrt0.a libcommon/libcommon.a
 
 # Simple ed25519 signer app
 SIGNEROBJS=signerapp/app_proto.o \
-    signerapp/main.o \
-    signerapp/monocypher/monocypher.o \
-    signerapp/monocypher/monocypher-ed25519.o
-signerapp/app.elf: $(LIBS) $(SIGNEROBJS) app.lds
-	$(CC) $(CFLAGS) $(SIGNEROBJS) $(LDFLAGS) -o $@
-$(SIGNEROBJS): $(INCLUDE)/tk1_mem.h signerapp/app_proto.h \
-    signerapp/monocypher/monocypher.h \
-    signerapp/monocypher/monocypher-ed25519.h
+    signerapp/main.o
+signerapp/app.elf: $(LIBS) monocypher/libmonocypher.a $(SIGNEROBJS) app.lds
+	$(CC) $(CFLAGS) $(SIGNEROBJS) $(LDFLAGS) -L monocypher -lmonocypher -I monocypher -o $@
+
+$(SIGNEROBJS): $(INCLUDE)/tk1_mem.h signerapp/app_proto.h
 
 # A simpler timer app
 TIMEROBJS = timer/main.o timer/app_proto.o
@@ -77,6 +80,7 @@ clean:
 	$(RM) -f random/random.bin random/random.elf $(RANDOMOBJS)
 	$(RM) -f rng_stream/rng_stream.bin rng_stream/rng_stream.elf $(RNG_STREAM_OBJS)
 	$(RM) -f $(LIBS) $(LIBOBJS) libcrt0/crt0.o
+	$(RM) -f monocypher/libmonocypher.a $(MONOOBJS)
 	$(RM) -f blink/blink.bin blink/blink.elf blink/blink.o
 
 FMTFILES=include/*.h libcommon/*.c signerapp/*.[ch] timer/*.[ch] random/*.[ch] rng_stream/*.[ch]

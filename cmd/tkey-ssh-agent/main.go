@@ -62,7 +62,7 @@ func main() {
 	pflag.Usage = func() {
 		desc := fmt.Sprintf(`Usage: %[1]s -a|-k|-L [flags...]
 
-%[1]s is an alternative ssh-agent that communicates with a Tillitis TKey
+%[1]s is an alternative SSH agent that communicates with a Tillitis TKey
 USB stick. This stick holds private key and signing functionality for public key
 authentication.
 

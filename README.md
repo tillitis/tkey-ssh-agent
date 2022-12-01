@@ -156,7 +156,7 @@ these to stderr.
 This is a message signer, for root of trust and SSH authentication
 using ed25519. There are two host programs which can communicate with
 the app. `tkey-sign` just performs a complete test signing.
-`tkey-ssh-agent` is an ssh-agent that allow using the signer for SSH
+`tkey-ssh-agent` is an SSH agent that allow using the signer for SSH
 remote access.
 
 ### Using runsign.sh, tkey-runapp, and tkey-sign
@@ -242,12 +242,12 @@ the programming jig and at the same time plugged into the computer,
 then you need to unplug both the USB stick and the programmer. Or
 alternatively run the `reset-tk1` script (in the tillitis-key1 repo).
 
-That was fun, now let's try the ssh-agent!
+That was fun, now let's try the SSH agent!
 
 ### Using tkey-ssh-agent
 
-This host program for the signerapp is a complete, alternative
-ssh-agent with practical use. The signerapp binary gets built into the
+This host program for the signerapp is a complete, alternative SSH
+agent with practical use. The signerapp binary gets built into the
 tkey-ssh-agent, which will load it onto USB stick when started. Like
 the other host programs, tkey-ssh-agent tries to auto-detect serial
 ports of Tillitis USB sticks. If more than one is found, or if you're
@@ -258,7 +258,7 @@ of that:
 $ ./tkey-ssh-agent -a ./agent.sock --port /dev/pts/1
 ```
 
-This will start the ssh-agent and tell it to listen on the specified
+This will start the SSH agent and tell it to listen on the specified
 socket `./agent.sock`.
 
 It will also output the SSH ed25519 public key for this instance of

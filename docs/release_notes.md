@@ -1,5 +1,9 @@
 # Release notes
 
+## unreleased
+
+Commit 5ba5a0bee25f3ba548fe66adf8c05b31ccb834d9 Make monocypher a library - breaks CDI!
+
 ## v0.0.1
 
 Since we haven't tagged any release before this we list some recent

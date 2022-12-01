@@ -1,8 +1,11 @@
 # Tillitis TKey Apps
 
-This repository contains applications to run on the TKey.
+This repository contains applications to run on the TKey USB security
+stick. For testing and development purposes the apps can also be run
+in QEMU, this is also explained in detail below.
 
 Current list of apps:
+
 - The Ed25519 signerapp. Used as root of trust and SSH authentication
 - The random app.
 - The RNG stream app. Providing arbitrary high quality random numbers
@@ -36,11 +39,11 @@ If your available `objcopy` is anything other than the default
 `llvm-objcopy`, then define `OBJCOPY` to whatever they're called on
 your system.
 
-The signerapp can be run both on the hardware TKey, and on a QEMU
-machine that emulates the platform. In both cases, the host program
-(`tkey-runapp`, `tkey-sign` or `tkey-ssh-agent` running on your
-computer) will talk to the app over a serial port, virtual or real.
-There is a separate section below which explains running in QEMU.
+The apps can be run both on the hardware TKey, and on a QEMU machine
+that emulates the platform. In both cases, the host program (the
+program that runs on your computer, for example `tkey-ssh-agent`) will
+talk to the app over a serial port, virtual or real. There is a
+separate section below which explains running in QEMU.
 
 
 ## Running apps
@@ -109,7 +112,10 @@ running the host programs.
 ### Running apps in QEMU
 
 Build our [qemu](https://github.com/tillitis/qemu). Use the `tk1`
-branch:
+branch. Please follow the
+[toolchain_setup.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/toolchain_setup.md)
+and install the packages listed there first.
+
 
 ```
 $ git clone -b tk1 https://github.com/tillitis/qemu

@@ -61,11 +61,12 @@ runrandom: apps
 	cp -af apps/random/random.bin cmd/runrandom/app.bin
 	go build ./cmd/runrandom
 
+TKEY_SSH_AGENT_VERSION ?=
 # .PHONY to let go-build handle deps and rebuilds
 .PHONY: tkey-ssh-agent
 tkey-ssh-agent: apps
 	cp -af apps/signerapp/app.bin cmd/tkey-ssh-agent/app.bin
-	CGO_ENABLED=0 go build -trimpath ./cmd/tkey-ssh-agent
+	CGO_ENABLED=0 go build -ldflags "-X main.version=$(TKEY_SSH_AGENT_VERSION)" -trimpath ./cmd/tkey-ssh-agent
 
 .PHONY: clean
 clean:

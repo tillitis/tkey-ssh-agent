@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 	"strings"
 	"syscall"
 
@@ -22,6 +23,8 @@ var le = log.New(os.Stderr, "", 0)
 
 const progname = "tkey-ssh-agent"
 
+var version string
+
 func main() {
 	syscall.Umask(0o077)
 
@@ -29,9 +32,13 @@ func main() {
 		os.Exit(code)
 	}
 
+	if version == "" {
+		version = readBuildInfo()
+	}
+
 	var sockPath, devPath, fileUSS, pinentry string
 	var speed int
-	var enterUSS, showPubkeyOnly, listPortsOnly bool
+	var enterUSS, showPubkeyOnly, listPortsOnly, versionOnly bool
 	pflag.CommandLine.SetOutput(os.Stderr)
 	pflag.CommandLine.SortFlags = false
 	pflag.StringVarP(&sockPath, "agent-socket", "a", "",
@@ -50,6 +57,8 @@ func main() {
 		"Read `FILE` and hash its contents as the USS. Use '-' (dash) to read from stdin. The full contents are hashed unmodified (e.g. newlines are not stripped).")
 	pflag.StringVar(&pinentry, "pinentry", "",
 		"Pinentry `PROGRAM` for use by --uss. The default is found by looking in your gpg-agent.conf for pinentry-program, or 'pinentry' if not found there.")
+	pflag.BoolVar(&versionOnly, "version", false,
+		"Output version information.")
 	pflag.Usage = func() {
 		desc := fmt.Sprintf(`Usage: %[1]s -a|-k|-L [flags...]
 
@@ -75,6 +84,11 @@ green when the stick must be touched to complete a signature.`, progname)
 		le.Printf("Unexpected argument: %s\n\n", strings.Join(pflag.Args(), " "))
 		pflag.Usage()
 		exit(2)
+	}
+
+	if versionOnly {
+		fmt.Printf("%s %s\n", progname, version)
+		exit(0)
 	}
 
 	exclusive := 0
@@ -154,6 +168,21 @@ green when the stick must be touched to complete a signature.`, progname)
 	}
 
 	exit(0)
+}
+
+func readBuildInfo() string {
+	version := "devel without BuildInfo"
+	if info, ok := debug.ReadBuildInfo(); ok {
+		sb := strings.Builder{}
+		sb.WriteString("devel")
+		for _, setting := range info.Settings {
+			if strings.HasPrefix(setting.Key, "vcs") {
+				sb.WriteString(fmt.Sprintf(" %s=%s", setting.Key, setting.Value))
+			}
+		}
+		version = sb.String()
+	}
+	return version
 }
 
 func printPorts() (int, error) {

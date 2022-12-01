@@ -24,8 +24,10 @@ This line can also be added to the startup file for your shell, e.g. in
 \fB~/.bashrc\fR. This would make all tools that honour \fBSSH_AUTH_SOCK\fR use
 tkey-ssh-agent.
 .PP
-With \fBSSH_AUTH_SOCK\fR correctly set, you can run \fBssh-add\ -L\fR to see
-the current SSH ed25519 public key of your TKey.
+With \fBSSH_AUTH_SOCK\fR correctly set, you can see the current SSH ed25519
+public key by running:
+.PP
+  ssh-add -L
 .PP
 Alternatvely, you can configure ssh(1) to use a specific SSH agent
 ("IdentityAgent") depending on the host you want to access. Add the following
@@ -70,9 +72,14 @@ using 'pinentry-qt' for entering the USS:
 .br
   ExecStart=
 .br
-  ExecStart=/usr/bin/tkey-ssh-agent\ --uss\ --agent-socket\ /%t/tkey-ssh-agent/sock\ --pinentry\ pinentry-qt
+  ExecStart=/usr/bin/tkey-ssh-agent --uss --agent-socket /%t/tkey-ssh-agent/sock --pinentry pinentry-qt
 .PP
+To restart the agent with new options, run:
+.PP
+  systemctl --user restart tkey-ssh-agent
 .SH DESCRIPTION
+.PP
+-See \fBtkey-ssh-agent\ -h\fR for detailed usage information.
 
 .SH "SEE ALSO"
 .PP

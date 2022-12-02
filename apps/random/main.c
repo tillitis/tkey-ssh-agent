@@ -50,19 +50,19 @@ int main(void)
 	uint8_t rsp[CMDLEN_MAXBYTES];
 	uint8_t in;
 
-	puts("Hello, I'm randomapp! &stack is on: ");
-	putinthex((uint32_t)&stack);
-	lf();
+	qemu_puts("Hello, I'm randomapp! &stack is on: ");
+	qemu_putinthex((uint32_t)&stack);
+	qemu_lf();
 
 	for (;;) {
 		// blocking; flashing while waiting for cmd
 		in = readbyte_ledflash(LED_RED | LED_BLUE, 900000);
-		puts("Read byte: ");
-		puthex(in);
-		putchar('\n');
+		qemu_puts("Read byte: ");
+		qemu_puthex(in);
+		qemu_lf();
 
 		if (parseframe(in, &hdr) == -1) {
-			puts("Couldn't parse header\n");
+			qemu_puts("Couldn't parse header\n");
 			continue;
 		}
 
@@ -72,9 +72,9 @@ int main(void)
 
 		// Is it for us?
 		if (hdr.endpoint != DST_SW) {
-			puts("Message not meant for app. endpoint was 0x");
-			puthex(hdr.endpoint);
-			lf();
+			qemu_puts("Message not meant for app. endpoint was 0x");
+			qemu_puthex(hdr.endpoint);
+			qemu_lf();
 			continue;
 		}
 
@@ -84,7 +84,7 @@ int main(void)
 		// Min length is 1 byte so this should always be here
 		switch (cmd[0]) {
 		case APP_CMD_GET_NAMEVERSION:
-			puts("APP_CMD_GET_NAMEVERSION\n");
+			qemu_puts("APP_CMD_GET_NAMEVERSION\n");
 			// only zeroes if unexpected cmdlen bytelen
 			if (hdr.len == 1) {
 				memcpy(rsp, app_name0, 4);
@@ -95,15 +95,16 @@ int main(void)
 			break;
 
 		case APP_CMD_GET_RANDOM:
-			puts("APP_CMD_GET_RANDOM\n");
+			qemu_puts("APP_CMD_GET_RANDOM\n");
 			if (hdr.len != 4) {
-				puts("APP_CMD_GET_RANDOM bad cmd length\n");
+				qemu_puts(
+				    "APP_CMD_GET_RANDOM bad cmd length\n");
 				break;
 			}
 			// cmd[1] is number of bytes requested
 			int bytes = cmd[1];
 			if (bytes < 1 || bytes > RANDOM_PAYLOAD_MAXBYTES) {
-				puts("Requested bytes outside range\n");
+				qemu_puts("Requested bytes outside range\n");
 				rsp[0] = STATUS_BAD;
 				appreply(hdr, APP_RSP_GET_RANDOM, rsp);
 				break;
@@ -115,9 +116,9 @@ int main(void)
 			break;
 
 		default:
-			puts("Received unknown command: ");
-			puthex(cmd[0]);
-			lf();
+			qemu_puts("Received unknown command: ");
+			qemu_puthex(cmd[0]);
+			qemu_lf();
 			appreply(hdr, APP_RSP_UNKNOWN_CMD, rsp);
 		}
 	}

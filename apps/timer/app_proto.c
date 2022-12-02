@@ -31,9 +31,9 @@ void appreply(struct frame_header hdr, enum appcmd rspcode, void *buf)
 		break;
 
 	default:
-		puts("appreply(): Unknown response code: ");
-		puthex(rspcode);
-		lf();
+		qemu_puts("appreply(): Unknown response code: ");
+		qemu_puthex(rspcode);
+		qemu_lf();
 
 		return;
 	}

@@ -60,9 +60,9 @@ int main(void)
 	uint8_t in;
 	uint32_t local_cdi[8];
 
-	puts("Hello! &stack is on: ");
-	putinthex((uint32_t)&stack);
-	lf();
+	qemu_puts("Hello! &stack is on: ");
+	qemu_putinthex((uint32_t)&stack);
+	qemu_lf();
 
 	// Generate a public key from CDI (only word aligned access to CDI)
 	wordcpy(local_cdi, (void *)cdi, 8);
@@ -74,12 +74,12 @@ int main(void)
 		// blocking; flashing a safe blue while waiting for cmd
 		in = readbyte_ledflash(LED_BLUE, 900000);
 		*led = led_steady;
-		puts("Read byte: ");
-		puthex(in);
-		putchar('\n');
+		qemu_puts("Read byte: ");
+		qemu_puthex(in);
+		qemu_lf();
 
 		if (parseframe(in, &hdr) == -1) {
-			puts("Couldn't parse header\n");
+			qemu_puts("Couldn't parse header\n");
 			continue;
 		}
 
@@ -89,9 +89,9 @@ int main(void)
 
 		// Is it for us?
 		if (hdr.endpoint != DST_SW) {
-			puts("Message not meant for app. endpoint was 0x");
-			puthex(hdr.endpoint);
-			lf();
+			qemu_puts("Message not meant for app. endpoint was 0x");
+			qemu_puthex(hdr.endpoint);
+			qemu_lf();
 			continue;
 		}
 
@@ -103,13 +103,13 @@ int main(void)
 		// Min length is 1 byte so this should always be here
 		switch (cmd[0]) {
 		case APP_CMD_GET_PUBKEY:
-			puts("APP_CMD_GET_PUBKEY\n");
+			qemu_puts("APP_CMD_GET_PUBKEY\n");
 			memcpy(rsp, pubkey, 32);
 			appreply(hdr, APP_RSP_GET_PUBKEY, rsp);
 			break;
 
 		case APP_CMD_SET_SIZE:
-			puts("APP_CMD_SET_SIZE\n");
+			qemu_puts("APP_CMD_SET_SIZE\n");
 			// Bad length
 			if (hdr.len != 32) {
 				rsp[0] = STATUS_BAD;
@@ -122,7 +122,7 @@ int main(void)
 				       (cmd[4] << 24);
 
 			if (message_size > MAX_SIGN_SIZE) {
-				puts("Message too big!\n");
+				qemu_puts("Message too big!\n");
 				rsp[0] = STATUS_BAD;
 				appreply(hdr, APP_RSP_SET_SIZE, rsp);
 				break;
@@ -138,7 +138,7 @@ int main(void)
 			break;
 
 		case APP_CMD_SIGN_DATA:
-			puts("APP_CMD_SIGN_DATA\n");
+			qemu_puts("APP_CMD_SIGN_DATA\n");
 			const uint32_t cmdBytelen = 128;
 
 			// Bad length of this command, or APP_CMD_SET_SIZE has
@@ -176,7 +176,7 @@ int main(void)
 			break;
 
 		case APP_CMD_GET_SIG:
-			puts("APP_CMD_GET_SIG\n");
+			qemu_puts("APP_CMD_GET_SIG\n");
 			if (signature_done == 0) {
 				rsp[0] = STATUS_BAD;
 				appreply(hdr, APP_RSP_GET_SIG, rsp);
@@ -189,7 +189,7 @@ int main(void)
 			break;
 
 		case APP_CMD_GET_NAMEVERSION:
-			puts("APP_CMD_GET_NAMEVERSION\n");
+			qemu_puts("APP_CMD_GET_NAMEVERSION\n");
 			// only zeroes if unexpected cmdlen bytelen
 			if (hdr.len == 1) {
 				memcpy(rsp, app_name0, 4);
@@ -200,7 +200,7 @@ int main(void)
 			break;
 
 		case APP_CMD_GET_UDI:
-			puts("APP_CMD_GET_UDI\n");
+			qemu_puts("APP_CMD_GET_UDI\n");
 			// Bad length
 			if (hdr.len != 1) {
 				rsp[0] = STATUS_BAD;
@@ -215,9 +215,9 @@ int main(void)
 			break;
 
 		default:
-			puts("Received unknown command: ");
-			puthex(cmd[0]);
-			lf();
+			qemu_puts("Received unknown command: ");
+			qemu_puthex(cmd[0]);
+			qemu_lf();
 			appreply(hdr, APP_RSP_UNKNOWN_CMD, rsp);
 		}
 	}

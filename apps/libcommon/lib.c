@@ -7,43 +7,43 @@
 #include "tk1_mem.h"
 
 #ifdef NODEBUG
-int putchar(uint8_t ch)
+int qemu_putchar(uint8_t ch)
 {
 	return 0;
 }
 
-void lf()
+void qemu_lf()
 {
 }
 
-void putinthex(const uint32_t n)
+void qemu_putinthex(const uint32_t n)
 {
 }
 
-void puts(const char *s)
+void qemu_puts(const char *s)
 {
 }
 
-void puthex(uint8_t ch)
+void qemu_puthex(uint8_t ch)
 {
 }
 
-void hexdump(uint8_t *buf, int len)
+void qemu_hexdump(uint8_t *buf, int len)
 {
 }
 #else
 static volatile uint8_t *debugtx = (volatile uint8_t *)TK1_MMIO_QEMU_DEBUG;
 
-int putchar(uint8_t ch)
+int qemu_putchar(uint8_t ch)
 {
 	*debugtx = ch;
 
 	return ch;
 }
 
-void lf()
+void qemu_lf()
 {
-	putchar('\n');
+	qemu_putchar('\n');
 }
 
 char hexnibble(uint8_t ch)
@@ -86,30 +86,30 @@ char hexnibble(uint8_t ch)
 	return '0';
 }
 
-void puthex(uint8_t ch)
+void qemu_puthex(uint8_t ch)
 {
-	putchar(hexnibble(ch >> 4 & 0x0f));
-	putchar(hexnibble(ch & 0x0f));
+	qemu_putchar(hexnibble(ch >> 4 & 0x0f));
+	qemu_putchar(hexnibble(ch & 0x0f));
 }
 
-void putinthex(const uint32_t n)
+void qemu_putinthex(const uint32_t n)
 {
 	uint8_t buf[4];
 
 	memcpy(buf, &n, 4);
-	puts("0x");
+	qemu_puts("0x");
 	for (int i = 3; i > -1; i--) {
-		puthex(buf[i]);
+		qemu_puthex(buf[i]);
 	}
 }
 
-void puts(const char *s)
+void qemu_puts(const char *s)
 {
 	while (*s)
-		putchar(*s++);
+		qemu_putchar(*s++);
 }
 
-void hexdump(uint8_t *buf, int len)
+void qemu_hexdump(uint8_t *buf, int len)
 {
 	uint8_t *row;
 	uint8_t *byte;
@@ -123,10 +123,10 @@ void hexdump(uint8_t *buf, int len)
 		// printf("%07x ", row - buf);
 
 		for (byte = row; byte != max && byte != (row + 16); byte++) {
-			puthex(*byte);
+			qemu_puthex(*byte);
 		}
 
-		(void)putchar('\n');
+		qemu_lf();
 	}
 }
 #endif

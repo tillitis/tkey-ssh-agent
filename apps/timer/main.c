@@ -25,7 +25,7 @@ int main(void)
 		uint8_t in = readbyte();
 
 		if (parseframe(in, &hdr) == -1) {
-			puts("Couldn't parse header\n");
+			qemu_puts("Couldn't parse header\n");
 			continue;
 		}
 
@@ -35,9 +35,9 @@ int main(void)
 
 		// Is it for us?
 		if (hdr.endpoint != DST_SW) {
-			puts("Message not meant for app. endpoint was 0x");
-			puthex(hdr.endpoint);
-			lf();
+			qemu_puts("Message not meant for app. endpoint was 0x");
+			qemu_puthex(hdr.endpoint);
+			qemu_lf();
 			continue;
 		}
 
@@ -46,10 +46,10 @@ int main(void)
 
 		switch (cmd[0]) {
 		case APP_CMD_SET_TIMER:
-			puts("APP_CMD_SET_TIMER\n");
+			qemu_puts("APP_CMD_SET_TIMER\n");
 			if (hdr.len != 32) {
 				// Bad length
-				puts("APP_CMD_SET_TIMER bad length\n");
+				qemu_puts("APP_CMD_SET_TIMER bad length\n");
 				rsp[0] = STATUS_BAD;
 				appreply(hdr, APP_RSP_SET_TIMER, rsp);
 				break;
@@ -63,10 +63,10 @@ int main(void)
 			break;
 
 		case APP_CMD_SET_PRESCALER:
-			puts("APP_CMD_SET_PRESCALER\n");
+			qemu_puts("APP_CMD_SET_PRESCALER\n");
 			if (hdr.len != 32) {
 				// Bad length
-				puts("APP_CMD_SET_TIMER bad length\n");
+				qemu_puts("APP_CMD_SET_TIMER bad length\n");
 				rsp[0] = STATUS_BAD;
 				appreply(hdr, APP_RSP_SET_PRESCALER, rsp);
 				break;
@@ -85,7 +85,7 @@ int main(void)
 			// Wait for the timer to expire
 			for (;;) {
 				if (*timer_status == 1) {
-					puts("Timer expired\n");
+					qemu_puts("Timer expired\n");
 					break;
 				}
 			}
@@ -95,9 +95,9 @@ int main(void)
 			break;
 
 		default:
-			puts("Received unknown command: ");
-			puthex(cmd[0]);
-			lf();
+			qemu_puts("Received unknown command: ");
+			qemu_puthex(cmd[0]);
+			qemu_lf();
 			appreply(hdr, APP_RSP_UNKNOWN_CMD, rsp);
 			break;
 		}

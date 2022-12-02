@@ -6,12 +6,12 @@
 
 #include "types.h"
 
-int putchar(uint8_t ch);
-void lf();
-void putinthex(const uint32_t n);
-void puts(const char *s);
-void puthex(uint8_t ch);
-void hexdump(uint8_t *buf, int len);
+int qemu_putchar(uint8_t ch);
+void qemu_lf();
+void qemu_putinthex(const uint32_t n);
+void qemu_puts(const char *s);
+void qemu_puthex(uint8_t ch);
+void qemu_hexdump(uint8_t *buf, int len);
 void *memset(void *dest, int c, unsigned n);
 void *memcpy(void *dest, const void *src, unsigned n);
 void *wordcpy(void *dest, const void *src, unsigned n);

@@ -2,7 +2,8 @@
 
 ## unreleased
 
-Commit 5ba5a0bee25f3ba548fe66adf8c05b31ccb834d9 Make monocypher a library - breaks CDI!
+- Make monocypher a library - breaks CDI!
+- Remove GET_UDI from signer app, and the use of it - breaks CDI!
 
 ## v0.0.1
 

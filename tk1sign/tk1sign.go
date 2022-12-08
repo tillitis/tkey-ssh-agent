@@ -35,8 +35,6 @@ var (
 	rspGetSig         = appCmd{0x08, "rspGetSig", tk1.CmdLen128}
 	cmdGetNameVersion = appCmd{0x09, "cmdGetNameVersion", tk1.CmdLen1}
 	rspGetNameVersion = appCmd{0x0a, "rspGetNameVersion", tk1.CmdLen32}
-	cmdGetUDI         = appCmd{0x0b, "cmdGetUDI", tk1.CmdLen1}
-	rspGetUDI         = appCmd{0x0c, "rspGetUDI", tk1.CmdLen32}
 )
 
 type appCmd struct {
@@ -121,36 +119,6 @@ func (s Signer) GetAppNameVersion() (*tk1.NameVersion, error) {
 	nameVer.Unpack(rx[2:])
 
 	return nameVer, nil
-}
-
-// GetUDI gets the two 32-bit words of Unique Device ID (UDI),
-// returning them as 16 hex characters.
-func (s Signer) GetUDI() (*tk1.UDI, error) {
-	id := 2
-	tx, err := tk1.NewFrameBuf(cmdGetUDI, id)
-	if err != nil {
-		return nil, fmt.Errorf("NewFrameBuf: %w", err)
-	}
-
-	tk1.Dump("GetUDI tx", tx)
-	if err = s.tk.Write(tx); err != nil {
-		return nil, fmt.Errorf("Write: %w", err)
-	}
-
-	rx, _, err := s.tk.ReadFrame(rspGetUDI, id)
-	tk1.Dump("GetUDI rx", rx)
-	if err != nil {
-		return nil, fmt.Errorf("ReadFrame: %w", err)
-	}
-
-	if rx[2] != tk1.StatusOK {
-		return nil, fmt.Errorf("GetUDI NOK")
-	}
-
-	udi := &tk1.UDI{}
-	udi.Unpack(rx[3 : 3+8])
-
-	return udi, nil
 }
 
 // GetPubkey fetches the public key of the signer.

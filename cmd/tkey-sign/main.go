@@ -74,18 +74,12 @@ func main() {
 	}
 	handleSignals(func() { exit(1) }, os.Interrupt, syscall.SIGTERM)
 
-	udi, err := signer.GetUDI()
-	if err != nil {
-		fmt.Printf("GetUDI failed: %v\n", err)
-		exit(1)
-	}
-
 	pubkey, err := signer.GetPubkey()
 	if err != nil {
 		fmt.Printf("GetPubKey failed: %v\n", err)
 		exit(1)
 	}
-	fmt.Printf("Public Key from device (UDI %v): %x\n", udi, pubkey)
+	fmt.Printf("Public Key from device: %x\n", pubkey)
 
 	fmt.Printf("Sending a %v bytes message for signing.\n", len(message))
 	fmt.Printf("Device will flash green when touch is required ...\n")

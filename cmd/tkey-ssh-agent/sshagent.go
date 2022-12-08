@@ -63,14 +63,10 @@ func (s *SSHAgent) List() ([]*agent.Key, error) {
 	if err != nil {
 		return nil, err
 	}
-	udi, err := s.signer.GetUDI()
-	if err != nil {
-		return nil, err
-	}
 	return []*agent.Key{{
 		Format:  sshPub.Type(),
 		Blob:    sshPub.Marshal(),
-		Comment: fmt.Sprintf("TKey-%s", udi),
+		Comment: "TKey",
 	}}, nil
 }
 

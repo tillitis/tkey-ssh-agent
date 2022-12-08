@@ -19,8 +19,6 @@ enum appcmd {
 	APP_RSP_GET_SIG         = 0x08,
 	APP_CMD_GET_NAMEVERSION = 0x09,
 	APP_RSP_GET_NAMEVERSION = 0x0a,
-	APP_CMD_GET_UDI         = 0x0b,
-	APP_RSP_GET_UDI         = 0x0c,
 
 	APP_RSP_UNKNOWN_CMD     = 0xff,
 };

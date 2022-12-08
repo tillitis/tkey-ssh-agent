@@ -10,7 +10,6 @@
 static volatile uint32_t *cdi =   (volatile uint32_t *)TK1_MMIO_TK1_CDI_FIRST;
 static volatile uint32_t *led =   (volatile uint32_t *)TK1_MMIO_TK1_LED;
 static volatile uint32_t *touch = (volatile uint32_t *)TK1_MMIO_TOUCH_STATUS;
-static volatile uint32_t *udi =   (volatile uint32_t *)TK1_MMIO_TK1_UDI_FIRST;
 
 #define LED_BLACK 0
 #define LED_RED   (1 << TK1_MMIO_TK1_LED_R_BIT)
@@ -197,21 +196,6 @@ int main(void)
 				memcpy(rsp + 8, &app_version, 4);
 			}
 			appreply(hdr, APP_RSP_GET_NAMEVERSION, rsp);
-			break;
-
-		case APP_CMD_GET_UDI:
-			qemu_puts("APP_CMD_GET_UDI\n");
-			// Bad length
-			if (hdr.len != 1) {
-				rsp[0] = STATUS_BAD;
-				appreply(hdr, APP_RSP_GET_UDI, rsp);
-				break;
-			}
-			rsp[0] = STATUS_OK;
-			uint32_t udi_words[2];
-			wordcpy(udi_words, (void *)udi, 2);
-			memcpy(rsp + 1, udi_words, 2 * 4);
-			appreply(hdr, APP_RSP_GET_UDI, rsp);
 			break;
 
 		default:

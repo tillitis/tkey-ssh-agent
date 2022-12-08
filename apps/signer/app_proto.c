@@ -35,11 +35,6 @@ void appreply(struct frame_header hdr, enum appcmd rspcode, void *buf)
 		nbytes = 32;
 		break;
 
-	case APP_RSP_GET_UDI:
-		len = LEN_32;
-		nbytes = 32;
-		break;
-
 	case APP_RSP_UNKNOWN_CMD:
 		len = LEN_1;
 		nbytes = 1;

@@ -259,18 +259,6 @@ func (s *Signer) isFirmwareMode() bool {
 	return err == nil
 }
 
-func (s *Signer) GetUDI() (*tk1.UDI, error) {
-	if !s.isConnected() {
-		return nil, ErrNoDevice
-	}
-
-	udi, err := s.tkSigner.GetUDI()
-	if err != nil {
-		return nil, fmt.Errorf("GetUDI failed: %w", err)
-	}
-	return udi, nil
-}
-
 // implementing crypto.Signer below
 
 func (s *Signer) Public() crypto.PublicKey {

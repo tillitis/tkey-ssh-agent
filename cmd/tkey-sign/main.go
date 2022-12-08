@@ -6,8 +6,10 @@ package main
 import (
 	"crypto/ed25519"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/spf13/pflag"
@@ -16,59 +18,83 @@ import (
 	"github.com/tillitis/tillitis-key1-apps/tk1sign"
 )
 
+// Use when printing err/diag msgs
+var le = log.New(os.Stderr, "", 0)
+
 func main() {
-	fileName := pflag.String("file", "",
-		"Read data to be signed (the \"message\") from `FILE`.")
-	port := pflag.String("port", "",
+	var fileName, devPath string
+	var speed int
+	var showPubkeyOnly, verbose bool
+	pflag.CommandLine.SetOutput(os.Stderr)
+	pflag.CommandLine.SortFlags = false
+	pflag.BoolVarP(&showPubkeyOnly, "show-pubkey", "k", false,
+		"Don't sign anything, only output the public key.")
+	pflag.StringVar(&devPath, "port", "",
 		"Set serial port device `PATH`. If this is not passed, auto-detection will be attempted.")
-	speed := pflag.Int("speed", tk1.SerialSpeed,
+	pflag.IntVar(&speed, "speed", tk1.SerialSpeed,
 		"Set serial port speed in `BPS` (bits per second).")
-	verbose := pflag.Bool("verbose", false,
+	pflag.BoolVar(&verbose, "verbose", false,
 		"Enable verbose output.")
 	pflag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage of %s:\n%s", os.Args[0],
-			pflag.CommandLine.FlagUsagesWrapped(80))
+		desc := fmt.Sprintf(`Usage: %[1]s [flags...] [FILE]
+
+%[1]s communicates with the signer app running on Tillitis TKey and
+makes it sign data provided in FILE (the "message"). The message can be at most
+4096 bytes long. The signature made by the signer app is always output on stdout.
+Exit status code is 0 if everything went well and the signature also can be
+verified using the public key. Otherwise exit code is non-zero.
+
+Alternatively, --show-pubkey can be used to only output (on stdout) the
+public key of the signer app on the TKey.`, os.Args[0])
+		le.Printf("%s\n\n%s", desc,
+			pflag.CommandLine.FlagUsagesWrapped(86))
 	}
 	pflag.Parse()
 
-	if !*verbose {
-		tk1.SilenceLogging()
+	if pflag.NArg() > 0 {
+		if pflag.NArg() > 1 {
+			le.Printf("Unexpected argument: %s\n\n", strings.Join(pflag.Args()[1:], " "))
+			pflag.Usage()
+			os.Exit(2)
+		}
+		fileName = pflag.Args()[0]
 	}
 
-	if *fileName == "" {
-		fmt.Printf("Please pass at least --file\n")
+	if fileName == "" && !showPubkeyOnly {
+		le.Printf("Please pass at least a message FILE, or -k.\n\n")
 		pflag.Usage()
 		os.Exit(2)
 	}
 
-	if *port == "" {
+	if fileName != "" && showPubkeyOnly {
+		le.Printf("Pass only a message FILE or -k.\n\n")
+		pflag.Usage()
+		os.Exit(2)
+	}
+
+	if !verbose {
+		tk1.SilenceLogging()
+	}
+
+	if devPath == "" {
 		var err error
-		*port, err = util.DetectSerialPort(true)
+		devPath, err = util.DetectSerialPort(true)
 		if err != nil {
-			fmt.Printf("Failed to list ports: %v\n", err)
-			os.Exit(1)
-		} else if *port == "" {
 			os.Exit(1)
 		}
 	}
 
-	message, err := os.ReadFile(*fileName)
-	if err != nil {
-		fmt.Printf("Could not read %s: %v\n", *fileName, err)
-		os.Exit(1)
-	}
-
 	tk := tk1.New()
-	fmt.Printf("Connecting to device on serial port %s ...\n", *port)
-	if err = tk.Connect(*port, tk1.WithSpeed(*speed)); err != nil {
-		fmt.Printf("Could not open %s: %v\n", *port, err)
+	le.Printf("Connecting to TKey on serial port %s ...\n", devPath)
+	if err := tk.Connect(devPath, tk1.WithSpeed(speed)); err != nil {
+		le.Printf("Could not open %s: %v\n", devPath, err)
 		os.Exit(1)
 	}
 
 	signer := tk1sign.New(tk)
 	exit := func(code int) {
-		if err = signer.Close(); err != nil {
-			fmt.Printf("%v\n", err)
+		if err := signer.Close(); err != nil {
+			le.Printf("%v\n", err)
 		}
 		os.Exit(code)
 	}
@@ -76,26 +102,41 @@ func main() {
 
 	pubkey, err := signer.GetPubkey()
 	if err != nil {
-		fmt.Printf("GetPubKey failed: %v\n", err)
+		le.Printf("GetPubKey failed: %v\n", err)
 		exit(1)
 	}
-	fmt.Printf("Public Key from device: %x\n", pubkey)
+	if showPubkeyOnly {
+		fmt.Printf("%x\n", pubkey)
+		exit(0)
+	}
+	le.Printf("Public Key from TKey: %x\n", pubkey)
 
-	fmt.Printf("Sending a %v bytes message for signing.\n", len(message))
-	fmt.Printf("Device will flash green when touch is required ...\n")
+	message, err := os.ReadFile(fileName)
+	if err != nil {
+		le.Printf("Could not read %s: %v\n", fileName, err)
+		os.Exit(1)
+	}
+
+	if len(message) > tk1sign.MaxSignSize {
+		le.Printf("Message too long, max is %d bytes\n", tk1sign.MaxSignSize)
+		exit(1)
+	}
+
+	le.Printf("Sending a %v bytes message for signing.\n", len(message))
+	le.Printf("The TKey will flash green when touch is required ...\n")
 	signature, err := signer.Sign(message)
 	if err != nil {
-		fmt.Printf("Sign failed: %v\n", err)
+		le.Printf("Sign failed: %v\n", err)
 		exit(1)
 	}
-	fmt.Printf("Signature over message by device: %x\n", signature)
+	le.Printf("Signature over message by TKey (on stdout):\n")
+	fmt.Printf("%x\n", signature)
 
 	if !ed25519.Verify(pubkey, message, signature) {
-		fmt.Printf("Signature did NOT verify.\n")
+		le.Printf("Signature FAILED verification.\n")
 		exit(1)
-	} else {
-		fmt.Printf("Signature verified.\n")
 	}
+	le.Printf("Signature verified.\n")
 
 	exit(0)
 }

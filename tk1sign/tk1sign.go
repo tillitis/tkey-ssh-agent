@@ -37,6 +37,8 @@ var (
 	rspGetNameVersion = appCmd{0x0a, "rspGetNameVersion", tk1.CmdLen32}
 )
 
+const MaxSignSize = 4096
+
 type appCmd struct {
 	code   byte
 	name   string

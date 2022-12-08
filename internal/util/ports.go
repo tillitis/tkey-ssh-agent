@@ -36,8 +36,7 @@ func DetectSerialPort(verbose bool) (string, error) {
 	}
 	if len(ports) == 0 {
 		if verbose {
-			fmt.Fprintf(os.Stderr, "Could not detect any TKey serial ports. You may pass\n"+
-				"a known path using the --port flag.\n")
+			fmt.Fprintf(os.Stderr, "No TKey serial ports detected. You may specify a known device path using --port.\n")
 		}
 		return "", ErrNoDevice
 	}

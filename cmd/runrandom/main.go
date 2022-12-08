@@ -62,9 +62,6 @@ Usage:
 		var err error
 		devPath, err = util.DetectSerialPort(true)
 		if err != nil {
-			fmt.Printf("Failed to list ports: %v\n", err)
-			os.Exit(1)
-		} else if devPath == "" {
 			os.Exit(1)
 		}
 	}

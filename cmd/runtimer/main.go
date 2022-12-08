@@ -132,15 +132,18 @@ func (t Timer) StartTimer() error {
 const defaultPrescaler = 18_000_000
 
 func main() {
-	port := pflag.String("port", "",
+	var devPath string
+	var speed, timer, prescaler int
+	var verbose bool
+	pflag.StringVar(&devPath, "port", "",
 		"Set serial port device `PATH`. If this is not passed, auto-detection will be attempted.")
-	speed := pflag.Int("speed", tk1.SerialSpeed,
+	pflag.IntVar(&speed, "speed", tk1.SerialSpeed,
 		"Set serial port speed in `BPS` (bits per second).")
-	verbose := pflag.Bool("verbose", false,
+	pflag.BoolVar(&verbose, "verbose", false,
 		"Enable verbose output.")
-	timer := pflag.Int("timer", 1,
+	pflag.IntVar(&timer, "timer", 1,
 		fmt.Sprintf("Set timer `VALUE` (seconds if prescaler is %d).", defaultPrescaler))
-	prescaler := pflag.Int("prescaler", defaultPrescaler,
+	pflag.IntVar(&prescaler, "prescaler", defaultPrescaler,
 		"Set prescaler.")
 	pflag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\n%s", os.Args[0],
@@ -148,25 +151,22 @@ func main() {
 	}
 	pflag.Parse()
 
-	if !*verbose {
+	if !verbose {
 		tk1.SilenceLogging()
 	}
 
-	if *port == "" {
+	if devPath == "" {
 		var err error
-		*port, err = util.DetectSerialPort(true)
+		devPath, err = util.DetectSerialPort(true)
 		if err != nil {
-			fmt.Printf("Failed to list ports: %v\n", err)
-			os.Exit(1)
-		} else if *port == "" {
 			os.Exit(1)
 		}
 	}
 
 	tk := tk1.New()
-	fmt.Printf("Connecting to device on serial port %s ...\n", *port)
-	if err := tk.Connect(*port, tk1.WithSpeed(*speed)); err != nil {
-		fmt.Printf("Could not open %s: %v\n", *port, err)
+	fmt.Printf("Connecting to device on serial port %s ...\n", devPath)
+	if err := tk.Connect(devPath, tk1.WithSpeed(speed)); err != nil {
+		fmt.Printf("Could not open %s: %v\n", devPath, err)
 		os.Exit(1)
 	}
 	exit := func(code int) {
@@ -179,13 +179,13 @@ func main() {
 
 	tm := NewTimer(tk)
 
-	err := tm.SetTimer(*timer)
+	err := tm.SetTimer(timer)
 	if err != nil {
 		fmt.Printf("SetTimer: %v\n", err)
 		exit(1)
 	}
 
-	err = tm.SetPrescaler(*prescaler)
+	err = tm.SetPrescaler(prescaler)
 	if err != nil {
 		fmt.Printf("SetPrescaler: %v\n", err)
 		exit(1)

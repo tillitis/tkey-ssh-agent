@@ -21,5 +21,5 @@ fi
 msgf="$1"
 shift
 
-./tkey-runapp --file apps/signer/app.bin "$@"
-./tkey-sign --file "$msgf" "$@"
+./tkey-runapp "$@" apps/signer/app.bin
+./tkey-sign "$@" "$msgf"

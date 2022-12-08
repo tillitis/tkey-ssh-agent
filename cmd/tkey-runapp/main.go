@@ -4,9 +4,12 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/spf13/pflag"
@@ -14,61 +17,90 @@ import (
 	"github.com/tillitis/tillitis-key1-apps/tk1"
 )
 
+// Use when printing err/diag msgs
+var le = log.New(os.Stderr, "", 0)
+
 func main() {
-	fileName := pflag.String("file", "",
-		"App binary `FILE` to be uploaded and started.")
-	port := pflag.String("port", "",
+	var fileName, devPath, fileUSS string
+	var speed int
+	var enterUSS, verbose bool
+	pflag.CommandLine.SetOutput(os.Stderr)
+	pflag.CommandLine.SortFlags = false
+	pflag.StringVar(&devPath, "port", "",
 		"Set serial port device `PATH`. If this is not passed, auto-detection will be attempted.")
-	speed := pflag.Int("speed", tk1.SerialSpeed,
+	pflag.IntVar(&speed, "speed", tk1.SerialSpeed,
 		"Set serial port speed in `BPS` (bits per second).")
-	enterUSS := pflag.Bool("uss", false,
-		"Enable typing of a phrase for the User Supplied Secret. The phrase is hashed using BLAKE2 to a digest. The USS digest is used by the firmware, together with other material, for deriving secrets for the application.")
-	fileUSS := pflag.String("uss-file", "",
+	pflag.BoolVar(&enterUSS, "uss", false,
+		"Enable typing of a phrase to be hashed as the User Supplied Secret. The USS is loaded onto the TKey along with the app itself and used by the firmware, together with other material, for deriving secrets for the application.")
+	pflag.StringVar(&fileUSS, "uss-file", "",
 		"Read `FILE` and hash its contents as the USS. Use '-' (dash) to read from stdin. The full contents are hashed unmodified (e.g. newlines are not stripped).")
-	verbose := pflag.Bool("verbose", false,
+	pflag.BoolVar(&verbose, "verbose", false,
 		"Enable verbose output.")
 	pflag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage of %s:\n%s", os.Args[0],
-			pflag.CommandLine.FlagUsagesWrapped(80))
+		desc := fmt.Sprintf(`Usage: %[1]s [flags...] FILE
+
+%[1]s loads an application binary from FILE onto Tillitis TKey
+and starts it.
+
+Exit status code is 0 if the app is both successfully loaded and started. Exit
+code is non-zero if anything goes wrong, for example if TKey is already
+running some app.`, os.Args[0])
+		le.Printf("%s\n\n%s", desc,
+			pflag.CommandLine.FlagUsagesWrapped(86))
 	}
 	pflag.Parse()
 
-	if !*verbose {
+	if pflag.NArg() > 0 {
+		if pflag.NArg() > 1 {
+			le.Printf("Unexpected argument: %s\n\n", strings.Join(pflag.Args()[1:], " "))
+			pflag.Usage()
+			os.Exit(2)
+		}
+		fileName = pflag.Args()[0]
+	}
+
+	if fileName == "" {
+		le.Printf("Please pass an app binary FILE.\n\n")
+		pflag.Usage()
+		os.Exit(2)
+	}
+
+	if !verbose {
 		tk1.SilenceLogging()
 	}
 
-	if *fileName == "" {
-		fmt.Printf("Please pass at least --file\n")
+	if enterUSS && fileUSS != "" {
+		le.Printf("Can't combine --uss and --uss-file\n\n")
 		pflag.Usage()
 		os.Exit(2)
 	}
 
-	if *enterUSS && *fileUSS != "" {
-		fmt.Printf("Can't combine --uss and --uss-file\n\n")
-		pflag.Usage()
-		os.Exit(2)
+	appBin, err := os.ReadFile(fileName)
+	if err != nil {
+		le.Printf("Failed to read file: %v\n", err)
+		os.Exit(1)
+	}
+	if bytes.HasPrefix(appBin, []byte("\x7fELF")) {
+		le.Printf("%s looks like an ELF executable, but a raw binary is expected.\n", fileName)
+		os.Exit(1)
 	}
 
-	if *port == "" {
-		var err error
-		*port, err = util.DetectSerialPort(true)
+	if devPath == "" {
+		devPath, err = util.DetectSerialPort(true)
 		if err != nil {
-			fmt.Printf("Failed to list ports: %v\n", err)
-			os.Exit(1)
-		} else if *port == "" {
 			os.Exit(1)
 		}
 	}
 
 	tk := tk1.New()
-	fmt.Printf("Connecting to device on serial port %s ...\n", *port)
-	if err := tk.Connect(*port, tk1.WithSpeed(*speed)); err != nil {
-		fmt.Printf("Could not open %s: %v\n", *port, err)
+	le.Printf("Connecting to device on serial port %s ...\n", devPath)
+	if err = tk.Connect(devPath, tk1.WithSpeed(speed)); err != nil {
+		le.Printf("Could not open %s: %v\n", devPath, err)
 		os.Exit(1)
 	}
 	exit := func(code int) {
-		if err := tk.Close(); err != nil {
-			fmt.Printf("Close: %v\n", err)
+		if err = tk.Close(); err != nil {
+			le.Printf("Close: %v\n", err)
 		}
 		os.Exit(code)
 	}
@@ -76,41 +108,42 @@ func main() {
 
 	nameVer, err := tk.GetNameVersion()
 	if err != nil {
-		fmt.Printf("GetNameVersion failed: %v\n", err)
-		fmt.Printf("If the serial port is correct, then the TKey might not be in firmware-\n" +
+		le.Printf("GetNameVersion failed: %v\n", err)
+		le.Printf("If the serial port is correct, then the TKey might not be in firmware-\n" +
 			"mode, and have an app running already. Please unplug and plug it in again.\n")
 		exit(1)
 	}
-	fmt.Printf("Firmware has name0:%s name1:%s version:%d\n",
+	le.Printf("Firmware name0:'%s' name1:'%s' version:%d\n",
 		nameVer.Name0, nameVer.Name1, nameVer.Version)
 
 	udi, err := tk.GetUDI()
 	if err != nil {
-		fmt.Printf("GetUDI failed: %v\n", err)
+		le.Printf("GetUDI failed: %v\n", err)
 		exit(1)
 	}
 
-	fmt.Printf("Unique Device ID (UDI): %v\n", udi)
+	fmt.Printf("UDI: %v\n", udi)
 
 	var secret []byte
-	if *enterUSS {
+	if enterUSS {
 		secret, err = util.InputUSS()
 		if err != nil {
-			fmt.Printf("Failed to get USS: %v\n", err)
+			le.Printf("Failed to get USS: %v\n", err)
 			exit(1)
 		}
-	} else if *fileUSS != "" {
-		secret, err = util.ReadUSS(*fileUSS)
+	} else if fileUSS != "" {
+		secret, err = util.ReadUSS(fileUSS)
 		if err != nil {
-			fmt.Printf("Failed to read uss-file %s: %v", *fileUSS, err)
+			le.Printf("Failed to read uss-file %s: %v", fileUSS, err)
 			exit(1)
 		}
 	}
 
-	fmt.Printf("Loading app from %v onto device\n", *fileName)
-	err = tk.LoadAppFromFile(*fileName, secret)
+	le.Printf("Loading app from %v onto device\n", fileName)
+
+	err = tk.LoadApp(appBin, secret)
 	if err != nil {
-		fmt.Printf("LoadAppFromFile failed: %v\n", err)
+		le.Printf("LoadAppFromFile failed: %v\n", err)
 		exit(1)
 	}
 

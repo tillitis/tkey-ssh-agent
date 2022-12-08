@@ -28,7 +28,7 @@ is_commented() {
   fi
   if ! grep -q "^//$line$" "$file"; then
     # It doesn't have either $line or //$line
-    printf "%s doesn't seem be patched as expected\n" "%file"
+    printf "%s is neither patched nor patchable, maybe we became outdated?\n" "$file"
     exit 1
   fi
   return 0
@@ -47,7 +47,7 @@ commentout() {
 }
 
 file1=cmd/tkey-sign/main.go
-line1="[[:space:]]*fmt.Print.*will.flash.*touch.*required.*"
+line1="[[:space:]]*le.Print.*will.flash.*touch.*required.*"
 file2=apps/signer/main.c
 line2="[[:space:]]*wait_touch_.*"
 
@@ -78,7 +78,7 @@ if [[ -n "${USB_DEVICE:-}" ]]; then
 fi
 
 # We expect to load the app ourselves, exiting if we couldn't
-if ! ./tkey-runapp "$@" --file apps/signer/app.bin; then
+if ! ./tkey-runapp "$@" apps/signer/app.bin; then
   exit 1
 fi
 
@@ -93,7 +93,7 @@ start=$(date +%s)
 while true; do
   # 128 bytes becomes 1 msg with 127 bytes and 1 msg with 1 byte
   dd 2>/dev/null if=/dev/urandom of="$msgf" bs=128 count=1
-  if ! ./tkey-sign "$@" --file "$msgf"; then
+  if ! ./tkey-sign "$@" "$msgf"; then
     exit 1
   fi
   c=$(( c+1 ))

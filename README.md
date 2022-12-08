@@ -62,8 +62,8 @@ Running `lsusb` should list the USB stick as `1207:8887 Tillitis
 MTA1-USB-V1`. On Linux, the TKey's serial port device path is
 typically `/dev/ttyACM0` (but it may end with another digit, if you
 have other devices plugged in). The host programs tries to auto-detect
-serial ports of Tillitis USB sticks, but if more than one is found
-you'll need to choose one using the `--port` flag.
+serial ports of TKey USB sticks, but if more than one is found you'll
+need to choose one using the `--port` flag.
 
 However, you should make sure that you can read and write to the
 serial port as your regular user.
@@ -172,31 +172,31 @@ be flashing white, indicating that firmware is ready to receive an app
 to run.
 
 There's a script called `runsign.sh` which runs `tkey-runapp` to load
-and start the signer app. It then runs `tkey-sign` which asks the app
-to sign a message and verifies it. You can use it like this:
+the signer app onto TKey and start it. The script then runs
+`tkey-sign` which communicates with the signer app to make it sign a
+message and then verifies the signature. You can use it like this:
 
 ```
 ./runsign.sh file-with-message
 ```
 
-The file with the message can currently be at most 4096 bytes long. If
-the `--port` flags needs to be used, you can pass it after the message
-argument.
+The signer app can sign messages of up to 4096 bytes. If the `--port`
+flags needs to be used, you can pass it after the message argument.
 
 The host program `tkey-runapp` only loads and starts an app. You'll
-then have to switch to a different program that speaks your apps
+then have to switch to a different program that speaks your app's
 specific protocol. For instance the `tkey-sign` program provided here.
 
-To run `tkey-runapp` you need to specify both the serial port (unless
-you're using the default `/dev/ttyACM0`) and the raw app binary that
-should be run. The port used below is just an example.
+To run `tkey-runapp` you need to pass it the raw app binary that
+should be run (and possibly `--port`, if the auto-detection is not
+sufficient).
 
 ```
-$ ./tkey-runapp --port /dev/pts/1 --file apps/signer/app.bin
+$ ./tkey-runapp apps/signer/app.bin
 ```
 
 While the app is being loaded, the LED on the USB stick will be steady
-white. The `tkey-runapp` also supports sending a User Supplied Secret
+white. `tkey-runapp` also supports sending a User Supplied Secret
 (USS) to the firmware when loading the app. By adding the flag
 `--uss`, you will be asked to type a phrase which will be hashed to
 become the USS digest (the final newline is removed from the phrase
@@ -218,11 +218,11 @@ USS will change, and so will your identity. To learn more, read the
 [system_description.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/system_description/system_description.md)
 (in the tillitis-key1 repository).
 
-`tkey-sign` is used in a similar way, assuming `tkey-runapp` has been
-used to load the signer app:
+`tkey-sign` assumes that `tkey-runapp` has been used to load the
+signer app and can be used like this (again, `--port` is optional):
 
 ```
-./tkey-sign --port /dev/pts/1 --file file-with-message-to-sign
+./tkey-sign file-with-message
 ```
 
 If you're using real hardware, the LED on the USB stick is a steady
@@ -237,9 +237,6 @@ verified.
 
 When all is done, the hardware USB stick will flash a nice blue,
 indicating that it is ready to make (another) signature.
-
-If `--file` is not passed, the app is assumed to be loaded and running
-already, and signing is attempted right away.
 
 Note that to load a new app, the USB stick needs to be unplugged and
 plugged in again. Similarly, QEMU would need to be restarted (`Ctrl-a
@@ -256,7 +253,7 @@ This host program for the signer app is a complete, alternative SSH
 agent with practical use. The signer app binary gets built into the
 tkey-ssh-agent, which will load it onto USB stick when started. Like
 the other host programs, tkey-ssh-agent tries to auto-detect serial
-ports of Tillitis USB sticks. If more than one is found, or if you're
+ports of TKey USB sticks. If more than one is found, or if you're
 running on QEMU, then you'll need to use the `--port` flag. An example
 of that:
 

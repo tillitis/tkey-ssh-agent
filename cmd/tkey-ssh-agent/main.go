@@ -75,7 +75,7 @@ signer app binary which it loads onto the stick and starts. The stick will flash
 blue when the signer app is running and waiting for a signing command, and
 
 green when the stick must be touched to complete a signature.`, progname)
-		fmt.Fprintf(os.Stderr, "%s\n\n%s", desc,
+		le.Printf("%s\n\n%s", desc,
 			pflag.CommandLine.FlagUsagesWrapped(86))
 	}
 	pflag.Parse()

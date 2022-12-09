@@ -19,7 +19,7 @@ RM=/bin/rm
 
 
 .PHONY: all
-all: signerapp/app.bin timer/timer.bin random/random.bin rng_stream/rng_stream.bin blink/blink.bin
+all: signer/app.bin timer/app.bin random/app.bin rng_stream/app.bin blink/app.bin
 
 # C runtime library
 libcrt0/libcrt0.a: libcrt0/crt0.o
@@ -44,46 +44,47 @@ LIBS=libcrt0/libcrt0.a libcommon/libcommon.a
 	$(OBJCOPY) --input-target=elf32-littleriscv --output-target=binary $^ $@
 
 # Simple ed25519 signer app
-SIGNEROBJS=signerapp/app_proto.o \
-    signerapp/main.o
-signerapp/app.elf: $(LIBS) monocypher/libmonocypher.a $(SIGNEROBJS) app.lds
+SIGNEROBJS=signer/main.o signer/app_proto.o
+signer/app.elf: $(LIBS) monocypher/libmonocypher.a $(SIGNEROBJS) app.lds
 	$(CC) $(CFLAGS) $(SIGNEROBJS) $(LDFLAGS) -L monocypher -lmonocypher -I monocypher -o $@
+$(SIGNEROBJS): $(INCLUDE)/tk1_mem.h signer/app_proto.h
 
-$(SIGNEROBJS): $(INCLUDE)/tk1_mem.h signerapp/app_proto.h
+show-%-hash: %/app.bin
+	sha256sum $^ | cut -f 1 -d " "
 
 # A simpler timer app
 TIMEROBJS = timer/main.o timer/app_proto.o
-timer/timer.elf: $(LIBS) $(TIMEROBJS) app.lds
+timer/app.elf: $(LIBS) $(TIMEROBJS) app.lds
 	$(CC) $(CFLAGS) $(TIMEROBJS) $(LDFLAGS) -o $@
 $(TIMEROBJS): $(INCLUDE)/tk1_mem.h timer/app_proto.h
 
 # Random number generator app
 RANDOMOBJS=random/main.o random/app_proto.o
-random/random.elf: $(LIBS) $(RANDOMOBJS) app.lds
+random/app.elf: $(LIBS) $(RANDOMOBJS) app.lds
 	$(CC) $(CFLAGS) $(RANDOMOBJS) $(LDFLAGS) -o $@
 $(RANDOMOBJS): $(INCLUDE)/tk1_mem.h random/app_proto.h
 
 # Streaming RNG random number app
 RNG_STREAM_OBJS=rng_stream/main.o blake2s/blake2s.o
-rng_stream/rng_stream.elf: $(LIBS) $(RNG_STREAM_OBJS) app.lds
+rng_stream/app.elf: $(LIBS) $(RNG_STREAM_OBJS) app.lds
 	$(CC) $(CFLAGS) $(RNG_STREAM_OBJS) $(LDFLAGS) -o $@
 $(RNG_STREAM_OBJS): $(INCLUDE)/tk1_mem.h
 
 # Blinkenlights assembler app
-blink/blink.elf: blink/blink.o
-	ld.lld -o blink/blink.elf blink/blink.o --oformat elf
+blink/app.elf: blink/blink.o
+	ld.lld -o $@ blink/blink.o --oformat elf
 
 .PHONY: clean
 clean:
-	$(RM) -f signerapp/app.bin signerapp/app.elf $(SIGNEROBJS)
-	$(RM) -f timer/timer.bin timer/timer.elf $(TIMEROBJS)
-	$(RM) -f random/random.bin random/random.elf $(RANDOMOBJS)
-	$(RM) -f rng_stream/rng_stream.bin rng_stream/rng_stream.elf $(RNG_STREAM_OBJS)
+	$(RM) -f signer/app.bin signer/app.elf $(SIGNEROBJS)
+	$(RM) -f timer/app.bin timer/app.elf $(TIMEROBJS)
+	$(RM) -f random/app.bin random/app.elf $(RANDOMOBJS)
+	$(RM) -f rng_stream/app.bin rng_stream/app.elf $(RNG_STREAM_OBJS)
 	$(RM) -f $(LIBS) $(LIBOBJS) libcrt0/crt0.o
 	$(RM) -f monocypher/libmonocypher.a $(MONOOBJS)
-	$(RM) -f blink/blink.bin blink/blink.elf blink/blink.o
+	$(RM) -f blink/app.bin blink/app.elf blink/blink.o
 
-FMTFILES=include/*.h libcommon/*.c signerapp/*.[ch] timer/*.[ch] random/*.[ch] rng_stream/*.[ch]
+FMTFILES=include/*.h libcommon/*.c signer/*.[ch] timer/*.[ch] random/*.[ch] rng_stream/*.[ch]
 .PHONY: fmt
 fmt:
 	# Uses ../.clang-format

@@ -1,7 +1,7 @@
 // Copyright (C) 2022 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
-// Package tk1sign provides a connection to the ed25519 signerapp
+// Package tk1sign provides a connection to the ed25519 signer app
 // running on the TKey. You're expected to pass an existing connection
 // to it, so use it like this:
 //
@@ -65,9 +65,9 @@ type Signer struct {
 	tk *tk1.TillitisKey // A connection to a TKey
 }
 
-// New allocates a struct for communicating with the ed25519 signerapp
-// running on the TKey. You're expected to pass an existing connection
-// to it, so use it like this:
+// New allocates a struct for communicating with the ed25519 signer
+// app running on the TKey. You're expected to pass an existing
+// connection to it, so use it like this:
 //
 //	tk := tk1.New()
 //	err := tk.Connect(port)

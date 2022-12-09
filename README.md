@@ -6,7 +6,7 @@ in QEMU, this is also explained in detail below.
 
 Current list of apps:
 
-- The Ed25519 signerapp. Used as root of trust and SSH authentication
+- The Ed25519 signer app. Used as root of trust and SSH authentication
 - The random app.
 - The RNG stream app. Providing arbitrary high quality random numbers
 - blink. A minimalistic example application
@@ -14,7 +14,7 @@ Current list of apps:
 For more information about the apps, see subsections below.
 
 Note that development is ongoing. For example, changes might be made
-to the signerapp, causing the public/private keys it provides to
+to the signer app, causing the public/private keys it provides to
 change. To avoid unexpected changes, please use a tagged release.
 
 See [Release notes](docs/release_notes.md).
@@ -157,7 +157,7 @@ can add `-d guest_errors` to the qemu commandline To make QEMU send
 these to stderr.
 
 
-## The ed25519 signerapp
+## The ed25519 signer app
 
 This is a message signer, for root of trust and SSH authentication
 using ed25519. There are two host programs which can communicate with
@@ -172,7 +172,7 @@ be flashing white, indicating that firmware is ready to receive an app
 to run.
 
 There's a script called `runsign.sh` which runs `tkey-runapp` to load
-and start the signerapp. It then runs `tkey-sign` which asks the app
+and start the signer app. It then runs `tkey-sign` which asks the app
 to sign a message and verifies it. You can use it like this:
 
 ```
@@ -192,7 +192,7 @@ you're using the default `/dev/ttyACM0`) and the raw app binary that
 should be run. The port used below is just an example.
 
 ```
-$ ./tkey-runapp --port /dev/pts/1 --file apps/signerapp/app.bin
+$ ./tkey-runapp --port /dev/pts/1 --file apps/signer/app.bin
 ```
 
 While the app is being loaded, the LED on the USB stick will be steady
@@ -211,7 +211,7 @@ The firmware uses the USS digest, together with a hash digest of the
 application binary, and the Unique Device Secret (UDS, unique per
 physical device) to derive secrets for use by the application.
 
-The practical result for users of the signerapp is that the ed25519
+The practical result for users of the signer app is that the ed25519
 public/private keys will change along with the USS. So if you enter a
 different phrase (or pass a file with different contents), the derived
 USS will change, and so will your identity. To learn more, read the
@@ -219,7 +219,7 @@ USS will change, and so will your identity. To learn more, read the
 (in the tillitis-key1 repository).
 
 `tkey-sign` is used in a similar way, assuming `tkey-runapp` has been
-used to load the signerapp:
+used to load the signer app:
 
 ```
 ./tkey-sign --port /dev/pts/1 --file file-with-message-to-sign
@@ -252,8 +252,8 @@ That was fun, now let's try the SSH agent!
 
 ### Using tkey-ssh-agent
 
-This host program for the signerapp is a complete, alternative SSH
-agent with practical use. The signerapp binary gets built into the
+This host program for the signer app is a complete, alternative SSH
+agent with practical use. The signer app binary gets built into the
 tkey-ssh-agent, which will load it onto USB stick when started. Like
 the other host programs, tkey-ssh-agent tries to auto-detect serial
 ports of Tillitis USB sticks. If more than one is found, or if you're
@@ -268,7 +268,7 @@ This will start the SSH agent and tell it to listen on the specified
 socket `./agent.sock`.
 
 It will also output the SSH ed25519 public key for this instance of
-the app on this specific TKey USB stick. So again; if the signerapp
+the app on this specific TKey USB stick. So again; if the signer app
 binary, the USS, or the UDS in the physical USB stick change, then the
 private key will also change -- and thus the derived public key, your
 public identity in the world of SSH.

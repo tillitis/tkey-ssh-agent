@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 
-# This script uses tkey-runapp to load a signerapp that has been patched to
+# This script uses tkey-runapp to load a signer app that has been patched to
 # disable the touch requirement. Then it runs tkey-sign forever, signing 128
 # bytes of new random data on every iteration.
 #
@@ -10,7 +10,7 @@ set -eu
 # the binaries.
 #
 # The script expects that the TKey is in firmware mode, so it can load the
-# correct signerapp.
+# correct signer app.
 #
 # Arguments to this script will be passed to tkey-runapp and tkey-sign, so
 # --port and --speed can be used.
@@ -48,7 +48,7 @@ commentout() {
 
 file1=cmd/tkey-sign/main.go
 line1="[[:space:]]*fmt.Print.*will.flash.*touch.*required.*"
-file2=apps/signerapp/main.c
+file2=apps/signer/main.c
 line2="[[:space:]]*wait_touch_.*"
 
 if [[ "${1:-}" = "patch" ]]; then
@@ -78,7 +78,7 @@ if [[ -n "${USB_DEVICE:-}" ]]; then
 fi
 
 # We expect to load the app ourselves, exiting if we couldn't
-if ! ./tkey-runapp "$@" --file apps/signerapp/app.bin; then
+if ! ./tkey-runapp "$@" --file apps/signer/app.bin; then
   exit 1
 fi
 

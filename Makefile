@@ -48,7 +48,7 @@ tkey-runapp:
 tkey-sign:
 	go build ./cmd/tkey-sign
 
-runsign.sh: apps/signerapp/runsign.sh
+runsign.sh: apps/signer/runsign.sh
 	cp -af $< $@
 
 .PHONY: runtimer
@@ -58,14 +58,14 @@ runtimer:
 # .PHONY to let go-build handle deps and rebuilds
 .PHONY: runrandom
 runrandom: apps
-	cp -af apps/random/random.bin cmd/runrandom/app.bin
+	cp -af apps/random/app.bin cmd/runrandom/app.bin
 	go build ./cmd/runrandom
 
 TKEY_SSH_AGENT_VERSION ?=
 # .PHONY to let go-build handle deps and rebuilds
 .PHONY: tkey-ssh-agent
 tkey-ssh-agent: apps
-	cp -af apps/signerapp/app.bin cmd/tkey-ssh-agent/app.bin
+	cp -af apps/signer/app.bin cmd/tkey-ssh-agent/app.bin
 	CGO_ENABLED=0 go build -ldflags "-X main.version=$(TKEY_SSH_AGENT_VERSION)" -trimpath ./cmd/tkey-ssh-agent
 
 .PHONY: clean

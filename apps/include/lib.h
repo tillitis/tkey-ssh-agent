@@ -15,5 +15,8 @@ void qemu_hexdump(uint8_t *buf, int len);
 void *memset(void *dest, int c, unsigned n);
 void *memcpy(void *dest, const void *src, unsigned n);
 void *wordcpy(void *dest, const void *src, unsigned n);
+int blake2s(void *out, unsigned long outlen, const void *key,
+	    unsigned long keylen, const void *in, unsigned long inlen,
+	    blake2s_ctx *ctx);
 
 #endif

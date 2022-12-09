@@ -6,8 +6,8 @@
 // When loaded and started, this app will continiously generate random data
 // words and send them to the host as a stream of bytes.
 
-#include "../blake2s/blake2s.h"
-#include "../include/tk1_mem.h"
+#include <lib.h>
+#include <tk1_mem.h>
 
 #define RESEED_TIME 1000
 
@@ -91,11 +91,12 @@ int main(void)
 {
 	uint32_t digest[8];
 	rng_ctx ctx;
+	blake2s_ctx b2s_ctx;
 
 	init_rng_state(&ctx);
 
 	for (;;) {
-		blake2s(&digest[0], 32, NULL, 0, &ctx.state[0], 64);
+		blake2s(&digest[0], 32, NULL, 0, &ctx.state[0], 64, &b2s_ctx);
 		output_rnd(&digest[0]);
 		update_rng_state(&ctx, &digest[0]);
 	}

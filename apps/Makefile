@@ -65,7 +65,7 @@ random/app.elf: $(LIBS) $(RANDOMOBJS) app.lds
 $(RANDOMOBJS): $(INCLUDE)/tk1_mem.h random/app_proto.h
 
 # Streaming RNG random number app
-RNG_STREAM_OBJS=rng_stream/main.o blake2s/blake2s.o
+RNG_STREAM_OBJS=rng_stream/main.o
 rng_stream/app.elf: $(LIBS) $(RNG_STREAM_OBJS) app.lds
 	$(CC) $(CFLAGS) $(RNG_STREAM_OBJS) $(LDFLAGS) -o $@
 $(RNG_STREAM_OBJS): $(INCLUDE)/tk1_mem.h

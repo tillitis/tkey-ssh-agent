@@ -13,6 +13,11 @@ volatile uint32_t *timer =           (volatile uint32_t *)TK1_MMIO_TIMER_TIMER;
 volatile uint32_t *timer_prescaler = (volatile uint32_t *)TK1_MMIO_TIMER_PRESCALER;
 volatile uint32_t *timer_status =    (volatile uint32_t *)TK1_MMIO_TIMER_STATUS;
 volatile uint32_t *timer_ctrl =      (volatile uint32_t *)TK1_MMIO_TIMER_CTRL;
+
+#define LED_BLACK  0
+#define LED_RED    (1 << TK1_MMIO_TK1_LED_R_BIT)
+#define LED_GREEN  (1 << TK1_MMIO_TK1_LED_G_BIT)
+#define LED_BLUE   (1 << TK1_MMIO_TK1_LED_B_BIT)
 // clang-format on
 
 int main(void)
@@ -22,7 +27,7 @@ int main(void)
 	uint8_t rsp[CMDLEN_MAXBYTES];
 
 	for (;;) {
-		uint8_t in = readbyte();
+		uint8_t in = readbyte_ledflash(LED_RED | LED_GREEN, 400000);
 
 		if (parseframe(in, &hdr) == -1) {
 			qemu_puts("Couldn't parse header\n");

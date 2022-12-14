@@ -1,7 +1,7 @@
 // Copyright (C) 2022 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
-#include "types.h"
+#include <types.h>
 
 #ifndef PROTO_H
 #define PROTO_H

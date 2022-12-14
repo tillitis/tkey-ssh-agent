@@ -4,7 +4,7 @@
 #ifndef LIB_H
 #define LIB_H
 
-#include "types.h"
+#include <types.h>
 
 int qemu_putchar(uint8_t ch);
 void qemu_lf();

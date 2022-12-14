@@ -1,10 +1,9 @@
 // Copyright (C) 2022 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
-#include "proto.h"
-#include "lib.h"
-
-#include "tk1_mem.h"
+#include <proto.h>
+#include <lib.h>
+#include <tk1_mem.h>
 
 // clang-format off
 static volatile uint32_t *can_rx = (volatile uint32_t *)TK1_MMIO_UART_RX_STATUS;

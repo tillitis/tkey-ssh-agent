@@ -117,12 +117,15 @@ func (s *Signer) maybeLoadApp() error {
 
 	if s.isWantedApp() {
 		if s.enterUSS || s.fileUSS != "" {
-			le.Printf("App is already loaded, USS flags are ignored.\n")
+			le.Printf("App already loaded, USS flags are ignored.\n")
 		} else {
 			le.Printf("App already loaded.\n")
 		}
+		s.printAuthorizedKey()
 		return nil
-	} else if !s.isFirmwareMode() {
+	}
+
+	if !s.isFirmwareMode() {
 		// now we know that:
 		// - loaded app does not have the wanted name
 		// - device is not in firmware mode

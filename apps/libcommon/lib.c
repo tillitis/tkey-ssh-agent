@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: GPL-2.0-only
 
 #include <lib.h>
-#include <types.h>
 #include <tk1_mem.h>
+#include <types.h>
 
 #ifdef NODEBUG
 int qemu_putchar(uint8_t ch)

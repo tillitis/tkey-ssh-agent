@@ -42,6 +42,7 @@ LIBS=libcrt0/libcrt0.a libcommon/libcommon.a
 # Turn elf into bin for device
 %.bin: %.elf
 	$(OBJCOPY) --input-target=elf32-littleriscv --output-target=binary $^ $@
+	chmod a-x $@
 
 # Simple ed25519 signer app
 SIGNEROBJS=signer/main.o signer/app_proto.o

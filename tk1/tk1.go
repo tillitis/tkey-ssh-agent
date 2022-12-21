@@ -163,6 +163,11 @@ type UDI struct {
 	ProductID uint8
 	Revision  uint8 // 4 bits
 	Serial    uint32
+	raw       []byte
+}
+
+func (u *UDI) RawBytes() []byte {
+	return u.raw
 }
 
 func (u *UDI) String() string {
@@ -179,6 +184,8 @@ func (u *UDI) Unpack(raw []byte) {
 	u.ProductID = uint8((vpr >> 4) & 0xff)
 	u.Revision = uint8(vpr & 0xf)
 	u.Serial = binary.LittleEndian.Uint32(raw[4:8])
+	u.raw = make([]byte, len(raw))
+	copy(u.raw, raw)
 }
 
 // GetUDI gets the UDI (Unique Device ID) from the TKey firmware

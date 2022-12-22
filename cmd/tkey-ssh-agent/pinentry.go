@@ -1,4 +1,4 @@
-// Copyright (C) 2022 - Tillitis AB
+// Copyright (C) 2022, 2023 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
 package main
@@ -13,7 +13,7 @@ func getSecret(udi string, pinentryProgram string) ([]byte, error) {
 	// Displaying the Unique Device Identifier (UDI) so the user will
 	// know which stick they have plugged in.
 	desc := fmt.Sprintf("%s needs a User Supplied Secret\n"+
-		"(USS) for your Tillitis TKey with number:\n"+
+		"(USS) for your TKey with number:\n"+
 		"%v", progname, udi)
 
 	// The default pinentry program (binaryName) in the client is

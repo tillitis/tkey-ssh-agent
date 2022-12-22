@@ -1,5 +1,11 @@
 # Release notes
 
+## unreleased
+
+- tkey-ssh-agent now connects to the TKey for each SSH agent operation
+  (and disconnects afterwards with a delay). The serial port is thus
+  left accessible to others.
+
 ## v0.0.3
 
 - Update tk1_mem.h and timer app to the revised timer MMIO API

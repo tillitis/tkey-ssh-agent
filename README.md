@@ -294,16 +294,12 @@ messages are still present on stderr.
 
 #### Installing tkey-ssh-agent
 
-For Linux, we provide udev rules to automatically let `tkey-ssh-agent`
-know when a TKey is inserted or removed. You can install
-`system/90-tkey-ssh-agent.rules` in `/etc/udev/rules.d/` and run
-`udevadm control --reload`. Now the `tkey-ssh-agent` will get a SIGHUP
-every time you insert or remove the TKey. The [`Makefile`](Makefile)
-has an `install` target that installs tkey-ssh-agent and the rules for
-you. First `make` then `sudo make install`, then `sudo make
-reload-rules` to apply the rules to the running system. This also
-installs a man page which contains some useful information, try `man
-./system/tkey-ssh-agent.1` to read it before installing.
+The [`Makefile`](Makefile) has an `install` target that installs
+tkey-ssh-agent and the above mentioned `60-tkey.rules`. First `make`
+then `sudo make install`, then `sudo make reload-rules` to apply the
+rules to the running system. This also installs a man page which
+contains some useful information, try `man ./system/tkey-ssh-agent.1`
+to read it before installing.
 
 There is also a Work In Progress Debian/Ubuntu package which can be
 build using the script `debian/build-pkg.sh`.

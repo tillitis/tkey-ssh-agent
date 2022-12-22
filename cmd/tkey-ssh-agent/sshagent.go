@@ -13,7 +13,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gen2brain/beeep"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
 )
@@ -23,8 +22,8 @@ import (
 var signerAppNoTouch string
 
 type SSHAgent struct {
-	signer *Signer
-	mutex  sync.Mutex
+	signer      *Signer
+	operationMu sync.Mutex // only handling 1 agent op at a time
 }
 
 func NewSSHAgent(signer *Signer) *SSHAgent {
@@ -55,18 +54,28 @@ func (s *SSHAgent) handleConn(c net.Conn) {
 
 // implementing agent.ExtendedAgent below
 
+var ErrNotImplemented = errors.New("not implemented")
+
 func (s *SSHAgent) List() ([]*agent.Key, error) {
-	if !s.signer.isConnected() {
-		le.Printf("List: not connected, returning empty list\n")
+	s.operationMu.Lock()
+	defer s.operationMu.Unlock()
+
+	// Connect early to be able to return empty list if that fails
+	if !s.signer.connect() {
+		le.Printf("List: connect failed, returning empty list\n")
 		return []*agent.Key{}, nil
 	}
 
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-	sshPub, err := s.signer.getSSHPub()
-	if err != nil {
-		return nil, err
+	pub := s.signer.Public()
+	if pub == nil {
+		return nil, fmt.Errorf("pubkey is nil")
 	}
+
+	sshPub, err := ssh.NewPublicKey(pub)
+	if err != nil {
+		return nil, fmt.Errorf("NewPublicKey: %w", err)
+	}
+
 	return []*agent.Key{{
 		Format:  sshPub.Type(),
 		Blob:    sshPub.Marshal(),
@@ -74,33 +83,23 @@ func (s *SSHAgent) List() ([]*agent.Key, error) {
 	}}, nil
 }
 
-var ErrNotImplemented = errors.New("not implemented")
-
 func (s *SSHAgent) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, error) {
-	if !s.signer.isConnected() {
-		return nil, ErrNoDevice
-	}
+	s.operationMu.Lock()
+	defer s.operationMu.Unlock()
 
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-	sshPub, err := s.signer.getSSHPub()
-	if err != nil {
-		return nil, err
-	}
-	if !bytes.Equal(sshPub.Marshal(), key.Marshal()) {
-		return nil, fmt.Errorf("pubkey mismatch")
-	}
+	// This does s.signer.Public()
 	sshSigner, err := ssh.NewSignerFromSigner(s.signer)
 	if err != nil {
 		return nil, fmt.Errorf("NewSignerFromSigner: %w", err)
 	}
 
+	if !bytes.Equal(key.Marshal(), sshSigner.PublicKey().Marshal()) {
+		return nil, fmt.Errorf("pubkey mismatch")
+	}
+
 	if signerAppNoTouch == "" {
 		timer := time.AfterFunc(4*time.Second, func() {
-			err = beeep.Notify(progname, "Touch your Tillitis TKey to confirm SSH login.", "")
-			if err != nil {
-				le.Printf("Notify failed: %s\n", err)
-			}
+			notify("Touch your TKey to confirm SSH login.")
 		})
 		defer timer.Stop()
 

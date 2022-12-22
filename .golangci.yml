@@ -18,6 +18,7 @@ linters:
     - cyclop
     - funlen
     - gocognit
+    - nestif
     - exhaustruct  # TODO? annoying for now
     - goerr113  # TODO enable later
     - godot

@@ -91,6 +91,9 @@ func (tk *TillitisKey) Connect(port string, options ...func(*TillitisKey)) error
 
 // Close the connection to the TKey
 func (tk TillitisKey) Close() error {
+	if tk.conn == nil {
+		return nil
+	}
 	if err := tk.conn.Close(); err != nil {
 		return fmt.Errorf("conn.Close: %w", err)
 	}

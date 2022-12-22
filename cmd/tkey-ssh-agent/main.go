@@ -158,19 +158,18 @@ green when the stick must be touched to complete a signature.`, progname)
 
 	signer := NewSigner(devPath, speed, enterUSS, fileUSS, pinentry, exit)
 
-	prevExitFunc := exit
-	exit = func(code int) {
-		signer.disconnect()
-		prevExitFunc(code)
-	}
-
-	agent := NewSSHAgent(signer)
-
 	if !showPubkeyOnly {
+		agent := NewSSHAgent(signer)
 		if err := agent.Serve(sockPath); err != nil {
 			le.Printf("%s\n", err)
 			exit(1)
 		}
+	} else {
+		if !signer.connect() {
+			le.Printf("Connect failed")
+			exit(1)
+		}
+		signer.closeNow()
 	}
 
 	exit(0)

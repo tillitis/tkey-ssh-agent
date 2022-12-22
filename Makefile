@@ -20,14 +20,12 @@ install:
 	install -Dm644 system/tkey-ssh-agent.service.tmpl $(destunit)/tkey-ssh-agent.service
 	sed -i -e "s,##BINDIR##,$(PREFIX)/bin," $(destunit)/tkey-ssh-agent.service
 	install -Dm644 system/60-tkey.rules $(destrules)/60-tkey.rules
-	install -Dm644 system/90-tkey-ssh-agent.rules $(destrules)/90-tkey-ssh-agent.rules
 .PHONY: uninstall
 uninstall:
 	rm -f \
 	$(destbin)/tkey-ssh-agent \
 	$(destunit)/tkey-ssh-agent.service \
 	$(destrules)/60-tkey.rules \
-	$(destrules)/90-tkey-ssh-agent.rules \
 	$(destman1)/tkey-ssh-agent.1.gz
 .PHONY: reload-rules
 reload-rules:

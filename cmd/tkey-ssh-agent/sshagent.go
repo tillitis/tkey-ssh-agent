@@ -18,6 +18,10 @@ import (
 	"golang.org/x/crypto/ssh/agent"
 )
 
+// May be set to non-empty at build time to indicate that the signer
+// app has been compiled with touch requirement removed.
+var signerAppNoTouch string
+
 type SSHAgent struct {
 	signer *Signer
 	mutex  sync.Mutex
@@ -91,15 +95,19 @@ func (s *SSHAgent) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, error) 
 		return nil, fmt.Errorf("NewSignerFromSigner: %w", err)
 	}
 
-	timer := time.AfterFunc(4*time.Second, func() {
-		err = beeep.Notify(progname, "Touch your Tillitis TKey to confirm SSH login.", "")
-		if err != nil {
-			le.Printf("Notify failed: %s\n", err)
-		}
-	})
-	defer timer.Stop()
+	if signerAppNoTouch == "" {
+		timer := time.AfterFunc(4*time.Second, func() {
+			err = beeep.Notify(progname, "Touch your Tillitis TKey to confirm SSH login.", "")
+			if err != nil {
+				le.Printf("Notify failed: %s\n", err)
+			}
+		})
+		defer timer.Stop()
 
-	le.Printf("Sign: user will have to touch the TKey\n")
+		le.Printf("Sign: user will have to touch the TKey\n")
+	} else {
+		le.Printf("Sign: WARNING! This tkey-ssh-agent and signer app is built with the touch requirement removed\n")
+	}
 	signature, err := sshSigner.Sign(rand.Reader, data)
 	if err != nil {
 		return nil, fmt.Errorf("Signer.Sign: %w", err)

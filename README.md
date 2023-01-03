@@ -227,10 +227,10 @@ signer app and can be used like this (again, `--port` is optional):
 
 If you're using real hardware, the LED on the USB stick is a steady
 green while the app is receiving data to sign. The LED then flashes
-green, indicating that you're required to touch the USB stick for the
-signing to complete. The touch sensor is located next to the flashing
-LED -- touch it and release. If running on QEMU, the virtual device is
-always touched automatically.
+green, indicating that you're required to physically touch the USB
+stick for the signing to complete. The touch sensor is located next to
+the flashing LED -- touch it and release. If running on QEMU, the
+virtual device is always touched automatically.
 
 The program should eventually output a signature and say that it was
 verified.
@@ -304,6 +304,18 @@ installs a man page which contains some useful information, try `man
 
 There is also a Work In Progress Debian/Ubuntu package which can be
 build using the script `debian/build-pkg.sh`.
+
+### Disabling touch requirement
+
+The signer app normally requires the USB stick to be physically
+touched for signing to complete. For special purposes it can be
+compiled with this requirement removed, by setting the environment
+variable `TKEY_SIGNER_APP_NO_TOUCH` to some value when building.
+Example: `make TKEY_SIGNER_APP_NO_TOUCH=yesplease`.
+
+The host apps will also stop displaying this requirement. Of course
+this changes the signer app binary and as a consequence the derived
+private key and identity will change.
 
 ## The random app and runrandom host program
 

@@ -46,7 +46,7 @@ tkey-runapp:
 # .PHONY to let go-build handle deps and rebuilds
 .PHONY: tkey-sign
 tkey-sign:
-	go build ./cmd/tkey-sign
+	go build -ldflags "-X main.signerAppNoTouch=$(TKEY_SIGNER_APP_NO_TOUCH)" ./cmd/tkey-sign
 
 runsign.sh: apps/signer/runsign.sh
 	cp -af $< $@
@@ -66,7 +66,7 @@ TKEY_SSH_AGENT_VERSION ?=
 .PHONY: tkey-ssh-agent
 tkey-ssh-agent: apps
 	cp -af apps/signer/app.bin cmd/tkey-ssh-agent/app.bin
-	CGO_ENABLED=0 go build -ldflags "-X main.version=$(TKEY_SSH_AGENT_VERSION)" -trimpath ./cmd/tkey-ssh-agent
+	CGO_ENABLED=0 go build -ldflags "-X main.version=$(TKEY_SSH_AGENT_VERSION) -X main.signerAppNoTouch=$(TKEY_SIGNER_APP_NO_TOUCH)" -trimpath ./cmd/tkey-ssh-agent
 
 .PHONY: clean
 clean:

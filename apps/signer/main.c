@@ -159,7 +159,9 @@ int main(void)
 			left -= nbytes;
 
 			if (left == 0) {
+#ifndef TKEY_SIGNER_APP_NO_TOUCH
 				wait_touch_ledflash(LED_GREEN, 350000);
+#endif
 				// All loaded, device touched, let's
 				// sign the message
 				crypto_ed25519_sign(signature,

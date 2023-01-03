@@ -21,6 +21,10 @@ import (
 // Use when printing err/diag msgs
 var le = log.New(os.Stderr, "", 0)
 
+// May be set to non-empty at build time to indicate that the signer
+// app has been compiled with touch requirement removed.
+var signerAppNoTouch string
+
 func main() {
 	var fileName, devPath string
 	var speed int
@@ -123,7 +127,11 @@ public key of the signer app on the TKey.`, os.Args[0])
 	}
 
 	le.Printf("Sending a %v bytes message for signing.\n", len(message))
-	le.Printf("The TKey will flash green when touch is required ...\n")
+	if signerAppNoTouch == "" {
+		le.Printf("The TKey will flash green when touch is required ...\n")
+	} else {
+		le.Printf("WARNING! This tkey-sign and signer app is built with the touch requirement removed\n")
+	}
 	signature, err := signer.Sign(message)
 	if err != nil {
 		le.Printf("Sign failed: %v\n", err)

@@ -73,7 +73,6 @@ authentication when accessing other machines.
 To make the TKey provide this functionality, the %[1]s contains a compiled
 signer app binary which it loads onto the stick and starts. The stick will flash
 blue when the signer app is running and waiting for a signing command, and
-
 green when the stick must be touched to complete a signature.`, progname)
 		le.Printf("%s\n\n%s", desc,
 			pflag.CommandLine.FlagUsagesWrapped(86))
@@ -86,6 +85,9 @@ green when the stick must be touched to complete a signature.`, progname)
 		exit(2)
 	}
 
+	if signerAppNoTouch != "" {
+		le.Printf("WARNING! This tkey-ssh-agent and signer app is built with the touch requirement removed\n")
+	}
 	if versionOnly {
 		fmt.Printf("%s %s\n", progname, version)
 		exit(0)

@@ -19,7 +19,7 @@ cd "${0%/*}/.."
 if [[ -e tkey-sign ]]; then
   if ! go version -m tkey-sign | grep -q main.signerAppNoTouch=indeed; then
     printf "We need to build with the touch requirement removed.\n"
-    printf "Please first do: make clean\n"
+    printf "Please first do: make -C ../ clean\n"
     exit 1
   fi
 fi

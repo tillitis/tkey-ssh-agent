@@ -1,4 +1,4 @@
-// Copyright (C) 2022 - Tillitis AB
+// Copyright (C) 2022, 2023 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
 // Package tk1 provides a connection to a Tillitis TKey security
@@ -158,12 +158,12 @@ func (tk TillitisKey) GetNameVersion() (*NameVersion, error) {
 
 // Modelled after how tpt.py (in tillitis-key1 repo) generates the UDI
 type UDI struct {
-	Unnamed   uint8 // 4 bits, hardcoded to 0 by tpt.py
-	VendorID  uint16
-	ProductID uint8
-	Revision  uint8 // 4 bits
-	Serial    uint32
-	raw       []byte
+	Unnamed         uint8 // 4 bits, hardcoded to 0 by tpt.py
+	VendorID        uint16
+	ProductID       uint8 // 6 bits
+	ProductRevision uint8 // 6 bits
+	Serial          uint32
+	raw             []byte
 }
 
 func (u *UDI) RawBytes() []byte {
@@ -172,7 +172,7 @@ func (u *UDI) RawBytes() []byte {
 
 func (u *UDI) String() string {
 	return fmt.Sprintf("%01x%04x:%02x:%01x:%08x",
-		u.Unnamed, u.VendorID, u.ProductID, u.Revision, u.Serial)
+		u.Unnamed, u.VendorID, u.ProductID, u.ProductRevision, u.Serial)
 }
 
 // Unpack unpacks the UDI parts from the raw 8 bytes (2 * 32-bit
@@ -181,8 +181,8 @@ func (u *UDI) Unpack(raw []byte) {
 	vpr := binary.LittleEndian.Uint32(raw[0:4])
 	u.Unnamed = uint8((vpr >> 28) & 0xf)
 	u.VendorID = uint16((vpr >> 12) & 0xffff)
-	u.ProductID = uint8((vpr >> 4) & 0xff)
-	u.Revision = uint8(vpr & 0xf)
+	u.ProductID = uint8((vpr >> 6) & 0x3f)
+	u.ProductRevision = uint8(vpr & 0x3f)
 	u.Serial = binary.LittleEndian.Uint32(raw[4:8])
 	u.raw = make([]byte, len(raw))
 	copy(u.raw, raw)

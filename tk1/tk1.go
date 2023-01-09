@@ -171,7 +171,7 @@ func (u *UDI) RawBytes() []byte {
 }
 
 func (u *UDI) String() string {
-	return fmt.Sprintf("%01x%04x:%02x:%01x:%08x",
+	return fmt.Sprintf("%01x%04x:%x:%x:%08x",
 		u.Unnamed, u.VendorID, u.ProductID, u.ProductRevision, u.Serial)
 }
 

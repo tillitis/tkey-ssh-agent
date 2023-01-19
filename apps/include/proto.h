@@ -40,5 +40,5 @@ void write(uint8_t *buf, size_t nbytes);
 uint8_t readbyte();
 uint8_t readbyte_ledflash(int ledvalue, int loopcount);
 void read(uint8_t *buf, size_t nbytes);
-
+size_t read_timeout(uint8_t *buf, size_t nbytes, uint32_t timeout, uint32_t prescaler);
 #endif

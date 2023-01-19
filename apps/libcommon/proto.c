@@ -6,11 +6,15 @@
 #include <tk1_mem.h>
 
 // clang-format off
-static volatile uint32_t *can_rx = (volatile uint32_t *)TK1_MMIO_UART_RX_STATUS;
-static volatile uint32_t *rx =     (volatile uint32_t *)TK1_MMIO_UART_RX_DATA;
-static volatile uint32_t *can_tx = (volatile uint32_t *)TK1_MMIO_UART_TX_STATUS;
-static volatile uint32_t *tx =     (volatile uint32_t *)TK1_MMIO_UART_TX_DATA;
-static volatile uint32_t *led =    (volatile uint32_t *)TK1_MMIO_TK1_LED;
+static volatile uint32_t *can_rx =          (volatile uint32_t *)TK1_MMIO_UART_RX_STATUS;
+static volatile uint32_t *rx =              (volatile uint32_t *)TK1_MMIO_UART_RX_DATA;
+static volatile uint32_t *can_tx =          (volatile uint32_t *)TK1_MMIO_UART_TX_STATUS;
+static volatile uint32_t *tx =              (volatile uint32_t *)TK1_MMIO_UART_TX_DATA;
+static volatile uint32_t *led =             (volatile uint32_t *)TK1_MMIO_TK1_LED;
+static volatile uint32_t *timer =           (volatile uint32_t *)TK1_MMIO_TIMER_TIMER;
+static volatile uint32_t *timer_prescaler = (volatile uint32_t *)TK1_MMIO_TIMER_PRESCALER;
+static volatile uint32_t *timer_status =    (volatile uint32_t *)TK1_MMIO_TIMER_STATUS;
+static volatile uint32_t *timer_ctrl =      (volatile uint32_t *)TK1_MMIO_TIMER_CTRL;
 // clang-format on
 
 uint8_t genhdr(uint8_t id, uint8_t endpoint, uint8_t status, enum cmdlen len)
@@ -102,4 +106,36 @@ void read(uint8_t *buf, size_t nbytes)
 	for (int n = 0; n < nbytes; n++) {
 		buf[n] = readbyte();
 	}
+}
+
+size_t read_timeout(uint8_t *buf, size_t nbytes, uint32_t timeout, uint32_t prescaler)
+{
+	int n;
+
+	*timer = timeout;
+	*timer_prescaler = prescaler;
+
+	// Start timer
+	*timer_ctrl = 1;
+	for (n = 0; n < nbytes; n++) {
+
+		for (;;) {
+			if (*can_rx) {
+				buf[n] = *rx;
+				break;
+			}
+
+			if (*timer_status == 1) {
+				// Timer expired
+				return n;
+			}
+		}
+	}
+
+	// Stop and reset timer
+	if (*timer_status != 1) {
+		*timer_ctrl = 1;
+	}
+
+	return n;
 }

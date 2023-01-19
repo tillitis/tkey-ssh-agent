@@ -1,14 +1,17 @@
+// Copyright (C) 2023 - Tillitis AB
+// SPDX-License-Identifier: GPL-2.0-only
 //
-//  main.c
-//  tkey-mac-usblistener
+// main.c
+// tkey-mac-usblistener
 //
-//  Created by Johan Carlberg on 2023-01-02.
+// Created by Johan Carlberg on 2023-01-02.
 //
 
 #include <stdio.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <IOKit/IOKitLib.h>
 #include <IOKit/usb/IOUSBLib.h>
+#include <IOKit/serial/IOSerialKeys.h>
 #include <mach/mach.h>
 #include <libproc.h>
 

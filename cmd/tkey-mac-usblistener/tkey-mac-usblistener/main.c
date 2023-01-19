@@ -48,7 +48,7 @@ void RawDeviceAdded(void *refCon, io_iterator_t iterator) {
     io_service_t usbDevice;
 
     while ((usbDevice = IOIteratorNext(iterator)) != IO_OBJECT_NULL) {
-        printf ("USB device added\n");
+        printf ("Serial device added\n");
         IOObjectRelease(usbDevice);
         NotifyProcesses();
     }
@@ -58,7 +58,7 @@ void RawDeviceRemoved(void *refCon, io_iterator_t iterator) {
     io_service_t usbDevice;
 
     while ((usbDevice = IOIteratorNext(iterator)) != IO_OBJECT_NULL) {
-        printf ("USB device removed\n");
+        printf ("Serial device removed\n");
         IOObjectRelease(usbDevice);
         NotifyProcesses();
     }
@@ -85,7 +85,7 @@ int main (int argc, const char *argv[]) {
     }
 
     //Set up matching dictionary for class IOUSBDevice and its subclasses
-    matchingDict = IOServiceMatching(kIOUSBDeviceClassName);
+    matchingDict = IOServiceMatching(kIOSerialBSDServiceValue);
     if (!matchingDict) {
         fprintf(stderr, "Couldn’t create a USB matching dictionary\n");
         mach_port_deallocate(mach_task_self(), mainPort);

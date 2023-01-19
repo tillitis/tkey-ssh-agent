@@ -83,8 +83,12 @@ int main(void)
 		}
 
 		memset(cmd, 0, CMDLEN_MAXBYTES);
-		// Read app command, blocking
-		read(cmd, hdr.len);
+		// Read app command, blocking, timeout 0.5 seconds
+		if (read_timeout(cmd, hdr.len, 1, 9 * 1000000) != hdr.len) {
+			// Timer expired!
+			qemu_puts("timer expired: going back to reading framing header\n");
+			continue;
+		}
 
 		// Is it for us?
 		if (hdr.endpoint != DST_SW) {

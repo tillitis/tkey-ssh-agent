@@ -109,6 +109,24 @@ Looking in the `/dev` directory, there should be a device named like
 is the device path that might need to be passed as `--port` when
 running the host programs.
 
+A tool for monitoring the USB ports is available in `cmd/tkey-mac-usblistener`.
+It will monitor the USB ports, and whenever a USB device is inserted or
+removed it will notify the SSH agent.
+
+To build:
+
+```
+$ cd cmd/tkey-mac-usblistener
+$ xcodebuild -target tkey-mac-usblistener -configuration Release -derivedDataPath /some/path
+$ cp -p /some/path/Build/Products/Release/tkey-mac-usblistener /any/bin/
+```
+
+To run:
+
+```
+$ /any/bin/tkey-mac-usblistener tkey-ssh-agent
+```
+
 ### Running apps in QEMU
 
 Build our [qemu](https://github.com/tillitis/qemu). Use the `tk1`

@@ -102,19 +102,9 @@ func (s Signer) GetAppNameVersion() (*tk1.NameVersion, error) {
 		return nil, fmt.Errorf("Write: %w", err)
 	}
 
-	err = s.tk.SetReadTimeout(2)
-	if err != nil {
-		return nil, fmt.Errorf("SetReadTimeout: %w", err)
-	}
-
-	rx, _, err := s.tk.ReadFrame(rspGetNameVersion, id)
+	rx, _, err := s.tk.ReadFrame(rspGetNameVersion, id, 2000)
 	if err != nil {
 		return nil, fmt.Errorf("ReadFrame: %w", err)
-	}
-
-	err = s.tk.SetReadTimeout(0)
-	if err != nil {
-		return nil, fmt.Errorf("SetReadTimeout: %w", err)
 	}
 
 	nameVer := &tk1.NameVersion{}
@@ -136,7 +126,7 @@ func (s Signer) GetPubkey() ([]byte, error) {
 		return nil, fmt.Errorf("Write: %w", err)
 	}
 
-	rx, _, err := s.tk.ReadFrame(rspGetPubkey, id)
+	rx, _, err := s.tk.ReadFrame(rspGetPubkey, id, 0)
 	tk1.Dump("GetPubKey rx", rx)
 	if err != nil {
 		return nil, fmt.Errorf("ReadFrame: %w", err)
@@ -190,7 +180,7 @@ func (s Signer) setSize(size int) error {
 		return fmt.Errorf("Write: %w", err)
 	}
 
-	rx, _, err := s.tk.ReadFrame(rspSetSize, id)
+	rx, _, err := s.tk.ReadFrame(rspSetSize, id, 0)
 	tk1.Dump("SetAppSize rx", rx)
 	if err != nil {
 		return fmt.Errorf("ReadFrame: %w", err)
@@ -229,7 +219,7 @@ func (s Signer) signLoad(content []byte) (int, error) {
 	}
 
 	// Wait for reply
-	rx, _, err := s.tk.ReadFrame(rspSignData, id)
+	rx, _, err := s.tk.ReadFrame(rspSignData, id, 0)
 	if err != nil {
 		return 0, fmt.Errorf("ReadFrame: %w", err)
 	}
@@ -255,7 +245,7 @@ func (s Signer) getSig() ([]byte, error) {
 		return nil, fmt.Errorf("Write: %w", err)
 	}
 
-	rx, _, err := s.tk.ReadFrame(rspGetSig, id)
+	rx, _, err := s.tk.ReadFrame(rspGetSig, id, 0)
 	if err != nil {
 		return nil, fmt.Errorf("ReadFrame: %w", err)
 	}

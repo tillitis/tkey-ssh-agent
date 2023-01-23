@@ -31,7 +31,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"time"
 
 	"go.bug.st/serial"
 	"golang.org/x/crypto/blake2s"
@@ -102,21 +101,6 @@ func (tk TillitisKey) Close() error {
 	return nil
 }
 
-// SetReadTimeout sets the timeout of the underlying serial connection
-// to the TKey. Pass 0 seconds to not have any timeout. Note that the
-// timeout implemented in the serial lib only works for simple Read().
-// E.g. io.ReadFull() will Read() until the buffer is full.
-func (tk TillitisKey) SetReadTimeout(seconds int) error {
-	var t time.Duration = -1
-	if seconds > 0 {
-		t = time.Duration(seconds) * time.Second
-	}
-	if err := tk.conn.SetReadTimeout(t); err != nil {
-		return fmt.Errorf("SetReadTimeout: %w", err)
-	}
-	return nil
-}
-
 type NameVersion struct {
 	Name0   string
 	Name1   string
@@ -142,17 +126,9 @@ func (tk TillitisKey) GetNameVersion() (*NameVersion, error) {
 		return nil, err
 	}
 
-	if err = tk.SetReadTimeout(2); err != nil {
-		return nil, err
-	}
-
-	rx, _, err := tk.ReadFrame(rspGetNameVersion, id)
+	rx, _, err := tk.ReadFrame(rspGetNameVersion, id, 2000)
 	if err != nil {
 		return nil, fmt.Errorf("ReadFrame: %w", err)
-	}
-
-	if err = tk.SetReadTimeout(0); err != nil {
-		return nil, fmt.Errorf("SetReadTimeout: %w", err)
 	}
 
 	nameVer := &NameVersion{}
@@ -206,7 +182,7 @@ func (tk TillitisKey) GetUDI() (*UDI, error) {
 		return nil, err
 	}
 
-	rx, _, err := tk.ReadFrame(rspGetUDI, id)
+	rx, _, err := tk.ReadFrame(rspGetUDI, id, 0)
 	if err != nil {
 		return nil, fmt.Errorf("ReadFrame: %w", err)
 	}
@@ -318,7 +294,7 @@ func (tk TillitisKey) loadApp(size int, secretPhrase []byte) error {
 		return err
 	}
 
-	rx, _, err := tk.ReadFrame(rspLoadApp, id)
+	rx, _, err := tk.ReadFrame(rspLoadApp, id, 0)
 	if err != nil {
 		return fmt.Errorf("ReadFrame: %w", err)
 	}
@@ -365,7 +341,7 @@ func (tk TillitisKey) loadAppData(content []byte, last bool) ([32]byte, int, err
 	}
 
 	// Wait for reply
-	rx, _, err = tk.ReadFrame(expectedResp, id)
+	rx, _, err = tk.ReadFrame(expectedResp, id, 0)
 	if err != nil {
 		return [32]byte{}, 0, fmt.Errorf("ReadFrame: %w", err)
 	}

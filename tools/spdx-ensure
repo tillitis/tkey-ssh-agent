@@ -39,7 +39,10 @@ gotools/go.sum
 system/60-tkey.rules
 system/tkey-ssh-agent.1
 system/tkey-ssh-agent.service.tmpl
-test/test-loop.sh
+test/attic/test-loop.sh
+test/requirements.txt
+test/run
+test/test-loop.py
 )
 
 is_missingok() {

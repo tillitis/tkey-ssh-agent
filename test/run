@@ -1,0 +1,32 @@
+#!/bin/sh
+set -eu
+
+cd "${0%/*}/.."
+
+if [ -e tkey-sign ]; then
+  if ! go version -m tkey-sign | grep -q main.signerAppNoTouch=indeed; then
+    printf "We need to build with the touch requirement removed.\n"
+    printf "Please first do: make -C ../ clean\n"
+    exit 1
+  fi
+fi
+
+if [ ! -e tkey-runapp ] || [ ! -e apps/signer/app.bin ] || [ ! -e tkey-sign ]; then
+  make TKEY_SIGNER_APP_NO_TOUCH=indeed -C apps
+  make TKEY_SIGNER_APP_NO_TOUCH=indeed tkey-runapp tkey-sign
+fi
+
+cd "test"
+
+if [ ! -e venv ]; then
+  if ! python3 -m venv venv; then
+    rm -rf venv
+    exit 1
+  fi
+  . ./venv/bin/activate
+  pip3 install -r requirements.txt
+else
+  . ./venv/bin/activate
+fi
+
+./test-loop.py

@@ -24,6 +24,10 @@ import (
 	"github.com/tillitis/tillitis-key1-apps/tk1"
 )
 
+// May be set to non-empty at build time to indicate that the signer
+// app has been compiled with touch requirement removed.
+var SignerAppNoTouch string
+
 var (
 	cmdGetPubkey      = appCmd{0x01, "cmdGetPubkey", tk1.CmdLen1}
 	rspGetPubkey      = appCmd{0x02, "rspGetPubkey", tk1.CmdLen128}
@@ -126,7 +130,7 @@ func (s Signer) GetPubkey() ([]byte, error) {
 		return nil, fmt.Errorf("Write: %w", err)
 	}
 
-	rx, _, err := s.tk.ReadFrame(rspGetPubkey, id, 0)
+	rx, _, err := s.tk.ReadFrame(rspGetPubkey, id, 2000)
 	tk1.Dump("GetPubKey rx", rx)
 	if err != nil {
 		return nil, fmt.Errorf("ReadFrame: %w", err)
@@ -180,7 +184,7 @@ func (s Signer) setSize(size int) error {
 		return fmt.Errorf("Write: %w", err)
 	}
 
-	rx, _, err := s.tk.ReadFrame(rspSetSize, id, 0)
+	rx, _, err := s.tk.ReadFrame(rspSetSize, id, 2000)
 	tk1.Dump("SetAppSize rx", rx)
 	if err != nil {
 		return fmt.Errorf("ReadFrame: %w", err)
@@ -218,8 +222,15 @@ func (s Signer) signLoad(content []byte) (int, error) {
 		return 0, fmt.Errorf("Write: %w", err)
 	}
 
-	// Wait for reply
-	rx, _, err := s.tk.ReadFrame(rspSignData, id, 0)
+	// We can't have a timeout here; upon receiving the last chunk of
+	// the message, the signer-app will wait for TKey to be touched
+	// before making the signature and sending the last reply
+	// regarding the chunk.
+	var signLoadTimeout int
+	if SignerAppNoTouch != "" {
+		signLoadTimeout = 2000
+	}
+	rx, _, err := s.tk.ReadFrame(rspSignData, id, signLoadTimeout)
 	if err != nil {
 		return 0, fmt.Errorf("ReadFrame: %w", err)
 	}
@@ -245,7 +256,7 @@ func (s Signer) getSig() ([]byte, error) {
 		return nil, fmt.Errorf("Write: %w", err)
 	}
 
-	rx, _, err := s.tk.ReadFrame(rspGetSig, id, 0)
+	rx, _, err := s.tk.ReadFrame(rspGetSig, id, 2000)
 	if err != nil {
 		return nil, fmt.Errorf("ReadFrame: %w", err)
 	}

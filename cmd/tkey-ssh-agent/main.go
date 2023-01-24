@@ -16,6 +16,7 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/tillitis/tillitis-key1-apps/internal/util"
 	"github.com/tillitis/tillitis-key1-apps/tk1"
+	"github.com/tillitis/tillitis-key1-apps/tk1sign"
 )
 
 // Use when printing err/diag msgs
@@ -92,7 +93,7 @@ will flash green when the stick must be touched to complete a signature.`, progn
 		exit(2)
 	}
 
-	if signerAppNoTouch != "" {
+	if tk1sign.SignerAppNoTouch != "" {
 		le.Printf("WARNING! This tkey-ssh-agent and signer app is built with the touch requirement removed\n")
 	}
 	if helpOnly {

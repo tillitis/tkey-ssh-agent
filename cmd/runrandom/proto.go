@@ -111,7 +111,7 @@ func (s RandomGen) GetRandom(bytes int) ([]byte, error) {
 		return nil, fmt.Errorf("Write: %w", err)
 	}
 
-	rx, _, err := s.tk.ReadFrame(rspGetRandom, id, 0)
+	rx, _, err := s.tk.ReadFrame(rspGetRandom, id, 2000)
 	tk1.Dump("GetRandom rx", rx)
 	if err != nil {
 		return nil, fmt.Errorf("ReadFrame: %w", err)

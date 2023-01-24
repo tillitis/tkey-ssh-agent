@@ -13,13 +13,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/tillitis/tillitis-key1-apps/tk1sign"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
 )
-
-// May be set to non-empty at build time to indicate that the signer
-// app has been compiled with touch requirement removed.
-var signerAppNoTouch string
 
 type SSHAgent struct {
 	signer      *Signer
@@ -101,7 +98,7 @@ func (s *SSHAgent) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, error) 
 		return nil, fmt.Errorf("pubkey mismatch")
 	}
 
-	if signerAppNoTouch == "" {
+	if tk1sign.SignerAppNoTouch == "" {
 		timer := time.AfterFunc(4*time.Second, func() {
 			notify("Touch your TKey to confirm SSH login.")
 		})

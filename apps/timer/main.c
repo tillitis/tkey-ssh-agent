@@ -1,4 +1,4 @@
-// Copyright (C) 2022 - Tillitis AB
+// Copyright (C) 2022, 2023 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
 #include <lib.h>
@@ -85,14 +85,11 @@ int main(void)
 			break;
 
 		case APP_CMD_START_TIMER:
-			*timer_ctrl = 0x01;
+			*timer_ctrl = (1 << TK1_MMIO_TIMER_CTRL_START_BIT);
 
 			// Wait for the timer to expire
-			for (;;) {
-				if (*timer_status == 1) {
-					qemu_puts("Timer expired\n");
-					break;
-				}
+			while (*timer_status &
+			       (1 << TK1_MMIO_TIMER_STATUS_RUNNING_BIT)) {
 			}
 
 			rsp[0] = STATUS_OK;

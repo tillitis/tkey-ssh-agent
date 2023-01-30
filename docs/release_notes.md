@@ -2,6 +2,15 @@
 
 ## unreleased
 
+- Update tk1_mem.h and timer app to the revised timer MMIO API
+
+## v0.0.2
+
+We forgot to add the release here when tagging for
+https://github.com/tillitis/tillitis-key1-apps/releases/tag/v0.0.2
+
+Notable changes:
+
 - Make monocypher a library - breaks CDI!
 - Remove GET_UDI from signer app, and the use of it - breaks CDI!
 

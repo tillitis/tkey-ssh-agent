@@ -1,6 +1,6 @@
 # Release notes
 
-## unreleased
+## v0.0.3
 
 - Update tk1_mem.h and timer app to the revised timer MMIO API
 

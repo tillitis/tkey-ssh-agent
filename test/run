@@ -3,17 +3,30 @@ set -eu
 
 cd "${0%/*}/.."
 
-if [[ -e tkey-sign ]]; then
+if [ -e tkey-sign ]; then
   if ! go version -m tkey-sign | grep -q main.signerAppNoTouch=indeed; then
     printf "We need to build with the touch requirement removed.\n"
     printf "Please first do: make -C ../ clean\n"
     exit 1
   fi
 fi
-make TKEY_SIGNER_APP_NO_TOUCH=indeed -C apps
-make TKEY_SIGNER_APP_NO_TOUCH=indeed tkey-runapp tkey-sign
+
+if [ ! -e tkey-runapp ] || [ ! -e apps/signer/app.bin ] || [ ! -e tkey-sign ]; then
+  make TKEY_SIGNER_APP_NO_TOUCH=indeed -C apps
+  make TKEY_SIGNER_APP_NO_TOUCH=indeed tkey-runapp tkey-sign
+fi
 
 cd "test"
+
+if [ -e /etc/debian_version ]; then
+  dpkg -s python3-venv || sudo apt install python3-venv
+fi
+
+# their current venv might have gone funky...
+if [ -e venv ] && [ ! -e wipedonce ]; then
+  rm -rf venv
+  touch wipedonce
+fi
 
 if [ ! -e venv ]; then
   python3 -m venv venv

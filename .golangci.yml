@@ -30,15 +30,8 @@ linters:
     - varcheck
 
     # TODO disable because currently not available for go1.18
-    - bodyclose
-    - contextcheck
-    - nilerr
-    - noctx
     - rowserrcheck
     - sqlclosecheck
-    - structcheck
-    - tparallel
-    - unparam
 
 issues:
   max-issues-per-linter: 0

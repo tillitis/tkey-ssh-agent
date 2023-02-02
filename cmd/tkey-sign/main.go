@@ -31,7 +31,7 @@ func main() {
 	var showPubkeyOnly, verbose, helpOnly bool
 	pflag.CommandLine.SetOutput(os.Stderr)
 	pflag.CommandLine.SortFlags = false
-	pflag.BoolVarP(&showPubkeyOnly, "show-pubkey", "k", false,
+	pflag.BoolVarP(&showPubkeyOnly, "show-pubkey", "p", false,
 		"Don't sign anything, only output the public key.")
 	pflag.StringVar(&devPath, "port", "",
 		"Set serial port device `PATH`. If this is not passed, auto-detection will be attempted.")
@@ -70,13 +70,13 @@ public key of the signer app on the TKey.`, os.Args[0])
 	}
 
 	if fileName == "" && !showPubkeyOnly {
-		le.Printf("Please pass at least a message FILE, or -k.\n\n")
+		le.Printf("Please pass at least a message FILE, or -p.\n\n")
 		pflag.Usage()
 		os.Exit(2)
 	}
 
 	if fileName != "" && showPubkeyOnly {
-		le.Printf("Pass only a message FILE or -k.\n\n")
+		le.Printf("Pass only a message FILE or -p.\n\n")
 		pflag.Usage()
 		os.Exit(2)
 	}

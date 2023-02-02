@@ -288,7 +288,7 @@ interfere with this test.
 The tkey-ssh-agent also supports the `--uss` and `--uss-file` flags,
 as described for `tkey-runapp` above.
 
-You can use `-k` (long option: `--show-pubkey`) to only output the
+You can use `--show-pubkey` (short flag: `-p`) to only output the
 pubkey. The pubkey is printed to stdout for easy redirection, but some
 messages are still present on stderr.
 

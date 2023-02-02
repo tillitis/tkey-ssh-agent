@@ -43,7 +43,7 @@ func main() {
 	pflag.CommandLine.SortFlags = false
 	pflag.StringVarP(&sockPath, "agent-socket", "a", "",
 		"Start the agent, setting the `PATH` to the UNIX-domain socket that it should bind/listen to.")
-	pflag.BoolVarP(&showPubkeyOnly, "show-pubkey", "k", false,
+	pflag.BoolVarP(&showPubkeyOnly, "show-pubkey", "p", false,
 		"Don't start the agent, only output the ssh-ed25519 public key.")
 	pflag.BoolVarP(&listPortsOnly, "list-ports", "L", false,
 		"List possible serial ports to use with --port.")
@@ -60,7 +60,7 @@ func main() {
 	pflag.BoolVar(&versionOnly, "version", false, "Output version information.")
 	pflag.BoolVar(&helpOnly, "help", false, "Output this help.")
 	pflag.Usage = func() {
-		desc := fmt.Sprintf(`Usage: %[1]s -a|-k|-L [flags...]
+		desc := fmt.Sprintf(`Usage: %[1]s -a|-p|-L [flags...]
 
 %[1]s is an alternative SSH agent that communicates with a Tillitis TKey
 USB stick. This stick holds private key and signing functionality for public key
@@ -108,7 +108,7 @@ green when the stick must be touched to complete a signature.`, progname)
 		exclusive++
 	}
 	if exclusive > 1 {
-		le.Printf("Pass only one of -a, -k, or -L.\n\n")
+		le.Printf("Pass only one of -a, -p, or -L.\n\n")
 		pflag.Usage()
 		exit(2)
 	}
@@ -126,7 +126,7 @@ green when the stick must be touched to complete a signature.`, progname)
 	}
 
 	if !showPubkeyOnly && sockPath == "" {
-		le.Printf("Please pass at least -a or -k.\n\n")
+		le.Printf("Please pass at least -a or -p.\n\n")
 		pflag.Usage()
 		exit(2)
 	}

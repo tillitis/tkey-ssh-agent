@@ -1,6 +1,6 @@
 #! /bin/sh
 
-if [ $# -lt 1 ]; then
+if [ $# -lt 1 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
   cat <<EOF
 Usage: runsign.sh path-to-message [common tkey-runapp and tkey-sign flags]
 

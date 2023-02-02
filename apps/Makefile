@@ -88,12 +88,15 @@ clean:
 	$(RM) -f monocypher/libmonocypher.a $(MONOOBJS)
 	$(RM) -f blink/app.bin blink/app.elf blink/blink.o
 
+# Uses ../.clang-format
 FMTFILES=include/*.h libcommon/*.c signer/*.[ch] timer/*.[ch] random/*.[ch] rng_stream/*.[ch]
 .PHONY: fmt
 fmt:
-	# Uses ../.clang-format
 	clang-format --dry-run --ferror-limit=0 $(FMTFILES)
 	clang-format --verbose -i $(FMTFILES)
+.PHONY: checkfmt
+checkfmt:
+	clang-format --dry-run --ferror-limit=0 --Werror $(FMTFILES)
 
 .PHONY: update-mem-include
 update-mem-include:

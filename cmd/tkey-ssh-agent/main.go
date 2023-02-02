@@ -1,4 +1,4 @@
-// Copyright (C) 2022 - Tillitis AB
+// Copyright (C) 2022, 2023 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
 package main
@@ -38,7 +38,7 @@ func main() {
 
 	var sockPath, devPath, fileUSS, pinentry string
 	var speed int
-	var enterUSS, showPubkeyOnly, listPortsOnly, versionOnly bool
+	var enterUSS, showPubkeyOnly, listPortsOnly, versionOnly, helpOnly bool
 	pflag.CommandLine.SetOutput(os.Stderr)
 	pflag.CommandLine.SortFlags = false
 	pflag.StringVarP(&sockPath, "agent-socket", "a", "",
@@ -57,8 +57,8 @@ func main() {
 		"Read `FILE` and hash its contents as the USS. Use '-' (dash) to read from stdin. The full contents are hashed unmodified (e.g. newlines are not stripped).")
 	pflag.StringVar(&pinentry, "pinentry", "",
 		"Pinentry `PROGRAM` for use by --uss. The default is found by looking in your gpg-agent.conf for pinentry-program, or 'pinentry' if not found there.")
-	pflag.BoolVar(&versionOnly, "version", false,
-		"Output version information.")
+	pflag.BoolVar(&versionOnly, "version", false, "Output version information.")
+	pflag.BoolVar(&helpOnly, "help", false, "Output this help.")
 	pflag.Usage = func() {
 		desc := fmt.Sprintf(`Usage: %[1]s -a|-k|-L [flags...]
 
@@ -87,6 +87,10 @@ green when the stick must be touched to complete a signature.`, progname)
 
 	if signerAppNoTouch != "" {
 		le.Printf("WARNING! This tkey-ssh-agent and signer app is built with the touch requirement removed\n")
+	}
+	if helpOnly {
+		pflag.Usage()
+		exit(0)
 	}
 	if versionOnly {
 		fmt.Printf("%s %s\n", progname, version)

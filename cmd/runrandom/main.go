@@ -1,4 +1,4 @@
-// Copyright (C) 2022 - Tillitis AB
+// Copyright (C) 2022, 2023 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
 package main
@@ -34,12 +34,15 @@ var le = log.New(os.Stderr, "", 0)
 func main() {
 	var devPath string
 	var speed, bytes int
+	var helpOnly bool
+	pflag.CommandLine.SortFlags = false
 	pflag.StringVar(&devPath, "port", "",
 		"Set serial port device `PATH`. If this is not passed, auto-detection will be attempted.")
 	pflag.IntVar(&speed, "speed", tk1.SerialSpeed,
 		"Set serial port speed in `BPS` (bits per second).")
 	pflag.IntVarP(&bytes, "bytes", "b", 0,
 		"Fetch `COUNT` number of random bytes.")
+	pflag.BoolVar(&helpOnly, "help", false, "Output this help.")
 	pflag.Usage = func() {
 		fmt.Fprintf(os.Stderr, `runrandom is a host program for the random-app, used to fetch random numbers
 from the TRNG on the Tillitis TKey. This program embeds the random-app binary,
@@ -51,6 +54,11 @@ Usage:
 			pflag.CommandLine.FlagUsagesWrapped(80))
 	}
 	pflag.Parse()
+
+	if helpOnly {
+		pflag.Usage()
+		os.Exit(0)
+	}
 
 	if bytes == 0 {
 		le.Printf("Please set number of bytes with --bytes\n")

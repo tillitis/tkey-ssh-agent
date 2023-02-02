@@ -1,4 +1,4 @@
-// Copyright (C) 2022 - Tillitis AB
+// Copyright (C) 2022, 2023 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
 package main
@@ -28,7 +28,7 @@ var signerAppNoTouch string
 func main() {
 	var fileName, devPath string
 	var speed int
-	var showPubkeyOnly, verbose bool
+	var showPubkeyOnly, verbose, helpOnly bool
 	pflag.CommandLine.SetOutput(os.Stderr)
 	pflag.CommandLine.SortFlags = false
 	pflag.BoolVarP(&showPubkeyOnly, "show-pubkey", "k", false,
@@ -37,8 +37,8 @@ func main() {
 		"Set serial port device `PATH`. If this is not passed, auto-detection will be attempted.")
 	pflag.IntVar(&speed, "speed", tk1.SerialSpeed,
 		"Set serial port speed in `BPS` (bits per second).")
-	pflag.BoolVar(&verbose, "verbose", false,
-		"Enable verbose output.")
+	pflag.BoolVar(&verbose, "verbose", false, "Enable verbose output.")
+	pflag.BoolVar(&helpOnly, "help", false, "Output this help.")
 	pflag.Usage = func() {
 		desc := fmt.Sprintf(`Usage: %[1]s [flags...] [FILE]
 
@@ -62,6 +62,11 @@ public key of the signer app on the TKey.`, os.Args[0])
 			os.Exit(2)
 		}
 		fileName = pflag.Args()[0]
+	}
+
+	if helpOnly {
+		pflag.Usage()
+		os.Exit(0)
 	}
 
 	if fileName == "" && !showPubkeyOnly {

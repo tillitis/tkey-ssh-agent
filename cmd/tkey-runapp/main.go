@@ -1,4 +1,4 @@
-// Copyright (C) 2022 - Tillitis AB
+// Copyright (C) 2022, 2023 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
 package main
@@ -23,7 +23,7 @@ var le = log.New(os.Stderr, "", 0)
 func main() {
 	var fileName, devPath, fileUSS string
 	var speed int
-	var enterUSS, verbose bool
+	var enterUSS, verbose, helpOnly bool
 	pflag.CommandLine.SetOutput(os.Stderr)
 	pflag.CommandLine.SortFlags = false
 	pflag.StringVar(&devPath, "port", "",
@@ -34,8 +34,8 @@ func main() {
 		"Enable typing of a phrase to be hashed as the User Supplied Secret. The USS is loaded onto the TKey along with the app itself and used by the firmware, together with other material, for deriving secrets for the application.")
 	pflag.StringVar(&fileUSS, "uss-file", "",
 		"Read `FILE` and hash its contents as the USS. Use '-' (dash) to read from stdin. The full contents are hashed unmodified (e.g. newlines are not stripped).")
-	pflag.BoolVar(&verbose, "verbose", false,
-		"Enable verbose output.")
+	pflag.BoolVar(&verbose, "verbose", false, "Enable verbose output.")
+	pflag.BoolVar(&helpOnly, "help", false, "Output this help.")
 	pflag.Usage = func() {
 		desc := fmt.Sprintf(`Usage: %[1]s [flags...] FILE
 
@@ -57,6 +57,11 @@ running some app.`, os.Args[0])
 			os.Exit(2)
 		}
 		fileName = pflag.Args()[0]
+	}
+
+	if helpOnly {
+		pflag.Usage()
+		os.Exit(0)
 	}
 
 	if fileName == "" {

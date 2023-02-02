@@ -1,4 +1,4 @@
-// Copyright (C) 2022 - Tillitis AB
+// Copyright (C) 2022, 2023 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
 package main
@@ -134,7 +134,8 @@ const defaultPrescaler = 18_000_000
 func main() {
 	var devPath string
 	var speed, timer, prescaler int
-	var verbose bool
+	var verbose, helpOnly bool
+	pflag.CommandLine.SortFlags = false
 	pflag.StringVar(&devPath, "port", "",
 		"Set serial port device `PATH`. If this is not passed, auto-detection will be attempted.")
 	pflag.IntVar(&speed, "speed", tk1.SerialSpeed,
@@ -145,11 +146,17 @@ func main() {
 		fmt.Sprintf("Set timer `VALUE` (seconds if prescaler is %d).", defaultPrescaler))
 	pflag.IntVar(&prescaler, "prescaler", defaultPrescaler,
 		"Set prescaler.")
+	pflag.BoolVar(&helpOnly, "help", false, "Output this help.")
 	pflag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\n%s", os.Args[0],
 			pflag.CommandLine.FlagUsagesWrapped(80))
 	}
 	pflag.Parse()
+
+	if helpOnly {
+		pflag.Usage()
+		os.Exit(0)
+	}
 
 	if !verbose {
 		tk1.SilenceLogging()

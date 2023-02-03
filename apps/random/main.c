@@ -1,4 +1,4 @@
-// Copyright (C) 2022 - Tillitis AB
+// Copyright (C) 2022, 2023 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
 #include <tk1_mem.h>
@@ -44,7 +44,7 @@ void get_random(uint8_t *buf, int bytes)
 
 int main(void)
 {
-	uint32_t stack;
+	uint32_t    stack;
 	struct frame_header hdr; // Used in both directions
 	uint8_t cmd[CMDLEN_MAXBYTES];
 	uint8_t rsp[CMDLEN_MAXBYTES];

@@ -42,7 +42,6 @@ make TKEY_SSH_AGENT_VERSION="$upstream_version" tkey-ssh-agent
 make DESTDIR="$destdir" \
      PREFIX=/usr \
      SYSTEMDDIR=/usr/lib/systemd \
-     UDEVDIR=/usr/lib/udev \
      install
 
 popd >/dev/null

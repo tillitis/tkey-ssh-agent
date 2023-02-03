@@ -6,7 +6,7 @@ all: apps tkey-runapp tkey-sign runsign.sh tkey-ssh-agent runtimer runrandom
 DESTDIR=/
 PREFIX=/usr/local
 SYSTEMDDIR=/etc/systemd
-UDEVDIR=/etc/udev
+UDEVDIR=/usr/lib/udev
 destbin=$(DESTDIR)/$(PREFIX)/bin
 destman1=$(DESTDIR)/$(PREFIX)/share/man/man1
 destunit=$(DESTDIR)/$(SYSTEMDDIR)/user

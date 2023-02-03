@@ -29,6 +29,9 @@ jobs:
       - name: make
         run: make
 
+      - name: check matching signer/app.bin hash
+        run: make -C apps check-signer-hash
+
       - name: lint go code
         run: make lint
 

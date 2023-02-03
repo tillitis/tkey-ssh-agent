@@ -47,14 +47,17 @@ LIBS=libcrt0/libcrt0.a libcommon/libcommon.a
 	$(OBJCOPY) --input-target=elf32-littleriscv --output-target=binary $^ $@
 	chmod a-x $@
 
+show-%-hash: %/app.bin
+	cd $$(dirname $^) && sha256sum app.bin
+
+check-signer-hash: signer/app.bin
+	cd signer && sha256sum -c app.bin.sha256
+
 # Simple ed25519 signer app
 SIGNEROBJS=signer/main.o signer/app_proto.o
 signer/app.elf: $(LIBS) monocypher/libmonocypher.a $(SIGNEROBJS) app.lds
 	$(CC) $(CFLAGS) $(SIGNEROBJS) $(LDFLAGS) -L monocypher -lmonocypher -I monocypher -o $@
 $(SIGNEROBJS): $(INCLUDE)/tk1_mem.h signer/app_proto.h
-
-show-%-hash: %/app.bin
-	sha256sum $^ | cut -f 1 -d " "
 
 # A simpler timer app
 TIMEROBJS = timer/main.o timer/app_proto.o

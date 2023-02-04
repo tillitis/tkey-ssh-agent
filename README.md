@@ -1,3 +1,6 @@
+
+[![ci](https://github.com/tillitis/tillitis-key1-apps/actions/workflows/ci.yaml/badge.svg?branch=main&event=push)](https://github.com/tillitis/tillitis-key1-apps/actions/workflows/ci.yaml)
+
 # Tillitis TKey Apps
 
 This repository contains applications to run on the TKey USB security

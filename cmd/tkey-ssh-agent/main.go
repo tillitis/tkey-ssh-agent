@@ -11,8 +11,6 @@ import (
 	"path/filepath"
 	"runtime/debug"
 	"strings"
-	"syscall"
-
 	"github.com/spf13/pflag"
 	"github.com/tillitis/tillitis-key1-apps/internal/util"
 	"github.com/tillitis/tillitis-key1-apps/tk1"
@@ -26,7 +24,6 @@ const progname = "tkey-ssh-agent"
 var version string
 
 func main() {
-	syscall.Umask(0o077)
 
 	exit := func(code int) {
 		os.Exit(code)

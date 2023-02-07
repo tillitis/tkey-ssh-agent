@@ -31,11 +31,14 @@ func NewSSHAgent(signer *Signer) *SSHAgent {
 }
 
 func (s *SSHAgent) Serve(absSockPath string) error {
-	listener, err := net.Listen("unix", absSockPath)
+	path := absSockPath
+
+	listener, err := nativeListen(path)
 	if err != nil {
-		return fmt.Errorf("Listen: %w", err)
+		return fmt.Errorf("%w", err)
 	}
-	le.Printf("Listening on %s\n", absSockPath)
+	le.Printf("Listening on %s\n", listener.Addr())
+
 	for {
 		conn, err := listener.Accept()
 		if err != nil {

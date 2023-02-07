@@ -3,7 +3,7 @@ Description=An SSH agent backed by Tillitis TKey
 Documentation=https://github.com/tillitis/tillitis-key1-apps
 
 [Service]
-ExecStart=##BINDIR##/tkey-ssh-agent --uss --agent-socket /%t/tkey-ssh-agent/sock
+ExecStart=##BINDIR##/tkey-ssh-agent --uss --agent-path /%t/tkey-ssh-agent/sock
 ExecReload=/usr/bin/kill -HUP $MAINPID
 NoNewPrivileges=yes
 KeyringMode=private

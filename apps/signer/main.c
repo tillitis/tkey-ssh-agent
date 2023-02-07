@@ -1,4 +1,4 @@
-// Copyright (C) 2022 - Tillitis AB
+// Copyright (C) 2022, 2023 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
 #include <tk1_mem.h>
@@ -21,7 +21,7 @@ static volatile uint32_t *touch = (volatile uint32_t *)TK1_MMIO_TOUCH_STATUS;
 
 const uint8_t app_name0[4] = "tk1 ";
 const uint8_t app_name1[4] = "sign";
-const uint32_t app_version = 0x00000001;
+const uint32_t app_version = 0x00000002;
 
 void wait_touch_ledflash(int ledvalue, int loopcount)
 {

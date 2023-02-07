@@ -9,9 +9,9 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"runtime/debug"
 	"strings"
-	"syscall"
 
 	"github.com/spf13/pflag"
 	"github.com/tillitis/tillitis-key1-apps/internal/util"
@@ -25,9 +25,9 @@ const progname = "tkey-ssh-agent"
 
 var version string
 
-func main() {
-	syscall.Umask(0o077)
+const windowsPipePrefix = `\\.\pipe\`
 
+func main() {
 	exit := func(code int) {
 		os.Exit(code)
 	}
@@ -36,13 +36,20 @@ func main() {
 		version = readBuildInfo()
 	}
 
-	var sockPath, devPath, fileUSS, pinentry string
+	var agentPath, devPath, fileUSS, pinentry string
 	var speed int
 	var enterUSS, showPubkeyOnly, listPortsOnly, versionOnly, helpOnly bool
 	pflag.CommandLine.SetOutput(os.Stderr)
 	pflag.CommandLine.SortFlags = false
-	pflag.StringVarP(&sockPath, "agent-socket", "a", "",
-		"Start the agent, setting the `PATH` to the UNIX-domain socket that it should bind/listen to.")
+	pflag.CommandLine.SetNormalizeFunc(func(_ *pflag.FlagSet, name string) pflag.NormalizedName {
+		// Make old name agent-socket an alias for the new name
+		if name == "agent-socket" {
+			name = "agent-path"
+		}
+		return pflag.NormalizedName(name)
+	})
+	pflag.StringVarP(&agentPath, "agent-path", "a", "",
+		fmt.Sprintf("Start the agent, setting the `PATH` to the UNIX-domain socket that it should listen on. On Windows a Named Pipe named %s\\PATH will be used.", windowsPipePrefix))
 	pflag.BoolVarP(&showPubkeyOnly, "show-pubkey", "p", false,
 		"Don't start the agent, only output the ssh-ed25519 public key.")
 	pflag.BoolVarP(&listPortsOnly, "list-ports", "L", false,
@@ -66,7 +73,7 @@ func main() {
 USB stick. This stick holds private key and signing functionality for public key
 authentication.
 
-Through the agent-socket, when set in the SSH_AUTH_SOCK environment variable,
+When the environment variable SSH_AUTH_SOCK is set to contain the agent-path,
 programs like ssh(1) and ssh-keygen(1) can find and use this agent, e.g. for
 authentication when accessing other machines.
 
@@ -98,7 +105,7 @@ will flash green when the stick must be touched to complete a signature.`, progn
 	}
 
 	exclusive := 0
-	if sockPath != "" {
+	if agentPath != "" {
 		exclusive++
 	}
 	if showPubkeyOnly {
@@ -125,7 +132,7 @@ will flash green when the stick must be touched to complete a signature.`, progn
 		exit(0)
 	}
 
-	if !showPubkeyOnly && sockPath == "" {
+	if !showPubkeyOnly && agentPath == "" {
 		le.Printf("Please pass at least -a or -p.\n\n")
 		pflag.Usage()
 		exit(2)
@@ -137,30 +144,32 @@ will flash green when the stick must be touched to complete a signature.`, progn
 		exit(2)
 	}
 
-	if sockPath != "" {
-		var err error
-		sockPath, err = filepath.Abs(sockPath)
-		if err != nil {
-			le.Printf("Failed to get agent-socket path: %s", err)
-			exit(1)
-		}
-		_, err = os.Stat(sockPath)
-		if err == nil || !errors.Is(err, os.ErrNotExist) {
-			le.Printf("Socket path %s exists?\n", sockPath)
-			exit(1)
-		}
-		prevExitFunc := exit
-		exit = func(code int) {
-			_ = os.Remove(sockPath)
-			prevExitFunc(code)
-		}
-	}
-
 	signer := NewSigner(devPath, speed, enterUSS, fileUSS, pinentry, exit)
 
 	if !showPubkeyOnly {
+		if runtime.GOOS == "windows" {
+			agentPath = windowsPipePrefix + agentPath
+		} else {
+			var err error
+			agentPath, err = filepath.Abs(agentPath)
+			if err != nil {
+				le.Printf("Failed to resolve socket path: %s", err)
+				exit(1)
+			}
+			_, err = os.Stat(agentPath)
+			if err == nil || !errors.Is(err, os.ErrNotExist) {
+				le.Printf("%s already exists?\n", agentPath)
+				exit(1)
+			}
+			prevExitFunc := exit
+			exit = func(code int) {
+				_ = os.Remove(agentPath)
+				prevExitFunc(code)
+			}
+		}
+
 		agent := NewSSHAgent(signer)
-		if err := agent.Serve(sockPath); err != nil {
+		if err := agent.Serve(agentPath); err != nil {
 			le.Printf("%s\n", err)
 			exit(1)
 		}

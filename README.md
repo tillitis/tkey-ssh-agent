@@ -354,6 +354,48 @@ to read it before installing.
 There is also a Work In Progress Debian/Ubuntu package which can be
 build using the script `debian/build-pkg.sh`.
 
+#### Windows support
+
+tkey-ssh-agent can be built for and run on Windows.
+
+When using the `--uss` option (as described for `tkey-runapp` above),
+the Windows build by default uses the pinentry program from Gpg4win
+for requesting the User-Supplied Secret. This package can be installed
+using: `winget install GnuPG.Gpg4win`.
+
+The SSH Agent supports being used by the native OpenSSH client
+`ssh.exe` (part of Windows Optional Features and installable using
+`winget`). The environment variable `SSH_AUTH_SOCK` should be set to
+the complete path of the Named Pipe that tkey-ssh-agent listens on.
+
+For example, if it is started using `./tkey-ssh-agent.exe -a
+tkey-ssh-agent` the environment variable could be set for the current
+PowerShell like this:
+
+```powershell
+$env:SSH_AUTH_SOCK = '\\.\pipe\tkey-ssh-agent'
+```
+
+Setting this environment variable persistently, for future PowerShell
+terminals, Visual Studio Code, and other programs can be done through
+the System Control Panel. Or using PowerShell:
+
+```powershell
+[Environment]::SetEnvironmentVariable('SSH_AUTH_SOCK', '\\.\pipe\tkey-ssh-agent', 'User')
+```
+
+You can learn more about environment variables on Windows in [this
+article](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables).
+
+The SSH Agent can also be used with the Git-for-Windows client
+(`winget install Git.Git`). By default, it uses its own bundled
+ssh-client. Run this command to make `git.exe` use the system's native
+ssh.exe:
+
+```
+git config --global core.sshCommand C:/Windows/System32/OpenSSH/ssh.exe
+```
+
 ### Disabling touch requirement
 
 The signer app normally requires the USB stick to be physically

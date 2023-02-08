@@ -83,6 +83,8 @@ func (tk *TillitisKey) Connect(port string, options ...func(*TillitisKey)) error
 
 	tk.conn, err = serial.Open(port, &serial.Mode{BaudRate: tk.speed})
 	if err != nil {
+		// Ensure this value is nil, because Open returns an interface
+		tk.conn = nil
 		return fmt.Errorf("Open %s: %w", port, err)
 	}
 

@@ -2,6 +2,10 @@
 
 ## unreleased
 
+...
+
+## v0.0.4
+
 - tkey-ssh-agent now connects to the TKey for each SSH agent operation
   (and disconnects afterwards with a delay). The serial port is thus
   left accessible to others. The udev rule that sent SIGHUP to

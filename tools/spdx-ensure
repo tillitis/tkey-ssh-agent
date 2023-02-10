@@ -28,7 +28,7 @@ apps/Makefile
 apps/monocypher/LICENSE
 apps/monocypher/README.md
 apps/rng_stream/README.md
-apps/signer/app.bin.sha256
+apps/signer/app.bin.sha512
 apps/signer/runsign.sh
 dco.md
 go.mod

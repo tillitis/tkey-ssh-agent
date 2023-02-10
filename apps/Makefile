@@ -48,10 +48,10 @@ LIBS=libcrt0/libcrt0.a libcommon/libcommon.a
 	chmod a-x $@
 
 show-%-hash: %/app.bin
-	cd $$(dirname $^) && sha256sum app.bin
+	cd $$(dirname $^) && sha512sum app.bin
 
 check-signer-hash: signer/app.bin
-	cd signer && sha256sum -c app.bin.sha256
+	cd signer && sha512sum -c app.bin.sha512
 
 # Simple ed25519 signer app
 SIGNEROBJS=signer/main.o signer/app_proto.o

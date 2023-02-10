@@ -38,7 +38,8 @@ fi
 pkgversion="$upstream_version-$debian_revision"
 
 make clean
-make TKEY_SSH_AGENT_VERSION="$upstream_version" tkey-ssh-agent
+make -j TKEY_SSH_AGENT_VERSION="$upstream_version" tkey-ssh-agent
+make -C apps check-signer-hash
 make DESTDIR="$destdir" \
      PREFIX=/usr \
      SYSTEMDDIR=/usr/lib/systemd \

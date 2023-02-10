@@ -4,7 +4,9 @@
 
 - tkey-ssh-agent now connects to the TKey for each SSH agent operation
   (and disconnects afterwards with a delay). The serial port is thus
-  left accessible to others.
+  left accessible to others. The udev rule that sent SIGHUP to
+  tkey-ssh-agent upon insert/remove of TKey is no longer needed, and
+  tkey-ssh-agent does nothing upon receiving a SIGHUP.
 
 ## v0.0.3
 

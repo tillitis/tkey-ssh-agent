@@ -1,9 +1,6 @@
 // Copyright (C) 2022, 2023 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
-//go:build windows
-// +build windows
-
 package main
 
 import (
@@ -13,11 +10,9 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"os"
 	"sync"
 	"time"
 
-	"github.com/Microsoft/go-winio"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
 )
@@ -36,48 +31,24 @@ func NewSSHAgent(signer *Signer) *SSHAgent {
 }
 
 func (s *SSHAgent) Serve(absSockPath string) error {
-	pipePath := `\\.\\pipe\\tkey-ssh-agent`
+	path := absSockPath
 
-	if err := os.RemoveAll(pipePath); err != nil {
-		le.Printf("error: %v", err)
-	}
-
-	pc := &winio.PipeConfig{
-		SecurityDescriptor: "D:P(A;;GA;;;AU)",
-		InputBufferSize:    4096,
-		OutputBufferSize:   4096,
-	}
-
-	l, err := winio.ListenPipe(pipePath, pc)
-
+	listener, err := nativeListen(path)
 	if err != nil {
-		fmt.Println("listen error:", err)
+		return fmt.Errorf("%w", err)
 	}
+	le.Printf("Listening on %s\n", listener.Addr())
 
-	defer l.Close()
+	defer listener.Close()
 
 	for {
-		conn, err := l.Accept()
+		conn, err := listener.Accept()
 		if err != nil {
-			fmt.Println("accept error:", err)
+			return fmt.Errorf("Accept: %w", err)
 		}
-		fmt.Println("got a connection - dispatching to handler")
+		le.Printf("Handling a client connection\n")
 		go s.handleConn(conn)
 	}
-	/*
-		listener, err := net.Listen("unix", absSockPath)
-		if err != nil {
-			return fmt.Errorf("Listen: %w", err)
-		}
-		le.Printf("Listening on %s\n", absSockPath)
-		for {
-			if err != nil {
-				return fmt.Errorf("Accept: %w", err)
-			}
-			le.Printf("Handling a client connection\n")
-			go s.handleConn(l)
-		}
-	*/
 }
 
 func (s *SSHAgent) handleConn(c net.Conn) {

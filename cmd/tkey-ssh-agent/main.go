@@ -9,8 +9,10 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"runtime/debug"
 	"strings"
+
 	"github.com/spf13/pflag"
 	"github.com/tillitis/tillitis-key1-apps/internal/util"
 	"github.com/tillitis/tillitis-key1-apps/tk1"
@@ -24,6 +26,7 @@ const progname = "tkey-ssh-agent"
 var version string
 
 func main() {
+	// syscall.Umask(0o077)
 
 	exit := func(code int) {
 		os.Exit(code)
@@ -135,21 +138,37 @@ will flash green when the stick must be touched to complete a signature.`, progn
 	}
 
 	if sockPath != "" {
-		var err error
-		sockPath, err = filepath.Abs(sockPath)
-		if err != nil {
-			le.Printf("Failed to get agent-socket path: %s", err)
-			exit(1)
-		}
-		_, err = os.Stat(sockPath)
-		if err == nil || !errors.Is(err, os.ErrNotExist) {
-			le.Printf("Socket path %s exists?\n", sockPath)
-			exit(1)
-		}
-		prevExitFunc := exit
-		exit = func(code int) {
-			_ = os.Remove(sockPath)
-			prevExitFunc(code)
+		// TODO hardcoding for now, and user has to pass -a dummy. Not
+		// sure how to deal with flag parsing on windows. Also, should
+		// it be possible to configure name of named pipe? openssh
+		// ssh-agent on windows listens on \\.\pipe\openssh-ssh-agent
+		// and it's not configurable.
+		//
+		// Btw this is how to check if a flag that has a default value
+		// was actually passed:
+		// if pflag.CommandLine.Changed("agent-socket") {
+		// 	le.Printf("PASSED\n")
+		// }
+
+		if runtime.GOOS == "windows" {
+			sockPath = `\\.\pipe\tkey-ssh-agent`
+		} else {
+			var err error
+			sockPath, err = filepath.Abs(sockPath)
+			if err != nil {
+				le.Printf("Failed to get agent-socket path: %s", err)
+				exit(1)
+			}
+			_, err = os.Stat(sockPath)
+			if err == nil || !errors.Is(err, os.ErrNotExist) {
+				le.Printf("Socket path %s exists?\n", sockPath)
+				exit(1)
+			}
+			prevExitFunc := exit
+			exit = func(code int) {
+				_ = os.Remove(sockPath)
+				prevExitFunc(code)
+			}
 		}
 	}
 

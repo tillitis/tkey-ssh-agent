@@ -12,7 +12,6 @@ tag="SPDX-License-Identifier:"
 
 missingok_dirs=(
 .github/workflows/
-LICENSES/
 debian/
 docs/
 )
@@ -22,6 +21,7 @@ missingok_files=(
 .editorconfig
 .gitignore
 .golangci.yml
+LICENSE
 Makefile
 README.md
 apps/Makefile

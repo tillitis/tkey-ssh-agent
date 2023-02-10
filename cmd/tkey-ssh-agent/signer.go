@@ -9,12 +9,10 @@ import (
 	_ "embed"
 	"errors"
 	"fmt"
-
 	"io"
 	"os"
 	"os/signal"
 	"sync"
-
 	"syscall"
 	"time"
 
@@ -55,7 +53,6 @@ func NewSigner(devPathArg string, speedArg int, enterUSS bool, fileUSS string, p
 	var signer Signer
 
 	tk1.SilenceLogging()
-
 	tk := tk1.New()
 
 	tkSigner := tk1sign.New(tk)
@@ -76,7 +73,7 @@ func NewSigner(devPathArg string, speedArg int, enterUSS bool, fileUSS string, p
 	handleSignals(func() {
 		signer.closeNow()
 		exitFunc(1)
-	}, os.Interrupt)
+	}, os.Interrupt, syscall.SIGTERM)
 
 	return &signer
 }

@@ -332,6 +332,14 @@ You can use `--show-pubkey` (short flag: `-p`) to only output the
 pubkey. The pubkey is printed to stdout for easy redirection, but some
 messages are still present on stderr.
 
+#### TODO windows
+
+PowerShell:
+
+```
+$env:SSH_AUTH_SOCK = '\\.\pipe\tkey-ssh-agent'
+```
+
 #### Installing tkey-ssh-agent
 
 The [`Makefile`](Makefile) has an `install` target that installs

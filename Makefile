@@ -62,9 +62,11 @@ runrandom: apps
 TKEY_SSH_AGENT_VERSION ?=
 # .PHONY to let go-build handle deps and rebuilds
 .PHONY: tkey-ssh-agent
+# TODO not depending on apps, let them copy the signer/app.bin in place
 tkey-ssh-agent:
 	cp -af apps/signer/app.bin cmd/tkey-ssh-agent/app.bin
-	CGO_ENABLED=0 env GOOS=windows GOARCH=amd64 go build -ldflags "-X main.version=$(TKEY_SSH_AGENT_VERSION) -X main.signerAppNoTouch=$(TKEY_SIGNER_APP_NO_TOUCH)" -trimpath ./cmd/tkey-ssh-agent
+	# TODO hardcoded windows build for now
+	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-X main.version=$(TKEY_SSH_AGENT_VERSION) -X main.signerAppNoTouch=$(TKEY_SIGNER_APP_NO_TOUCH)" -trimpath ./cmd/tkey-ssh-agent
 
 .PHONY: clean
 clean:
@@ -74,4 +76,5 @@ clean:
 .PHONY: lint
 lint:
 	$(MAKE) -C gotools
-	./gotools/golangci-lint run
+	GOOS=linux   ./gotools/golangci-lint run
+	GOOS=windows ./gotools/golangci-lint run

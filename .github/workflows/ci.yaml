@@ -39,4 +39,4 @@ jobs:
         run: make -C apps checkfmt
 
       - name: check for SPDX tags
-        run: ./LICENSES/spdx-ensure
+        run: ./tools/spdx-ensure

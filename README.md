@@ -15,6 +15,10 @@ Current list of apps:
 
 For more information about the apps, see subsections below.
 
+The documentation for the Go module and packages (along with this
+README) can also be read over at
+https://pkg.go.dev/github.com/tillitis/tillitis-key1-apps
+
 Note that development is ongoing. For example, changes might be made
 to the signer app, causing the public/private keys it provides to
 change. To avoid unexpected changes, please use a tagged release.

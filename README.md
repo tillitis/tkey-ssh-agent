@@ -10,7 +10,6 @@ in QEMU, this is also explained in detail below.
 Current list of apps:
 
 - The Ed25519 signer app. Used as root of trust and SSH authentication
-- The random app.
 - The RNG stream app. Providing arbitrary high quality random numbers
 - blink. A minimalistic example application
 
@@ -60,6 +59,8 @@ The current set of valid, predefined SPDX identifiers can be found on
 the SPDX License List at:
 
 https://spdx.org/licenses/
+
+All contributors must adhere to the [Developer Certificate of Origin](dco.md).
 
 ## Building apps
 
@@ -355,25 +356,6 @@ The host apps will also stop displaying this requirement. Of course
 this changes the signer app binary and as a consequence the derived
 private key and identity will change.
 
-## The random app and runrandom host program
-
-The random app is a random number generator that uses TKey's TRNG
-(True Random Number Generator). The hardware stick will flash the red
-and blue LEDs while the app is running and show the same colors
-steadily while generating/delivering the numbers.
-
-The companion host program `runrandom` can be used to output random
-numbers on stdout. The host program embeds the app binary and loads it
-onto the USB stick if needed. If the stick is not in firmware mode, or
-is running another app, you'll need to unplug and plug it in again.
-You can build and use it like this:
-
-```
-$ make runrandom
-$ ./runrandom -b 42 | hexdump
-```
-
-
 ## The RNG stream app
 
 This app generates a continuous stream of high quality random numbers
@@ -393,7 +375,7 @@ reseed rate can be changed during compile time by adjusting the
 RESEED_TIME define in main.c.
 
 
-## blink
+## Example blink app in assembler
 
 In `blink/` there is also a very, very simple app written in
 assembler, `blink.bin` (blink.S) that blinks the LED.
@@ -433,11 +415,3 @@ print stuff.
 
 `libcommon` is compiled with no debug output by default. Rebuild
 `libcommon` without `-DNODEBUG` to get the debug output.
-
-
-## Licensing
-
-See [LICENSES](./LICENSES/README.md) for more information about the
-project's licenses.
-
-All contributors must adhere to the [Developer Certificate of Origin](dco.md).

@@ -1,7 +1,8 @@
 // Copyright (C) 2022, 2023 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
-//go:build linux || freebsd || openbsd || darwin
+//go:build windows
+
 package main
 
 import (
@@ -14,6 +15,7 @@ import (
 	"runtime/debug"
 	"strings"
 
+	"github.com/kardianos/service"
 	"github.com/spf13/pflag"
 	"github.com/tillitis/tillitis-key1-apps/internal/util"
 	"github.com/tillitis/tillitis-key1-apps/tk1"
@@ -26,7 +28,70 @@ const progname = "tkey-ssh-agent"
 
 var version string
 
+type program struct{}
+
+func (p *program) Start(s service.Service) error {
+    go p.run()
+    return nil
+}
+
+func (p *program) run() {
+	runAgent()
+}
+
+func (p *program) Stop(s service.Service) error {
+    // Stop your service code here
+    return nil
+}
+
 func main() {
+	// If no pflags are being used, start as a windows service
+	// Running the application directly as a service introduces exiting issues
+	if len(os.Args) > 1{
+	svcConfig := &service.Config{
+        Name:        "tkey ssh agent",
+        DisplayName: "TKey SSH Agent",
+        Description: "Tkey SSH Agent is an alternative SSH agent that communicates with a Tillitis TKey",
+		Arguments: []string{"-a agent.sock"},
+    }
+
+    prg := &program{}
+
+    s, err := service.New(prg, svcConfig)
+    if err != nil {
+        log.Fatal(err)
+    }
+        arg := os.Args[1]
+        if arg == "install" {
+            err = s.Install()
+            if err != nil {
+                log.Fatal(err)
+            }
+			s.Start()
+            fmt.Println("Service installed and started successfully.")
+            return
+        } else if arg == "uninstall" {
+            err = s.Uninstall()
+            if err != nil {
+                log.Fatal(err)
+            }
+			s.Stop()
+            fmt.Println("Service stopped and uninstalled successfully.")
+            return
+        }
+    
+
+    err = s.Run()
+    if err != nil {
+        log.Fatal(err)
+    }
+	} else {
+		//Running service-less
+		runAgent()
+	}
+}
+
+func runAgent() {
 	// syscall.Umask(0o077)
 
 	exit := func(code int) {
@@ -62,12 +127,15 @@ func main() {
 	pflag.BoolVar(&helpOnly, "help", false, "Output this help.")
 	pflag.Usage = func() {
 		desc := fmt.Sprintf(`Usage: %[1]s -a|-p|-L [flags...]
+
 %[1]s is an alternative SSH agent that communicates with a Tillitis TKey
 USB stick. This stick holds private key and signing functionality for public key
 authentication.
+
 Through the agent-socket, when set in the SSH_AUTH_SOCK environment variable,
 programs like ssh(1) and ssh-keygen(1) can find and use this agent, e.g. for
 authentication when accessing other machines.
+
 To make the TKey provide this functionality, the %[1]s contains a compiled
 signer app binary which it loads onto the stick and starts. The stick will flash
 blue when the signer app is running and waiting for a signing command, and

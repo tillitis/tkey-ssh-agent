@@ -1,4 +1,4 @@
-// Copyright (C) 2022 - Tillitis AB
+// Copyright (C) 2022, 2023 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
 #include "app_proto.h"
@@ -11,8 +11,8 @@ void appreply(struct frame_header hdr, enum appcmd rspcode, void *buf)
 
 	switch (rspcode) {
 	case APP_RSP_GET_RANDOM:
-		len = LEN_128;
-		nbytes = 128;
+		len = LEN_512;
+		nbytes = 512;
 		break;
 
 	case APP_RSP_GET_NAMEVERSION:

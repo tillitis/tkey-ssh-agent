@@ -1,4 +1,4 @@
-// Copyright (C) 2022 - Tillitis AB
+// Copyright (C) 2022, 2023 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
 #include <tk1_mem.h>
@@ -138,7 +138,7 @@ int main(void)
 
 		case APP_CMD_SIGN_DATA:
 			qemu_puts("APP_CMD_SIGN_DATA\n");
-			const uint32_t cmdBytelen = 128;
+			const uint32_t cmdBytelen = 512;
 
 			// Bad length of this command, or APP_CMD_SET_SIZE has
 			// not been called

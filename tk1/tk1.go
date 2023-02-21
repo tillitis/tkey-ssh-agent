@@ -261,7 +261,7 @@ func (tk TillitisKey) LoadApp(bin []byte, secretPhrase []byte) error {
 	var deviceDigest [32]byte
 
 	for nsent := 0; offset < binLen; offset += nsent {
-		if binLen-offset <= CmdLen128.Bytelen()-1 {
+		if binLen-offset <= cmdLoadAppData.CmdLen().Bytelen()-1 {
 			deviceDigest, nsent, err = tk.loadAppData(bin[offset:], true)
 		} else {
 			_, nsent, err = tk.loadAppData(bin[offset:], false)
@@ -338,7 +338,7 @@ func (tk TillitisKey) loadAppData(content []byte, last bool) ([32]byte, int, err
 		return [32]byte{}, 0, err
 	}
 
-	payload := make([]byte, CmdLen128.Bytelen()-1)
+	payload := make([]byte, cmdLoadAppData.CmdLen().Bytelen()-1)
 	copied := copy(payload, content)
 
 	// Add padding if not filling the payload buffer.

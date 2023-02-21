@@ -1,4 +1,4 @@
-// Copyright (C) 2022 - Tillitis AB
+// Copyright (C) 2022, 2023 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
 package tk1
@@ -24,7 +24,7 @@ const (
 	CmdLen1   CmdLen = 0
 	CmdLen4   CmdLen = 1
 	CmdLen32  CmdLen = 2
-	CmdLen128 CmdLen = 3
+	CmdLen512 CmdLen = 3
 )
 
 // Bytelen returns the number of bytes corresponding to the specific
@@ -37,8 +37,8 @@ func (l CmdLen) Bytelen() int {
 		return 4
 	case CmdLen32:
 		return 32
-	case CmdLen128:
-		return 128
+	case CmdLen512:
+		return 512
 	}
 	return 0
 }
@@ -54,11 +54,11 @@ type Cmd interface {
 var (
 	cmdGetNameVersion   = fwCmd{0x01, "cmdGetNameVersion", CmdLen1}
 	rspGetNameVersion   = fwCmd{0x02, "rspGetNameVersion", CmdLen32}
-	cmdLoadApp          = fwCmd{0x03, "cmdLoadApp", CmdLen128}
+	cmdLoadApp          = fwCmd{0x03, "cmdLoadApp", CmdLen512}
 	rspLoadApp          = fwCmd{0x04, "rspLoadApp", CmdLen4}
-	cmdLoadAppData      = fwCmd{0x05, "cmdLoadAppData", CmdLen128}
+	cmdLoadAppData      = fwCmd{0x05, "cmdLoadAppData", CmdLen512}
 	rspLoadAppData      = fwCmd{0x06, "rspLoadAppData", CmdLen4}
-	rspLoadAppDataReady = fwCmd{0x07, "rspLoadAppDataReady", CmdLen128}
+	rspLoadAppDataReady = fwCmd{0x07, "rspLoadAppDataReady", CmdLen512}
 	cmdGetUDI           = fwCmd{0x08, "cmdGetUDI", CmdLen1}
 	rspGetUDI           = fwCmd{0x09, "rspGetUDI", CmdLen32}
 )
@@ -132,12 +132,12 @@ func parseframe(b byte) (FramingHdr, error) {
 //	00 == 1 byte
 //	01 == 4 bytes
 //	10 == 32 bytes
-//	11 == 128 bytes
+//	11 == 512 bytes
 //
 // Note that the number of bytes indicated by the command data length
-// field does **not** include the header byte. This means that
-// a complete command frame, with a header indicating a command length
-// of 128 bytes, is 129 bytes in length.
+// field does **not** include the header byte. This means that a
+// complete command frame, with a header indicating a command length
+// of 512 bytes, is 511 bytes in length.
 func NewFrameBuf(cmd Cmd, id int) ([]byte, error) {
 	if id > 3 {
 		return nil, fmt.Errorf("frame ID must be 0..3")

@@ -1,4 +1,4 @@
-// Copyright (C) 2022 - Tillitis AB
+// Copyright (C) 2022, 2023 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
 package main
@@ -13,11 +13,11 @@ var (
 	cmdGetNameVersion = appCmd{0x01, "cmdGetNameVersion", tk1.CmdLen1}
 	rspGetNameVersion = appCmd{0x02, "rspGetNameVersion", tk1.CmdLen32}
 	cmdGetRandom      = appCmd{0x03, "cmdGetRandom", tk1.CmdLen4}
-	rspGetRandom      = appCmd{0x04, "rspGetRandom", tk1.CmdLen128}
+	rspGetRandom      = appCmd{0x04, "rspGetRandom", tk1.CmdLen512}
 )
 
-// RSP_GET_RANDOM cmdlen - (responsecode + status)
-const RandomPayloadMaxBytes = 128 - (1 + 1)
+// cmdlen - (responsecode + status)
+var RandomPayloadMaxBytes = rspGetRandom.CmdLen().Bytelen() - (1 + 1)
 
 type appCmd struct {
 	code   byte

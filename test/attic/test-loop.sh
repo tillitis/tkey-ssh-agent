@@ -2,7 +2,7 @@
 set -eu
 
 # This script uses tkey-runapp to load a signer app which has been built with
-# the touch requirement removed. Then it runs tkey-sign forever, signing 128
+# the touch requirement removed. Then it runs tkey-sign forever, signing 512
 # bytes of new random data on every iteration.
 #
 # The script expects that the TKey is in firmware mode, so it can load the
@@ -45,8 +45,8 @@ trap cleanup EXIT
 c=0
 start=$(date +%s)
 while true; do
-  # 128 bytes becomes 1 msg with 127 bytes and 1 msg with 1 byte
-  dd 2>/dev/null if=/dev/urandom of="$msgf" bs=128 count=1
+  # 512 bytes becomes 1 msg with 511 bytes and 1 msg with 1 byte
+  dd 2>/dev/null if=/dev/urandom of="$msgf" bs=512 count=1
   if ! ./tkey-sign "$@" "$msgf"; then
     exit 1
   fi

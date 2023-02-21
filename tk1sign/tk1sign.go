@@ -1,4 +1,4 @@
-// Copyright (C) 2022 - Tillitis AB
+// Copyright (C) 2022, 2023 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
 // Package tk1sign provides a connection to the ed25519 signer app
@@ -26,13 +26,13 @@ import (
 
 var (
 	cmdGetPubkey      = appCmd{0x01, "cmdGetPubkey", tk1.CmdLen1}
-	rspGetPubkey      = appCmd{0x02, "rspGetPubkey", tk1.CmdLen128}
+	rspGetPubkey      = appCmd{0x02, "rspGetPubkey", tk1.CmdLen512}
 	cmdSetSize        = appCmd{0x03, "cmdSetSize", tk1.CmdLen32}
 	rspSetSize        = appCmd{0x04, "rspSetSize", tk1.CmdLen4}
-	cmdSignData       = appCmd{0x05, "cmdSignData", tk1.CmdLen128}
+	cmdSignData       = appCmd{0x05, "cmdSignData", tk1.CmdLen512}
 	rspSignData       = appCmd{0x06, "rspSignData", tk1.CmdLen4}
 	cmdGetSig         = appCmd{0x07, "cmdGetSig", tk1.CmdLen1}
-	rspGetSig         = appCmd{0x08, "rspGetSig", tk1.CmdLen128}
+	rspGetSig         = appCmd{0x08, "rspGetSig", tk1.CmdLen512}
 	cmdGetNameVersion = appCmd{0x09, "cmdGetNameVersion", tk1.CmdLen1}
 	rspGetNameVersion = appCmd{0x0a, "rspGetNameVersion", tk1.CmdLen32}
 )
@@ -212,7 +212,7 @@ func (s Signer) signLoad(content []byte) (int, error) {
 		return 0, fmt.Errorf("NewFrameBuf: %w", err)
 	}
 
-	payload := make([]byte, tk1.CmdLen128.Bytelen()-1)
+	payload := make([]byte, cmdSignData.CmdLen().Bytelen()-1)
 	copied := copy(payload, content)
 
 	// Add padding if not filling the payload buffer.

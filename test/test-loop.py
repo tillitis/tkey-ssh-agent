@@ -37,7 +37,7 @@ class TK1:
         # print(' '.join(['{:02x}'.format(i) for i in cmd]))
         self.dev.write(cmd)
 
-        rsp = self.dev.read(1 + 128)
+        rsp = self.dev.read(1 + 512)
         # print(' '.join(['{:02x}'.format(i) for i in rsp]))
 
         assert rsp[0] == 0x5B
@@ -47,7 +47,7 @@ class TK1:
     def inSignerApp(self):
         for i in range(0, 2):
             try:
-                self.dev.write(bytes(128))
+                self.dev.write(bytes(512))
                 key = self.getPubKey()
                 # print(','.join(['0x{:02x}'.format(i) for i in key]))
                 # assert(key == bytearray([
@@ -65,7 +65,7 @@ class TK1:
     def inBootloader(self):
         for i in range(0, 2):
             try:
-                self.dev.write(bytes(128))
+                self.dev.write(bytes(512))
                 response = self.getNameVersion()
                 # print(response, len(response['name1']))
                 # assert(response['name0'] == 'tk1 ')
@@ -108,7 +108,7 @@ def load_signer_app():
 
 def do_signature():
     msgf = NamedTemporaryFile()
-    msgf.write(randbytes(128))
+    msgf.write(randbytes(512))
     msgf.flush()
 
     try:

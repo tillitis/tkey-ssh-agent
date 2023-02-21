@@ -2,7 +2,7 @@
 
 ## unreleased
 
-...
+- Update largest frame size to follow change in firmware - breaks CDI!
 
 ## v0.0.4
 

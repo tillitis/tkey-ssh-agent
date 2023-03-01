@@ -97,7 +97,7 @@ separate section below which explains running in QEMU.
 ## Running apps
 
 Plug the USB stick into your computer. If the LED in one of the outer
-corners of the USB stick is flashing white, then it has been
+corners of the USB stick is a steady white, then it has been
 programmed with the standard FPGA bitstream (including the firmware).
 If it is not then please refer to
 [quickstart.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/quickstart.md)
@@ -138,7 +138,7 @@ system, and then log back in again. Then logout from your system and
 log back in again. You can also (following the above example) run
 `newgrp dialout` in the terminal that you're working in.
 
-Your TKey is now running the firmware. Its LED flashing white,
+Your TKey is now running the firmware. Its LED is a steady white,
 indicating that it is ready to receive an app to run.
 
 #### User on MacOS
@@ -216,7 +216,7 @@ remote access.
 ### Using runsign.sh, tkey-runapp, and tkey-sign
 
 If you're running on hardware, the LED on the USB stick is expected to
-be flashing white, indicating that firmware is ready to receive an app
+be a steady white, indicating that firmware is ready to receive an app
 to run.
 
 There's a script called `runsign.sh` which runs `tkey-runapp` to load
@@ -242,13 +242,12 @@ sufficient).
 ```
 $ ./tkey-runapp apps/signer/app.bin
 ```
-
-While the app is being loaded, the LED on the USB stick will be steady
-white. `tkey-runapp` also supports sending a User Supplied Secret
-(USS) to the firmware when loading the app. By adding the flag
-`--uss`, you will be asked to type a phrase which will be hashed to
-become the USS digest (the final newline is removed from the phrase
-before hashing).
+While the app is being loaded, the LED on the USB stick (in one of the
+outer corners) will be turned off. `tkey-runapp` also supports sending
+a User Supplied Secret (USS) to the firmware when loading the app. By
+adding the flag `--uss`, you will be asked to type a phrase which will
+be hashed to become the USS digest (the final newline is removed from
+the phrase before hashing).
 
 Alternatively, you may use `--uss-file=filename` to make it read the
 contents of a file, which is then hashed as the USS. The filename can

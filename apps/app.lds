@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - Tillitis AB
+ * Copyright (C) 2022, 2023 - Tillitis AB
  * SPDX-License-Identifier: GPL-2.0-only
  */
 
@@ -8,8 +8,7 @@ ENTRY(_start)
 
 MEMORY
 {
-	RAM1 (rwx)   : ORIGIN = 0x40000000, LENGTH = 0x07000 /*  28 KB */
-	RAM2 (rwx)   : ORIGIN = 0x40007000, LENGTH = 0x19000 /* 100 KB */
+	RAM (rwx)   : ORIGIN = 0x40000000, LENGTH = 0x20000 /* 128 KB */
 }
 
 SECTIONS
@@ -17,7 +16,7 @@ SECTIONS
 	.text.init :
 	{
 		*(.text.init)
-	} >RAM2
+	} >RAM
 
 	.text :
 	{
@@ -31,7 +30,7 @@ SECTIONS
 		. = ALIGN(4);
 		_etext = .;
 		_sidata = _etext;
-	} >RAM2
+	} >RAM
 
 	.data : AT (_etext)
 	{
@@ -44,7 +43,7 @@ SECTIONS
 		*(.sdata*)         /* .sdata* sections */
 		. = ALIGN(4);
 		_edata = .;
-	} >RAM2
+	} >RAM
 
 	/* Uninitialized data section */
 	.bss :
@@ -59,6 +58,7 @@ SECTIONS
 
 		. = ALIGN(4);
 		_ebss = .;
-	} >RAM2
-	/* Init stack to start directly under RAM2, see libcrt0/crt0.S */
+	} >RAM
+
+	/* libcrt0/crt0.S inits stack to start just below end of RAM */
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2022 - Tillitis AB
+// Copyright (C) 2022, 2023 - Tillitis AB
 // SPDX-License-Identifier: GPL-2.0-only
 
 	.section ".text.init"
@@ -36,8 +36,8 @@ _start:
 	li x30,0
 	li x31,0
 
-        /* init stack below 0x40007000 (TK1_APP_ADDR) where fw loads app */
-        li sp, 0x40006ff0
+	/* init stack below 0x40020000 (TK1_RAM_BASE+TK1_RAM_SIZE) */
+	li sp, 0x4001fff0
 
 	/* zero-init bss section */
 	la a0, _sbss

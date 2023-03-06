@@ -3,6 +3,9 @@
 ## unreleased
 
 - Update largest frame size to follow change in firmware - breaks CDI!
+- Firmware now loads app at the start of RAM, so we adjust our linker
+  script and C runtime to init the stack to begin just below the end
+  of RAM. - This breaks CDI, changing app hash of all apps!
 
 ## v0.0.4
 

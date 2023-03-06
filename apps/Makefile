@@ -22,7 +22,7 @@ RM=/bin/rm
 
 
 .PHONY: all
-all: signer/app.bin timer/app.bin random/app.bin rng_stream/app.bin blink/app.bin
+all: signer/app.bin timer/app.bin random/app.bin rng_stream/app.bin blink/app.bin nx/app.bin
 
 # C runtime library
 libcrt0/libcrt0.a: libcrt0/crt0.o
@@ -77,6 +77,11 @@ rng_stream/app.elf: $(LIBS) $(RNG_STREAM_OBJS) app.lds
 	$(CC) $(CFLAGS) $(RNG_STREAM_OBJS) $(LDFLAGS) -o $@
 $(RNG_STREAM_OBJS): $(INCLUDE)/tk1_mem.h
 
+NX_OBJS=nx/main.o
+nx/app.elf: $(LIBS) $(NX_OBJS) app.lds
+	$(CC) $(CFLAGS) $(NX_OBJS) $(LDFLAGS) -o $@
+$(NX_OBJS): $(INCLUDE)/tk1_mem.h
+
 # Blinkenlights assembler app
 blink/app.elf: blink/blink.o
 	ld.lld -o $@ blink/blink.o --oformat elf
@@ -90,9 +95,10 @@ clean:
 	$(RM) -f $(LIBS) $(LIBOBJS) libcrt0/crt0.o
 	$(RM) -f monocypher/libmonocypher.a $(MONOOBJS)
 	$(RM) -f blink/app.bin blink/app.elf blink/blink.o
+	$(RM) -f nx/app.bin nx/app.elf nx/main.o
 
 # Uses ../.clang-format
-FMTFILES=include/*.h libcommon/*.c signer/*.[ch] timer/*.[ch] random/*.[ch] rng_stream/*.[ch]
+FMTFILES=include/*.h libcommon/*.c signer/*.[ch] timer/*.[ch] random/*.[ch] rng_stream/*.[ch] nx/main.c
 .PHONY: fmt
 fmt:
 	clang-format --dry-run --ferror-limit=0 $(FMTFILES)

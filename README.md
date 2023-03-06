@@ -12,6 +12,7 @@ Current list of apps:
 - The Ed25519 signer app. Used as root of trust and SSH authentication
 - The RNG stream app. Providing arbitrary high quality random numbers
 - blink. A minimalistic example application
+- nx. Test program for our execution monitor.
 
 For more information about the apps, see subsections below.
 

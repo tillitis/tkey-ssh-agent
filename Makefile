@@ -66,7 +66,7 @@ TKEY_SSH_AGENT_VERSION ?=
 tkey-ssh-agent:
 	cp -af apps/signer/app.bin cmd/tkey-ssh-agent/app.bin
 	# TODO hardcoded windows build for now
-	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-X main.version=$(TKEY_SSH_AGENT_VERSION) -X main.signerAppNoTouch=$(TKEY_SIGNER_APP_NO_TOUCH)" -trimpath ./cmd/tkey-ssh-agent
+	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-H=windowsgui -X main.version=$(TKEY_SSH_AGENT_VERSION) -X main.signerAppNoTouch=$(TKEY_SIGNER_APP_NO_TOUCH)" -trimpath ./cmd/tkey-ssh-agent
 
 .PHONY: clean
 clean:

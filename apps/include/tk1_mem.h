@@ -1,7 +1,7 @@
 /*
  * QEMU RISC-V Board Compatible with Tillitis TK1 platform
  *
- * Copyright (c) 2022 Tillitis AB
+ * Copyright (c) 2022, 2023 Tillitis AB
  * SPDX-License-Identifier: GPL-2.0-only
  */
 
@@ -25,8 +25,7 @@ enum {
     TK1_MMIO_BASE      = 0xc0000000, // 0b11000000...
     TK1_MMIO_SIZE      = 0xffffffff - TK1_MMIO_BASE,
 
-    TK1_APP_ADDR       = TK1_RAM_BASE + 0x7000, // 28 KB of stack
-    TK1_APP_MAX_SIZE   = TK1_RAM_SIZE - (TK1_APP_ADDR - TK1_RAM_BASE),
+    TK1_APP_MAX_SIZE   = TK1_RAM_SIZE,
 
     TK1_MMIO_TRNG_BASE        = TK1_MMIO_BASE | 0x00000000,
     TK1_MMIO_TIMER_BASE       = TK1_MMIO_BASE | 0x01000000,
@@ -34,7 +33,7 @@ enum {
     TK1_MMIO_UART_BASE        = TK1_MMIO_BASE | 0x03000000,
     TK1_MMIO_TOUCH_BASE       = TK1_MMIO_BASE | 0x04000000,
     TK1_MMIO_FW_RAM_BASE      = TK1_MMIO_BASE | 0x10000000,
-    TK1_MMIO_FW_RAM_SIZE      = 1024,
+    TK1_MMIO_FW_RAM_SIZE      = 2048,
     // This "core" only exists in QEMU
     TK1_MMIO_QEMU_BASE        = TK1_MMIO_BASE | 0x3e000000,
     TK1_MMIO_TK1_BASE         = TK1_MMIO_BASE | 0x3f000000, // 0xff000000
@@ -63,6 +62,7 @@ enum {
     TK1_MMIO_UART_STOP_BITS   = TK1_MMIO_UART_BASE | 0x48,
     TK1_MMIO_UART_RX_STATUS   = TK1_MMIO_UART_BASE | 0x80,
     TK1_MMIO_UART_RX_DATA     = TK1_MMIO_UART_BASE | 0x84,
+    TK1_MMIO_UART_RX_BYTES    = TK1_MMIO_UART_BASE | 0x88,
     TK1_MMIO_UART_TX_STATUS   = TK1_MMIO_UART_BASE | 0x100,
     TK1_MMIO_UART_TX_DATA     = TK1_MMIO_UART_BASE | 0x104,
 
@@ -92,6 +92,8 @@ enum {
     TK1_MMIO_TK1_CDI_LAST     = TK1_MMIO_TK1_BASE | 0x9c, // Address of last 32-bit word of CDI.
     TK1_MMIO_TK1_UDI_FIRST    = TK1_MMIO_TK1_BASE | 0xc0,
     TK1_MMIO_TK1_UDI_LAST     = TK1_MMIO_TK1_BASE | 0xc4, // Address of last 32-bit word of UDI.
+    TK1_MMIO_TK1_RAM_ASLR     = TK1_MMIO_TK1_BASE | 0x100,
+    TK1_MMIO_TK1_RAM_SCRAMBLE = TK1_MMIO_TK1_BASE | 0x104,
     TK1_MMIO_TK1_CPU_MON_CTRL = TK1_MMIO_TK1_BASE | 0x180,
     TK1_MMIO_TK1_CPU_MON_FIRST = TK1_MMIO_TK1_BASE | 0x184,
     TK1_MMIO_TK1_CPU_MON_LAST = TK1_MMIO_TK1_BASE | 0x188,

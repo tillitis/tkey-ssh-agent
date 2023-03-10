@@ -54,9 +54,9 @@ int main(void)
 	qemu_putinthex((uint32_t)&stack);
 	qemu_lf();
 
+	*led = LED_RED | LED_BLUE;
 	for (;;) {
-		// blocking; flashing while waiting for cmd
-		in = readbyte_ledflash(LED_RED | LED_BLUE, 900000);
+		in = readbyte();
 		qemu_puts("Read byte: ");
 		qemu_puthex(in);
 		qemu_lf();
@@ -109,7 +109,6 @@ int main(void)
 				appreply(hdr, APP_RSP_GET_RANDOM, rsp);
 				break;
 			}
-			*led = LED_RED | LED_BLUE;
 			rsp[0] = STATUS_OK;
 			get_random(rsp + 1, bytes);
 			appreply(hdr, APP_RSP_GET_RANDOM, rsp);

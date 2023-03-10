@@ -67,12 +67,9 @@ int main(void)
 	wordcpy(local_cdi, (void *)cdi, 8);
 	crypto_ed25519_public_key(pubkey, (const uint8_t *)local_cdi);
 
-	// color for steady led light, depending on state
-	int led_steady = LED_BLACK;
 	for (;;) {
-		// blocking; flashing a safe blue while waiting for cmd
-		in = readbyte_ledflash(LED_BLUE, 900000);
-		*led = led_steady;
+		*led = LED_BLUE;
+		in = readbyte();
 		qemu_puts("Read byte: ");
 		qemu_puthex(in);
 		qemu_lf();
@@ -96,8 +93,6 @@ int main(void)
 
 		// Reset response buffer
 		memset(rsp, 0, CMDLEN_MAXBYTES);
-
-		led_steady = LED_BLACK;
 
 		// Min length is 1 byte so this should always be here
 		switch (cmd[0]) {
@@ -133,7 +128,6 @@ int main(void)
 
 			rsp[0] = STATUS_OK;
 			appreply(hdr, APP_RSP_SET_SIZE, rsp);
-			led_steady = LED_GREEN;
 			break;
 
 		case APP_CMD_SIGN_DATA:
@@ -173,7 +167,6 @@ int main(void)
 
 			rsp[0] = STATUS_OK;
 			appreply(hdr, APP_RSP_SIGN_DATA, rsp);
-			led_steady = LED_GREEN;
 			break;
 
 		case APP_CMD_GET_SIG:
@@ -186,7 +179,6 @@ int main(void)
 			rsp[0] = STATUS_OK;
 			memcpy(rsp + 1, signature, 64);
 			appreply(hdr, APP_RSP_GET_SIG, rsp);
-			led_steady = LED_GREEN;
 			break;
 
 		case APP_CMD_GET_NAMEVERSION:

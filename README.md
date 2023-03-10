@@ -282,8 +282,8 @@ virtual device is always touched automatically.
 The program should eventually output a signature and say that it was
 verified.
 
-When all is done, the hardware USB stick will flash a nice blue,
-indicating that it is ready to make (another) signature.
+When all is done, the LED on the hardware USB stick will be steady
+blue, indicating that it is ready to make (another) signature.
 
 Note that to load a new app, the USB stick needs to be unplugged and
 plugged in again. Similarly, QEMU would need to be restarted (`Ctrl-a

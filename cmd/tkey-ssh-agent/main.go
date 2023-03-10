@@ -71,9 +71,9 @@ programs like ssh(1) and ssh-keygen(1) can find and use this agent, e.g. for
 authentication when accessing other machines.
 
 To make the TKey provide this functionality, the %[1]s contains a compiled
-signer app binary which it loads onto the stick and starts. The stick will flash
-blue when the signer app is running and waiting for a signing command, and
-green when the stick must be touched to complete a signature.`, progname)
+signer app binary which it loads onto the stick and starts. The LED on the stick
+is a steady blue when the signer app is running and waiting for a command. It
+will flash green when the stick must be touched to complete a signature.`, progname)
 		le.Printf("%s\n\n%s", desc,
 			pflag.CommandLine.FlagUsagesWrapped(86))
 	}

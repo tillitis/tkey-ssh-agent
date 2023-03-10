@@ -9,6 +9,7 @@
 #include "app_proto.h"
 
 // clang-format off
+volatile uint32_t *led =             (volatile uint32_t *)TK1_MMIO_TK1_LED;
 volatile uint32_t *timer =           (volatile uint32_t *)TK1_MMIO_TIMER_TIMER;
 volatile uint32_t *timer_prescaler = (volatile uint32_t *)TK1_MMIO_TIMER_PRESCALER;
 volatile uint32_t *timer_status =    (volatile uint32_t *)TK1_MMIO_TIMER_STATUS;
@@ -26,8 +27,9 @@ int main(void)
 	uint8_t cmd[CMDLEN_MAXBYTES];
 	uint8_t rsp[CMDLEN_MAXBYTES];
 
+	*led = LED_RED | LED_GREEN;
 	for (;;) {
-		uint8_t in = readbyte_ledflash(LED_RED | LED_GREEN, 400000);
+		uint8_t in = readbyte();
 
 		if (parseframe(in, &hdr) == -1) {
 			qemu_puts("Couldn't parse header\n");

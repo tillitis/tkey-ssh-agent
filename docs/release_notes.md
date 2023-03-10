@@ -6,6 +6,10 @@
 - Firmware now loads app at the start of RAM, so we adjust our linker
   script and C runtime to init the stack to begin just below the end
   of RAM. - This breaks CDI, changing app hash of all apps!
+- Make apps use a steady LED color when waiting for a command,
+  flashing only to draw attention (currently only when signer-app
+  requires touching). - breaking CDI of signer app (changing hash of
+  modified apps)
 
 ## v0.0.4
 

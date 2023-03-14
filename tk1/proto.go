@@ -95,8 +95,8 @@ type FramingHdr struct {
 func parseframe(b byte) (FramingHdr, error) {
 	var f FramingHdr
 
-	if b&0x80 != 0 {
-		return f, fmt.Errorf("version bit #7 is not zero")
+	if (b & 0b1000_0000) != 0 {
+		return f, fmt.Errorf("reserved bit #7 is not zero")
 	}
 
 	// If bit #2 is set
@@ -104,9 +104,9 @@ func parseframe(b byte) (FramingHdr, error) {
 		f.ResponseNotOK = true
 	}
 
-	f.ID = byte((uint32(b) & 0x60) >> 5)
-	f.Endpoint = Endpoint((b & 0x18) >> 3)
-	f.CmdLen = CmdLen(b & 0x3)
+	f.ID = byte((b & 0b0110_0000) >> 5)
+	f.Endpoint = Endpoint((b & 0b0001_1000) >> 3)
+	f.CmdLen = CmdLen(b & 0b0000_0011)
 
 	return f, nil
 }
@@ -118,8 +118,10 @@ func parseframe(b byte) (FramingHdr, error) {
 // header byte is placed in the first byte in the returned buffer. The
 // command code from cmd is placed in the buffer's second byte.
 //
-// Header:
+// Header byte (used for both command and response frame):
+//
 // Bit [7] (1 bit). Reserved - possible protocol version.
+//
 // Bits [6..5] (2 bits). Frame ID tag.
 //
 // Bits [4..3] (2 bits). Endpoint number:
@@ -129,8 +131,12 @@ func parseframe(b byte) (FramingHdr, error) {
 //	10 == FW in application_fpga
 //	11 == SW (application) in application_fpga
 //
-// Bit [2] (1 bit). Unused. MUST be zero.
-// Bits [1..0] (2 bits). Command data length:
+// Bit [2] (1 bit). Usage:
+//
+//	Command: Unused. MUST be zero.
+//	Response: 0 == OK, 1 == Not OK (NOK)
+//
+// Bits [1..0] (2 bits). Command/Response data length:
 //
 //	00 == 1 byte
 //	01 == 4 bytes

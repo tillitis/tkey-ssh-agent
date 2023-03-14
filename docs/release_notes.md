@@ -10,6 +10,8 @@
   flashing only to draw attention (currently only when signer-app
   requires touching). - breaking CDI of signer app (changing hash of
   modified apps)
+- Let apps respond with status Not OK in header if they receive a
+  command meant for firmware - breaks CDI!
 
 ## v0.0.4
 

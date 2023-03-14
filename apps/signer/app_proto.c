@@ -3,6 +3,13 @@
 
 #include "app_proto.h"
 
+// Send reply frame with response status Not OK (NOK==1), shortest length
+void appreply_nok(struct frame_header hdr)
+{
+	writebyte(genhdr(hdr.id, hdr.endpoint, 0x1, LEN_1));
+	writebyte(0);
+}
+
 // Send app reply with frame header, response code, and LEN_X-1 bytes from buf
 void appreply(struct frame_header hdr, enum appcmd rspcode, void *buf)
 {

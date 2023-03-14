@@ -83,6 +83,12 @@ int main(void)
 		// Read app command, blocking
 		read(cmd, hdr.len);
 
+		if (hdr.endpoint == DST_FW) {
+			appreply_nok(hdr);
+			qemu_puts("Responded NOK to message meant for fw\n");
+			continue;
+		}
+
 		// Is it for us?
 		if (hdr.endpoint != DST_SW) {
 			qemu_puts("Message not meant for app. endpoint was 0x");

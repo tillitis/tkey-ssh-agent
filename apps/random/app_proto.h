@@ -18,6 +18,7 @@ enum appcmd {
 };
 // clang-format on
 
+void appreply_nok(struct frame_header hdr);
 void appreply(struct frame_header hdr, enum appcmd rspcode, void *buf);
 
 #endif

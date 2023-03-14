@@ -32,6 +32,8 @@ var appBinary []byte
 const (
 	idleDisconnect = 3 * time.Second
 	// 4 chars each.
+	wantFWName0  = "tk1 "
+	wantFWName1  = "mkdf"
 	wantAppName0 = "tk1 "
 	wantAppName1 = "sign"
 )
@@ -117,35 +119,43 @@ func (s *Signer) connect() bool {
 		return false
 	}
 
-	if !s.isWantedApp() {
-		// Note: we're just assuming it's firmware if we get any reply
-		_, err := s.tk.GetNameVersion()
-		if err != nil {
-			// Notifying because we're kinda stuck if we end up here
-			notify("Please remove and plug in your TKey again\n— it might be running the wrong app.")
-			le.Printf("No TKey on the serial port, or it's not in firmware mode (and already running wrong app)")
-			s.closeNow()
-			return false
-		}
+	if s.isFirmwareMode() {
 		le.Printf("The TKey is in firmware mode.\n")
-
-		if err = s.loadApp(); err != nil {
+		if err := s.loadApp(); err != nil {
 			le.Printf("Failed to load app: %v\n", err)
 			s.closeNow()
 			return false
 		}
-	} else {
-		if s.enterUSS || s.fileUSS != "" {
-			le.Printf("Signer app already loaded, USS flags are ignored.\n")
-		} else {
-			le.Printf("Signer app already loaded.\n")
-		}
 	}
+
+	if !s.isWantedApp() {
+		// Notifying because we're kinda stuck if we end up here
+		notify("Please remove and plug in your TKey again\n— it might be running the wrong app.")
+		le.Printf("No TKey on the serial port, or it's running wrong app (and is not in firmware mode)")
+		s.closeNow()
+		return false
+	}
+
+	// We nowadays disconnect from the TKey when idling, so the
+	// signer-app that's running may have been loaded by somebody
+	// else. Therefore we can never be sure it has USS according to
+	// the flags that tkey-ssh-agent was started with. So we no longer
+	// say anything about that.
 
 	s.printAuthorizedKey()
 
 	s.connected = true
 	return true
+}
+
+func (s *Signer) isFirmwareMode() bool {
+	nameVer, err := s.tk.GetNameVersion()
+	if err != nil {
+		return false
+	}
+	// not caring about nameVer.Version
+	return nameVer.Name0 == wantFWName0 &&
+		nameVer.Name1 == wantFWName1
 }
 
 func (s *Signer) isWantedApp() bool {
@@ -157,10 +167,8 @@ func (s *Signer) isWantedApp() bool {
 		return false
 	}
 	// not caring about nameVer.Version
-	if wantAppName0 != nameVer.Name0 || wantAppName1 != nameVer.Name1 {
-		return false
-	}
-	return true
+	return nameVer.Name0 == wantAppName0 &&
+		nameVer.Name1 == wantAppName1
 }
 
 func (s *Signer) loadApp() error {

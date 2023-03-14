@@ -86,9 +86,10 @@ func (c fwCmd) String() string {
 }
 
 type FramingHdr struct {
-	ID       byte
-	Endpoint Endpoint
-	CmdLen   CmdLen
+	ID            byte
+	Endpoint      Endpoint
+	CmdLen        CmdLen
+	ResponseNotOK bool
 }
 
 func parseframe(b byte) (FramingHdr, error) {
@@ -97,8 +98,10 @@ func parseframe(b byte) (FramingHdr, error) {
 	if b&0x80 != 0 {
 		return f, fmt.Errorf("version bit #7 is not zero")
 	}
-	if b&0x4 != 0 {
-		return f, fmt.Errorf("unused bit #2 is not zero")
+
+	// If bit #2 is set
+	if (b & 0b0000_0100) != 0 {
+		f.ResponseNotOK = true
 	}
 
 	f.ID = byte((uint32(b) & 0x60) >> 5)
@@ -185,12 +188,22 @@ func (tk TillitisKey) Write(d []byte) error {
 	return nil
 }
 
-// ReadFrame() reads a response in the framing protocol. The header
-// byte is parsed and its command length and endpoint are checked
-// against the expectedResp parameter; its ID is checked against
-// expectedID. The response code (first byte after header) is also
-// checked against the code in expectedResp. It returns the whole
-// frame read, the parsed header byte, and any error separately.
+type constError string
+
+func (err constError) Error() string {
+	return string(err)
+}
+
+const ErrResponseStatusNotOK = constError("response status not OK")
+
+// ReadFrame reads a response in the framing protocol. The header byte
+// is first parsed. If the header has response status Not OK,
+// ErrResponseStatusNotOK is returned. Header command length and
+// endpoint are then checked against the expectedResp parameter,
+// header ID is checked against expectedID. The response code (first
+// byte after header) is also checked against the code in
+// expectedResp. It returns the whole frame read, the parsed header
+// byte, and any error separately.
 func (tk TillitisKey) ReadFrame(expectedResp Cmd, expectedID int) ([]byte, FramingHdr, error) {
 	if expectedID > 3 {
 		return nil, FramingHdr{}, fmt.Errorf("frame ID to expect must be 0..3")
@@ -216,6 +229,18 @@ func (tk TillitisKey) ReadFrame(expectedResp Cmd, expectedID int) ([]byte, Frami
 	hdr, err := parseframe(rxHdr[0])
 	if err != nil {
 		return nil, hdr, fmt.Errorf("Couldn't parse framing header: %w", err)
+	}
+
+	if hdr.ResponseNotOK {
+		err = ErrResponseStatusNotOK
+		// We still need to read out the data/payload, note that
+		// ReadFull() overrides any timeout set using SetReadTimeout()
+		rest := make([]byte, hdr.CmdLen.Bytelen())
+		if _, readErr := io.ReadFull(tk.conn, rest); readErr != nil {
+			// NOTE: go 1.20 has errors.Join()
+			err = fmt.Errorf("%w; ReadFull: %s", ErrResponseStatusNotOK, readErr)
+		}
+		return nil, hdr, err
 	}
 
 	if hdr.CmdLen != expectedResp.CmdLen() {

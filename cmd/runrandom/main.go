@@ -25,6 +25,8 @@ import (
 var appBinary []byte
 
 const (
+	wantFWName0  = "tk1 "
+	wantFWName1  = "mkdf"
 	wantAppName0 = "tk1 "
 	wantAppName1 = "rand"
 )
@@ -92,17 +94,18 @@ Usage:
 	}
 	handleSignals(func() { exit(1) }, os.Interrupt, syscall.SIGTERM)
 
-	if !isWantedApp(randomGen) {
-		if !isFirmwareMode(tk) {
-			fmt.Printf("If the serial port is correct, then the TKey might not be in firmware-\n" +
-				"mode, and have an app running already. Please unplug and plug it in again.\n")
-			exit(1)
-		}
+	if isFirmwareMode(tk) {
 		le.Printf("Device is in firmware mode. Loading app...\n")
 		if err := tk.LoadApp(appBinary, []byte{}); err != nil {
 			le.Printf("LoadApp failed: %v", err)
 			exit(1)
 		}
+	}
+
+	if !isWantedApp(randomGen) {
+		fmt.Printf("The TKey may already be running an app, but not the expected random-app.\n" +
+			"Please unplug and plug it in again.\n")
+		exit(1)
 	}
 
 	le.Printf("Random data follows on stdout...\n")
@@ -141,6 +144,19 @@ func handleSignals(action func(), sig ...os.Signal) {
 	}()
 }
 
+func isFirmwareMode(tk *tk1.TillitisKey) bool {
+	nameVer, err := tk.GetNameVersion()
+	if err != nil {
+		if !errors.Is(err, io.EOF) && !errors.Is(err, tk1.ErrResponseStatusNotOK) {
+			le.Printf("GetNameVersion failed: %s\n", err)
+		}
+		return false
+	}
+	// not caring about nameVer.Version
+	return nameVer.Name0 == wantFWName0 &&
+		nameVer.Name1 == wantFWName1
+}
+
 func isWantedApp(randomGen RandomGen) bool {
 	nameVer, err := randomGen.GetAppNameVersion()
 	if err != nil {
@@ -150,13 +166,6 @@ func isWantedApp(randomGen RandomGen) bool {
 		return false
 	}
 	// not caring about nameVer.Version
-	if wantAppName0 != nameVer.Name0 || wantAppName1 != nameVer.Name1 {
-		return false
-	}
-	return true
-}
-
-func isFirmwareMode(tk *tk1.TillitisKey) bool {
-	_, err := tk.GetNameVersion()
-	return err == nil
+	return nameVer.Name0 == wantAppName0 &&
+		nameVer.Name1 == wantAppName1
 }

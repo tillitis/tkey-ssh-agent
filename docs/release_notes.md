@@ -1,6 +1,6 @@
 # Release notes
 
-## unreleased
+## v0.0.5
 
 - Update largest frame size to follow change in firmware - breaks CDI!
 - Firmware now loads app at the start of RAM, so we adjust our linker

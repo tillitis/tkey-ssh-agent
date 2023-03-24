@@ -37,7 +37,7 @@ class TK1:
         # print(' '.join(['{:02x}'.format(i) for i in cmd]))
         self.dev.write(cmd)
 
-        rsp = self.dev.read(1 + 512)
+        rsp = self.dev.read(1 + 128)
         # print(' '.join(['{:02x}'.format(i) for i in rsp]))
 
         assert rsp[0] == 0x5B
@@ -47,7 +47,7 @@ class TK1:
     def inSignerApp(self):
         for i in range(0, 2):
             try:
-                self.dev.write(bytes(512))
+                self.dev.write(bytes(128))
                 key = self.getPubKey()
                 # print(','.join(['0x{:02x}'.format(i) for i in key]))
                 # assert(key == bytearray([
@@ -65,12 +65,11 @@ class TK1:
     def inBootloader(self):
         for i in range(0, 2):
             try:
-                self.dev.write(bytes(512))
                 response = self.getNameVersion()
-                # print(response, len(response['name1']))
-                # assert(response['name0'] == 'tk1 ')
-                # assert(response['name1'] == 'mkdf')
-                # assert(response['version'] == 4)
+                print(response, len(response['name1']))
+                assert(response['name0'] == 'tk1 ')
+                assert(response['name1'] == 'mkdf')
+                assert(response['version'] == 5)
                 return True
             except Exception:
                 pass
@@ -83,13 +82,15 @@ def probe_state():
     try:
         key = TK1()
 
-        # First, try to read the public key
-        # If this is successful, the signer app is loaded
+        # First, probe for firmware with a getnameversion, then try to
+        # read the public key If this is successful we assume the
+        # signer app is loaded
+        if key.inBootloader():
+            return "bootloader"
+
         if key.inSignerApp():
             return "signer"
 
-        if key.inBootloader():
-            return "bootloader"
     except Exception:
         pass
 

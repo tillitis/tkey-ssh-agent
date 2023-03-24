@@ -1,5 +1,9 @@
 # Release notes
 
+## ...
+
+- Change maximum frame length back to 128 bytes.
+
 ## v0.0.5
 
 - Update largest frame size to follow change in firmware - breaks CDI!

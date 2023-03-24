@@ -18,8 +18,8 @@ void appreply(struct frame_header hdr, enum appcmd rspcode, void *buf)
 
 	switch (rspcode) {
 	case APP_RSP_GET_PUBKEY:
-		len = LEN_512;
-		nbytes = 512;
+		len = LEN_128;
+		nbytes = 128;
 		break;
 
 	case APP_RSP_SET_SIZE:
@@ -33,8 +33,8 @@ void appreply(struct frame_header hdr, enum appcmd rspcode, void *buf)
 		break;
 
 	case APP_RSP_GET_SIG:
-		len = LEN_512;
-		nbytes = 512;
+		len = LEN_128;
+		nbytes = 128;
 		break;
 
 	case APP_RSP_GET_NAMEVERSION:

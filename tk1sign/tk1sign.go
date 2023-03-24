@@ -26,13 +26,13 @@ import (
 
 var (
 	cmdGetPubkey      = appCmd{0x01, "cmdGetPubkey", tk1.CmdLen1}
-	rspGetPubkey      = appCmd{0x02, "rspGetPubkey", tk1.CmdLen512}
+	rspGetPubkey      = appCmd{0x02, "rspGetPubkey", tk1.CmdLen128}
 	cmdSetSize        = appCmd{0x03, "cmdSetSize", tk1.CmdLen32}
 	rspSetSize        = appCmd{0x04, "rspSetSize", tk1.CmdLen4}
-	cmdSignData       = appCmd{0x05, "cmdSignData", tk1.CmdLen512}
+	cmdSignData       = appCmd{0x05, "cmdSignData", tk1.CmdLen128}
 	rspSignData       = appCmd{0x06, "rspSignData", tk1.CmdLen4}
 	cmdGetSig         = appCmd{0x07, "cmdGetSig", tk1.CmdLen1}
-	rspGetSig         = appCmd{0x08, "rspGetSig", tk1.CmdLen512}
+	rspGetSig         = appCmd{0x08, "rspGetSig", tk1.CmdLen128}
 	cmdGetNameVersion = appCmd{0x09, "cmdGetNameVersion", tk1.CmdLen1}
 	rspGetNameVersion = appCmd{0x0a, "rspGetNameVersion", tk1.CmdLen32}
 )

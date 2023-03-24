@@ -17,10 +17,10 @@ enum cmdlen {
 	LEN_1,
 	LEN_4,
 	LEN_32,
-	LEN_512
+	LEN_128
 };
 
-#define CMDLEN_MAXBYTES 512
+#define CMDLEN_MAXBYTES 128
 
 enum status {
 	STATUS_OK,

@@ -13,7 +13,7 @@ var (
 	cmdGetNameVersion = appCmd{0x01, "cmdGetNameVersion", tk1.CmdLen1}
 	rspGetNameVersion = appCmd{0x02, "rspGetNameVersion", tk1.CmdLen32}
 	cmdGetRandom      = appCmd{0x03, "cmdGetRandom", tk1.CmdLen4}
-	rspGetRandom      = appCmd{0x04, "rspGetRandom", tk1.CmdLen512}
+	rspGetRandom      = appCmd{0x04, "rspGetRandom", tk1.CmdLen128}
 )
 
 // cmdlen - (responsecode + status)

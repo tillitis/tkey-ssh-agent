@@ -138,7 +138,7 @@ int main(void)
 
 		case APP_CMD_SIGN_DATA:
 			qemu_puts("APP_CMD_SIGN_DATA\n");
-			const uint32_t cmdBytelen = 512;
+			const uint32_t cmdBytelen = 128;
 
 			// Bad length of this command, or APP_CMD_SET_SIZE has
 			// not been called

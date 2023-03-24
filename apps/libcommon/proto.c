@@ -43,8 +43,8 @@ int parseframe(uint8_t b, struct frame_header *hdr)
 	case LEN_32:
 		hdr->len = 32;
 		break;
-	case LEN_512:
-		hdr->len = 512;
+	case LEN_128:
+		hdr->len = 128;
 		break;
 	default:
 		// Unknown length

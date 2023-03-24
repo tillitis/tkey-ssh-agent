@@ -21,7 +21,7 @@ const uint8_t app_name1[4] = "rand";
 const uint32_t app_version = 0x00000001;
 
 // RSP_GET_RANDOM_cmdlen - (responsecode + status)
-#define RANDOM_PAYLOAD_MAXBYTES 512 - (1 + 1)
+#define RANDOM_PAYLOAD_MAXBYTES 128 - (1 + 1)
 
 void get_random(uint8_t *buf, int bytes)
 {

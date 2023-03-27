@@ -1,6 +1,6 @@
 # Release notes
 
-## ...
+## v0.0.6
 
 - Change maximum frame length back to 128 bytes.
 

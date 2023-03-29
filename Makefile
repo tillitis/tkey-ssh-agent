@@ -62,11 +62,9 @@ runrandom: apps
 TKEY_SSH_AGENT_VERSION ?=
 # .PHONY to let go-build handle deps and rebuilds
 .PHONY: tkey-ssh-agent
-# TODO not depending on apps, let them copy the signer/app.bin in place
-tkey-ssh-agent:
+tkey-ssh-agent: apps
 	cp -af apps/signer/app.bin cmd/tkey-ssh-agent/app.bin
-	# TODO hardcoded windows build for now
-	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-X main.version=$(TKEY_SSH_AGENT_VERSION) -X main.signerAppNoTouch=$(TKEY_SIGNER_APP_NO_TOUCH)" -trimpath ./cmd/tkey-ssh-agent
+	CGO_ENABLED=0 go build -ldflags "-X main.version=$(TKEY_SSH_AGENT_VERSION) -X main.signerAppNoTouch=$(TKEY_SIGNER_APP_NO_TOUCH)" -trimpath ./cmd/tkey-ssh-agent
 
 .PHONY: clean
 clean:

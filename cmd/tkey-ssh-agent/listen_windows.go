@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"os/user"
 
 	"github.com/Microsoft/go-winio"
 )
@@ -15,9 +16,14 @@ func nativeListen(path string) (net.Listener, error) {
 		return nil, fmt.Errorf("RemoveAll: %w", err)
 	}
 
+	// Get the current user
+	currentUser, err := user.Current()
+	if err != nil {
+		return nil, fmt.Errorf("CurrentUser: %w", err)
+	}
 	// TODO examine this:
 	pc := &winio.PipeConfig{
-		SecurityDescriptor: "D:P(A;;GA;;;AU)",
+		SecurityDescriptor: "D:(A;;FA;;;" + currentUser.Uid + ")",
 		InputBufferSize:    4096,
 		OutputBufferSize:   4096,
 	}

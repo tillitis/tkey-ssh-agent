@@ -336,13 +336,18 @@ You can use `--show-pubkey` (short flag: `-p`) to only output the
 pubkey. The pubkey is printed to stdout for easy redirection, but some
 messages are still present on stderr.
 
-#### TODO windows
+#### Windows
 
-PowerShell:
+The SSH Agent has implemented support for the native OpenSSH client
+that is installed along with Windows Optional Features.
+OpenSSH will listen to the environmental user variable "SSH_AUTH_SOCK",
+which should be set to whatever you have supplied as a "-a" parameter.
 
-```
-$env:SSH_AUTH_SOCK = '\\.\pipe\tkey-ssh-agent'
-```
+For example, starting the agent with "./tkey-ssh-agent.exe -a tkey-ssh-agent"
+would need the user environmental variable to be set to "\\.\\pipe\\tkey-ssh-agent".
+
+If the SSH_AUTH_SOCK environmental user variable does not exist already, 
+you can go ahead and create it.
 
 #### Installing tkey-ssh-agent
 

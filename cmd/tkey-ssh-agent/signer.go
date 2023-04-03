@@ -117,13 +117,13 @@ func (s *Signer) connect() bool {
 
 	le.Printf("Connecting to TKey on serial port %s\n", devPath)
 	if err := s.tk.Connect(devPath, tk1.WithSpeed(s.speed)); err != nil {
-		notify(fmt.Sprintf("Failed to connect to a TKey on port %v.", devPath))
+		notify(fmt.Sprintf("Could not connect to a TKey on port %v.", devPath))
 		le.Printf("Failed to connect: %v", err)
 		return false
 	}
 
 	if s.isFirmwareMode() {
-		le.Printf("The TKey is in firmware mode.\n")
+		le.Printf("TKey is in firmware mode.\n")
 		if err := s.loadApp(); err != nil {
 			le.Printf("Failed to load app: %v\n", err)
 			s.closeNow()
@@ -144,8 +144,6 @@ func (s *Signer) connect() bool {
 	// else. Therefore we can never be sure it has USS according to
 	// the flags that tkey-ssh-agent was started with. So we no longer
 	// say anything about that.
-
-	s.printAuthorizedKey()
 
 	s.connected = true
 	return true
@@ -184,12 +182,14 @@ func (s *Signer) loadApp() error {
 
 		secret, err = getSecret(udi.String(), s.pinentry)
 		if err != nil {
+			notify(fmt.Sprintf("Could not show USS prompt: %s", errors.Unwrap(err)))
 			return fmt.Errorf("Failed to get USS: %w", err)
 		}
 	} else if s.fileUSS != "" {
 		var err error
 		secret, err = util.ReadUSS(s.fileUSS)
 		if err != nil {
+			notify(fmt.Sprintf("Could not read USS file: %s", err))
 			return fmt.Errorf("Failed to read uss-file %s: %w", s.fileUSS, err)
 		}
 	}
@@ -204,6 +204,12 @@ func (s *Signer) loadApp() error {
 }
 
 func (s *Signer) printAuthorizedKey() {
+	if !s.connect() {
+		le.Printf("Connect failed")
+		return
+	}
+	defer s.disconnect()
+
 	pub, err := s.tkSigner.GetPubkey()
 	if err != nil {
 		le.Printf("GetPubkey failed: %s\n", err)

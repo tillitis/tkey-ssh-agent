@@ -146,39 +146,41 @@ will flash green when the stick must be touched to complete a signature.`, progn
 
 	signer := NewSigner(devPath, speed, enterUSS, fileUSS, pinentry, exit)
 
-	if !showPubkeyOnly {
-		if runtime.GOOS == "windows" {
-			agentPath = windowsPipePrefix + agentPath
-		} else {
-			var err error
-			agentPath, err = filepath.Abs(agentPath)
-			if err != nil {
-				le.Printf("Failed to resolve socket path: %s", err)
-				exit(1)
-			}
-			_, err = os.Stat(agentPath)
-			if err == nil || !errors.Is(err, os.ErrNotExist) {
-				le.Printf("%s already exists?\n", agentPath)
-				exit(1)
-			}
-			prevExitFunc := exit
-			exit = func(code int) {
-				_ = os.Remove(agentPath)
-				prevExitFunc(code)
-			}
-		}
-
-		agent := NewSSHAgent(signer)
-		if err := agent.Serve(agentPath); err != nil {
-			le.Printf("%s\n", err)
-			exit(1)
-		}
-	} else {
+	if showPubkeyOnly {
 		if !signer.connect() {
 			le.Printf("Connect failed")
 			exit(1)
 		}
+		signer.printAuthorizedKey()
 		signer.closeNow()
+		exit(0)
+	}
+
+	if runtime.GOOS == "windows" {
+		agentPath = windowsPipePrefix + agentPath
+	} else {
+		var err error
+		agentPath, err = filepath.Abs(agentPath)
+		if err != nil {
+			le.Printf("Failed to resolve socket path: %s", err)
+			exit(1)
+		}
+		_, err = os.Stat(agentPath)
+		if err == nil || !errors.Is(err, os.ErrNotExist) {
+			le.Printf("%s already exists?\n", agentPath)
+			exit(1)
+		}
+		prevExitFunc := exit
+		exit = func(code int) {
+			_ = os.Remove(agentPath)
+			prevExitFunc(code)
+		}
+	}
+
+	agent := NewSSHAgent(signer)
+	if err := agent.Serve(agentPath); err != nil {
+		le.Printf("%s\n", err)
+		exit(1)
 	}
 
 	exit(0)

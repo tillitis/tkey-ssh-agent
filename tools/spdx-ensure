@@ -30,6 +30,8 @@ apps/monocypher/README.md
 apps/rng_stream/README.md
 apps/signer/app.bin.sha512
 apps/signer/runsign.sh
+cmd/tkey-ssh-agent-tray/trayicon.ico
+cmd/tkey-ssh-agent-tray/trayicon.png
 dco.md
 go.mod
 go.sum

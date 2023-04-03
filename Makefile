@@ -66,9 +66,22 @@ tkey-ssh-agent: apps
 	cp -af apps/signer/app.bin cmd/tkey-ssh-agent/app.bin
 	CGO_ENABLED=0 go build -ldflags "-X main.version=$(TKEY_SSH_AGENT_VERSION) -X main.signerAppNoTouch=$(TKEY_SIGNER_APP_NO_TOUCH)" -trimpath ./cmd/tkey-ssh-agent
 
+# TODO add windows manifest/program icon etc for both binaries
+# $(MAKE) -C gotools go-winres
+
+# .PHONY to let go-build handle deps and rebuilds
+.PHONY: tkey-ssh-agent-tray.exe
+tkey-ssh-agent-tray.exe:
+	GOOS=windows CGO_ENABLED=0 go build -ldflags "-H windowsgui" -trimpath ./cmd/tkey-ssh-agent-tray
+
+.PHONY: windows
+windows:
+	$(MAKE) GOOS=windows tkey-ssh-agent
+	$(MAKE) tkey-ssh-agent-tray.exe
+
 .PHONY: clean
 clean:
-	$(RM) -f tkey-runapp tkey-sign runsign.sh tkey-ssh-agent cmd/tkey-ssh-agent/app.bin runtimer runrandom cmd/runrandom/app.bin
+	$(RM) -f tkey-runapp tkey-sign runsign.sh tkey-ssh-agent tkey-ssh-agent-tray.exe cmd/tkey-ssh-agent/app.bin runtimer runrandom cmd/runrandom/app.bin
 	$(MAKE) -C apps clean
 
 .PHONY: lint

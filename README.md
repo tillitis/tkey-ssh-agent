@@ -356,7 +356,16 @@ build using the script `debian/build-pkg.sh`.
 
 #### Windows support
 
-tkey-ssh-agent can be built for and run on Windows.
+tkey-ssh-agent can be built for and run on Windows. The Makefile has a
+`windows` target that produces `tkey-ssh-agent.exe` and
+`tkey-ssh-agent-tray.exe`. The former is a regular command-line
+program that can be used for example in PowerShell. The latter is a
+small program (built for the `windowsgui` subsystem; no console) that
+sets up a tray icon and launches `tkey-ssh-agent.exe` (which it
+expects to find next to itself) with the same arguments that it was
+itself passed. For automatically starting the SSH agent when logging
+onto the computer, a shortcut to `tkey-ssh-agent-tray.exe`, with the
+required arguments, can be added in your user's `Startup` folder.
 
 When using the `--uss` option (as described for `tkey-runapp` above),
 the Windows build by default uses the pinentry program from Gpg4win

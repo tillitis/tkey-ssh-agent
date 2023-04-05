@@ -35,6 +35,7 @@ func (s *SSHAgent) Serve(absSockPath string) error {
 
 	listener, err := nativeListen(path)
 	if err != nil {
+		notify(fmt.Sprintf("Could not create listener: %s", err))
 		return fmt.Errorf("%w", err)
 	}
 	le.Printf("Listening on %s\n", listener.Addr())

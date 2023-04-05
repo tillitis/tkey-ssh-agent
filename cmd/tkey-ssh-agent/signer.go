@@ -16,7 +16,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gen2brain/beeep"
 	"github.com/tillitis/tillitis-key1-apps/internal/util"
 	"github.com/tillitis/tillitis-key1-apps/tk1"
 	"github.com/tillitis/tillitis-key1-apps/tk1sign"
@@ -28,6 +27,10 @@ import (
 //
 //go:embed app.bin
 var appBinary []byte
+
+var notify = func(msg string) {
+	util.Notify(progname, msg)
+}
 
 const (
 	idleDisconnect = 3 * time.Second
@@ -297,10 +300,4 @@ func handleSignals(action func(), sig ...os.Signal) {
 			action()
 		}
 	}()
-}
-
-func notify(msg string) {
-	if err := beeep.Notify(progname, msg, ""); err != nil {
-		le.Printf("Notify message %q failed: %s\n", msg, err)
-	}
 }

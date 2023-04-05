@@ -4,11 +4,14 @@
 *.elf
 /tkey-ssh-agent
 /tkey-ssh-agent.exe
+/cmd/tkey-ssh-agent/rsrc_windows_amd64.syso
 /tkey-ssh-agent-tray.exe
+/cmd/tkey-ssh-agent-tray/rsrc_windows_amd64.syso
 /tkey-runapp
 /tkey-sign
 /runsign.sh
 /runtimer
 /runrandom
 /gotools/golangci-lint
+/gotools/go-winres
 test/venv

@@ -12,6 +12,8 @@ tag="SPDX-License-Identifier:"
 
 missingok_dirs=(
 .github/workflows/
+cmd/tkey-ssh-agent-tray/winres/
+cmd/tkey-ssh-agent/winres/
 debian/
 docs/
 )
@@ -31,7 +33,6 @@ apps/rng_stream/README.md
 apps/signer/app.bin.sha512
 apps/signer/runsign.sh
 cmd/tkey-ssh-agent-tray/trayicon.ico
-cmd/tkey-ssh-agent-tray/trayicon.png
 dco.md
 go.mod
 go.sum
@@ -45,6 +46,7 @@ test/attic/test-loop.sh
 test/requirements.txt
 test/run
 test/test-loop.py
+tillitis-ant.png
 )
 
 is_missingok() {

@@ -16,6 +16,7 @@ cmd/tkey-ssh-agent-tray/winres/
 cmd/tkey-ssh-agent/winres/
 debian/
 docs/
+system/windows/
 )
 
 missingok_files=(

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <!-- To allow upgrades, Id="*" here generates a new GUID on every build -->
+  <Product Id="*"
+           Language="1033"
+           Name="TKey SSH Agent"
+           Version="$(env.TKEY_SSH_AGENT_VERSION)"
+           Manufacturer="Tillitis"
+           UpgradeCode="1DE962C4-098A-488B-BC8E-3458C544A2FA">
+    <Package Description="TKey SSH Agent"
+             Comments="Installer for TKey SSH Agent by Tillitis"
+             InstallerVersion="200" Compressed="yes"
+             InstallScope="perMachine"
+             InstallPrivileges="elevated"
+             Platform="x64" />
+    <!-- Causes LGTH1076/ICE61 warning, but without it versions 0.0.6.0 and
+         0.0.7.0 gets installed in parallell?! -->
+    <MajorUpgrade AllowSameVersionUpgrades="yes"
+                  DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <WixVariable Id="WixUILicenseRtf" Value="LICENSE.rtf" />
+    <Media Id="1" Cabinet="data.cab" EmbedCab="yes" />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="companydir" Name="Tillitis">
+          <Directory Id="productdir" Name="TKey SSH Agent">
+            <Directory Id="bindir" Name="bin">
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="productmenufolder" Name="TKey SSH Agent" />
+      </Directory>
+    </Directory>
+
+    <Icon Id="icon.ico" SourceFile="tillitis-ant.ico" />
+
+    <DirectoryRef Id="bindir">
+      <Component Id="mainexe_component" Win64="yes" Guid="A7BA59A8-ECDE-4AF0-B523-00DDE5B501B9">
+        <File Source="tkey-ssh-agent.exe" KeyPath="yes" />
+        <Environment Id="add_to_path"
+                     Name="PATH"
+                     Value="[bindir]"
+                     Action="set"
+                     Part="last" />
+      </Component>
+      <Component Id="trayexe_component" Win64="yes" Guid="B02A4EC0-2FEB-4797-908E-55C9980A3BF7">
+        <File Id="trayexe" Source="tkey-ssh-agent-tray.exe" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="productdir">
+      <Component Id="license_component" Win64="yes" Guid="EE696735-818D-4269-BBB6-A8EDD334E0B5">
+        <File Source="LICENSE.rtf" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="productmenufolder">
+      <Component Id="appshortcut_component" Guid="5D308920-D68B-4114-A976-5B4AE2D9C67D">
+        <Shortcut Id="appshortcut"
+                  Name="TKey SSH Agent"
+                  Description="Starts TKey SSH Agent Tray with: --uss -a tkey-ssh-agent"
+                  Target="[#trayexe]"
+                  Arguments="--uss -a tkey-ssh-agent"
+                  WorkingDirectory="bindir"
+                  Icon="icon.ico">
+        </Shortcut>
+        <RemoveFolder Id="productmenufolder" On="uninstall" />
+        <!-- A shortcut needs a registry keyval, to hold the KeyPath? This also
+             causes LGTH1076/ICE90 warning, but that be ignored
+             https://github.com/wixtoolset/issues/issues/5938 -->
+        <RegistryValue Root="HKCU" Key="Software\Tillitis\TKey SSH Agent\Shortcut" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <Feature Id="DefaultFeature" Title="Main Feature" Level="1">
+      <ComponentRef Id="mainexe_component" />
+      <ComponentRef Id="trayexe_component" />
+      <ComponentRef Id="license_component" />
+      <ComponentRef Id="appshortcut_component" />
+    </Feature>
+
+    <UI />
+    <UIRef Id="WixUI_Minimal" />
+  </Product>
+</Wix>

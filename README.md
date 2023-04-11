@@ -405,6 +405,9 @@ ssh.exe:
 git config --global core.sshCommand C:/Windows/System32/OpenSSH/ssh.exe
 ```
 
+For details on how we package and build an MSI installer, see
+[system/windows/README.md](system/windows/README.md).
+
 ### Disabling touch requirement
 
 The signer app normally requires the USB stick to be physically

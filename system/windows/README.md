@@ -1,15 +1,20 @@
 ﻿
-# Using Wix on Windows to build the msi package
+# Using Wix on Windows to build the MSI package
 
 The following might be missing something, please revise.
 
 - You probably want to be on a tagged version of the apps repo.
 
-- Run `make windows` in the apps repo. I guess this currently only
-  works on Linux.
+- In the root of the apps repo, build the windows exes and place the
+  resulting exes in this directory. I guess this currently only works
+  on Linux.
 
-- Place the built `tkey-ssh-agent.exe` and `tkey-ssh-agent-tray.exe`
-  in this directory.
+  ```
+  make windows
+  ```
+
+  The [Makefile](Makefile) in this directory has a target `exes` that
+  does the build and copying.
 
 - Install Wix 3:
   - Install the required .NET 3.5:
@@ -37,6 +42,21 @@ The following might be missing something, please revise.
   msiexec /i tkey-ssh-agent-0.0.6.0.msi`
   ```
 
+# Running Wix using Wine in a container on Linux
+
+You can first build the windows exes and copy them here, and then
+build the msi with a specific version like this:
+
+```
+make exes
+make SEMVER=0.0.6 msi
+```
+
+This uses the `ghcr.io/tillitis/msi-builder:1` image, which can be
+built locally using the Makefile's `build-msi-builder` target.
+
+# Notes
+
 We do not enable the agent to run automatically at startup, leaving
 this to the decision of the user. But we do install a shortcut in the
 folder for "All Users Start Menu Programs", so it ends up on the
@@ -55,11 +75,8 @@ copy "$prgs\TKey SSH Agent\TKey SSH Agent.lnk" "$startup\"
 ```
 
 Also, the default configuration relies on finding a `pinentry` program
-from the Gpg4win package. To install this package run:
-
-```
-winget install gpg4win
-```
-
-Since this msi will also be available as winget package, this
+from the Gpg4win package. It can be installed by running `winget
+install GnuPG.Gpg4win` manually. Note that winget does not have
+support for dependencies that are pulled in automatically. But since
+the msi package will also be available as a winget package, this
 dependency seems fine.

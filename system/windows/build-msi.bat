@@ -1,22 +1,22 @@
 @echo off
 
-set "TKEY_SSH_AGENT_VERSION=%~1"
+set "SEMVER=%~1"
 
-if "%TKEY_SSH_AGENT_VERSION%"=="" (
+if "%SEMVER%"=="" (
   echo Please pass a version number to build as, like: 0.0.6
   echo This is our typical tagged version. We will make the
   echo actual version 0.0.6.0 per windows convention.
   exit
 )
 
-set TKEY_SSH_AGENT_VERSION=%TKEY_SSH_AGENT_VERSION%.0
+set SEMVER=%SEMVER%.0
 
-echo Going to build: %TKEY_SSH_AGENT_VERSION%
+echo Going to build: %SEMVER%
 
 set WIXPATH="C:\Program Files (x86)\WiX Toolset v3.11\bin"
 
 %WIXPATH%\candle.exe tkey-ssh-agent.wxs
 
 %WIXPATH%\light.exe -ext WixUIExtension ^
-  -o tkey-ssh-agent-%TKEY_SSH_AGENT_VERSION%.msi ^
+  -o tkey-ssh-agent-%SEMVER%.msi ^
   tkey-ssh-agent.wixobj

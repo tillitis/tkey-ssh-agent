@@ -4,7 +4,7 @@
   <Product Id="*"
            Language="1033"
            Name="TKey SSH Agent"
-           Version="$(env.TKEY_SSH_AGENT_VERSION)"
+           Version="$(env.SEMVER)"
            Manufacturer="Tillitis"
            UpgradeCode="1DE962C4-098A-488B-BC8E-3458C544A2FA">
     <Package Description="TKey SSH Agent"

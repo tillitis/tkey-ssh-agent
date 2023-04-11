@@ -5,6 +5,7 @@ all: apps tkey-runapp tkey-sign runsign.sh tkey-ssh-agent runtimer runrandom
 
 .PHONY: windows
 windows: tkey-ssh-agent.exe tkey-ssh-agent-tray.exe
+	make -C apps check-signer-hash
 
 DESTDIR=/
 PREFIX=/usr/local

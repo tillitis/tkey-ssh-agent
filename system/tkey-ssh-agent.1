@@ -20,18 +20,18 @@
 .Op Fl -version
 .Sh DESCRIPTION
 .Nm
-is an alternative SSH agent backed by an Ed25519 signer program it
-uploads to the Tillitis TKey, a small computer in the form of a USB
-stick.
+is an alternative SSH agent backed by an Ed25519 signer device-app
+which it uploads to the Tillitis TKey, a small computer in the form
+of a USB stick.
 .Pp
 It works as an OpenSSH-compatible agent for all SSH programs,
 supporting a necessary subset of the OpenSSH agent protocol. You can
 use it to login to other systems or to sign Git commits, for example.
 Your ephemeral private key never leaves the TKey.
 .Pp
-The act of uploading the signer program, with an optional User Supplied
+The act of uploading the signer app, with an optional User Supplied
 Secret, creates a new unique, stable but ephemeral identity for that
-specific combination of TKey, signer program, and USS.
+specific combination of TKey, signer app binary, and USS.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
@@ -76,7 +76,7 @@ You are encouraged to run
 .Nm
 with
 .Fl -uss ,
-meaning that when the signer program is loaded onto the TKey, a User
+meaning that when the signer app is loaded onto the TKey, a User
 Supplied Secret (USS) is loaded as well. In short, changing the USS
 results in a different SSH ed25519 key, a new identity. The USS is
 input interactively using a
@@ -206,7 +206,7 @@ The
 .Nm
 only connects to the TKey when an SSH agent operation is requested
 (e.g. when you attempt to log in somewhere or request the public key)
-and disconnects soon afterwards. If the signer program is not already
+and disconnects soon afterwards. If the signer app is not already
 running on the TKey it is first uploaded to the TKey and started.
 .Pp
 This means that it will only ask for the User Supplied Secret (if
@@ -216,7 +216,7 @@ flag) when the agent is actually requested to do something for the
 first time, not when the TKey is inserted, as the user perhaps
 expected. The reason is that the
 .Nm
-shouldn't hog the device and let other host programs also be able to
+shouldn't hog the device and let other client apps also be able to
 speak to it.
 .\" .Sh BUGS
 .\" .Sh SECURITY CONSIDERATIONS

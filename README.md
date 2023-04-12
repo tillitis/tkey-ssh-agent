@@ -3,11 +3,12 @@
 
 # Tillitis TKey Apps
 
-This repository contains applications to run on the TKey USB security
-stick. For testing and development purposes the apps can also be run
-in QEMU, this is also explained in detail below.
+This repository contains device applications to run on the TKey USB
+security stick, as well as companion client apps (running on the host
+computer). For testing and development purposes the device apps can
+also be run in QEMU, this is also explained in detail below.
 
-Current list of apps:
+Current list of device appsp:
 
 - The Ed25519 signer app. Used as root of trust and SSH authentication
 - The RNG stream app. Providing arbitrary high quality random numbers
@@ -67,7 +68,7 @@ https://spdx.org/licenses/
 
 All contributors must adhere to the [Developer Certificate of Origin](dco.md).
 
-## Building apps
+## Building device apps
 
 To build you need the `clang`, `llvm`, `lld`, `golang` packages
 installed. Version 15 or later of LLVM/Clang is required (with riscv32
@@ -87,14 +88,14 @@ If your available `objcopy` is anything other than the default
 `llvm-objcopy`, then define `OBJCOPY` to whatever they're called on
 your system.
 
-The apps can be run both on the hardware TKey, and on a QEMU machine
-that emulates the platform. In both cases, the host program (the
-program that runs on your computer, for example `tkey-ssh-agent`) will
-talk to the app over a serial port, virtual or real. There is a
+The device apps can be run both on the hardware TKey, and on a QEMU
+machine that emulates the platform. In both cases, the client apps
+(the program that runs on your computer, for example `tkey-ssh-agent`)
+will talk to the app over a serial port, virtual or real. There is a
 separate section below which explains running in QEMU.
 
 
-## Running apps
+## Running device apps
 
 Plug the USB stick into your computer. If the LED in one of the outer
 corners of the USB stick is a steady white, then it has been
@@ -109,7 +110,7 @@ programming of the USB stick.
 Running `lsusb` should list the USB stick as `1207:8887 Tillitis
 MTA1-USB-V1`. On Linux, the TKey's serial port device path is
 typically `/dev/ttyACM0` (but it may end with another digit, if you
-have other devices plugged in). The host programs tries to auto-detect
+have other devices plugged in). The client apps tries to auto-detect
 serial ports of TKey USB sticks, but if more than one is found you'll
 need to choose one using the `--port` flag.
 
@@ -155,9 +156,9 @@ There should be an entry with `"USB Vendor Name" = "Tillitis"`.
 Looking in the `/dev` directory, there should be a device named like
 `/dev/tty.usbmodemXYZ`. Where XYZ is a number, for example 101. This
 is the device path that might need to be passed as `--port` when
-running the host programs.
+running the client app.
 
-### Running apps in QEMU
+### Running device apps in QEMU
 
 Build our [qemu](https://github.com/tillitis/qemu). Use the `tk1`
 branch. Please follow the
@@ -196,19 +197,18 @@ $ /path/to/qemu/build/qemu-system-riscv32 -nographic -M tk1,fifo=chrid -bios fir
 ```
 
 It tells you what serial port it is using, for instance `/dev/pts/1`.
-This is what you need to use as `--port` when running the host
-programs.
+This is what you need to use as `--port` when running the client apps.
 
 The TK1 machine running on QEMU (which in turn runs the firmware, and
-then the app) can output some memory access (and other) logging. You
-can add `-d guest_errors` to the qemu commandline To make QEMU send
-these to stderr.
+then the device app) can output some memory access (and other)
+logging. You can add `-d guest_errors` to the qemu commandline To make
+QEMU send these to stderr.
 
 
 ## The ed25519 signer app
 
 This is a message signer, for root of trust and SSH authentication
-using ed25519. There are two host programs which can communicate with
+using ed25519. There are two client apps which can communicate with
 the app. `tkey-sign` just performs a complete test signing.
 `tkey-ssh-agent` is an SSH agent that allow using the signer for SSH
 remote access.
@@ -216,8 +216,8 @@ remote access.
 ### Using runsign.sh, tkey-runapp, and tkey-sign
 
 If you're running on hardware, the LED on the USB stick is expected to
-be a steady white, indicating that firmware is ready to receive an app
-to run.
+be a steady white, indicating that firmware is ready to receive a
+device app to run.
 
 There's a script called `runsign.sh` which runs `tkey-runapp` to load
 the signer app onto TKey and start it. The script then runs
@@ -231,9 +231,10 @@ message and then verifies the signature. You can use it like this:
 The signer app can sign messages of up to 4096 bytes. If the `--port`
 flags needs to be used, you can pass it after the message argument.
 
-The host program `tkey-runapp` only loads and starts an app. You'll
-then have to switch to a different program that speaks your app's
-specific protocol. For instance the `tkey-sign` program provided here.
+The client app `tkey-runapp` only loads and starts a device app.
+You'll then have to switch to a different client app that speaks your
+app's specific protocol. For instance the `tkey-sign` program provided
+here.
 
 To run `tkey-runapp` you need to pass it the raw app binary that
 should be run (and possibly `--port`, if the auto-detection is not
@@ -255,7 +256,7 @@ be `-` for reading from stdin. Note that all data in file/stdin is
 read and hashed without any modification.
 
 The firmware uses the USS digest, together with a hash digest of the
-application binary, and the Unique Device Secret (UDS, unique per
+raw device app binary, and the Unique Device Secret (UDS, unique per
 physical device) to derive secrets for use by the application.
 
 The practical result for users of the signer app is that the ed25519
@@ -285,21 +286,22 @@ verified.
 When all is done, the LED on the hardware USB stick will be steady
 blue, indicating that it is ready to make (another) signature.
 
-Note that to load a new app, the USB stick needs to be unplugged and
-plugged in again. Similarly, QEMU would need to be restarted (`Ctrl-a
-x` to quit). If you're using the setup with the USB stick sitting in
-the programming jig and at the same time plugged into the computer,
-then you need to unplug both the USB stick and the programmer. Or
-alternatively run the `reset-tk1` script (in the tillitis-key1 repo).
+Note that to load a new device app, the USB stick needs to be
+unplugged and plugged in again. Similarly, QEMU would need to be
+restarted (`Ctrl-a x` to quit). If you're using the setup with the USB
+stick sitting in the programming jig and at the same time plugged into
+the computer, then you need to unplug both the USB stick and the
+programmer. Or alternatively run the `reset-tk1` script (in the
+tillitis-key1 repo).
 
 That was fun, now let's try the SSH agent!
 
 ### Using tkey-ssh-agent
 
-This host program for the signer app is a complete, alternative SSH
-agent with practical use. The signer app binary gets built into the
+This client app is a complete, alternative SSH agent with practical
+use. The needed signer device app binary gets built into the
 tkey-ssh-agent, which will load it onto USB stick when started. Like
-the other host programs, tkey-ssh-agent tries to auto-detect serial
+the other client apps, tkey-ssh-agent tries to auto-detect serial
 ports of TKey USB sticks. If more than one is found, or if you're
 running on QEMU, then you'll need to use the `--port` flag. An example
 of that:
@@ -356,7 +358,7 @@ compiled with this requirement removed, by setting the environment
 variable `TKEY_SIGNER_APP_NO_TOUCH` to some value when building.
 Example: `make TKEY_SIGNER_APP_NO_TOUCH=yesplease`.
 
-The host apps will also stop displaying this requirement. Of course
+The client apps will also stop displaying this requirement. Of course
 this changes the signer app binary and as a consequence the derived
 private key and identity will change.
 
@@ -408,9 +410,9 @@ available at base 0xc000\_0000 and an offset. See
 
 ### Debugging
 
-If you're running the app on our qemu emulator we have added a debug
-port on 0xfe00\_1000 (TK1_MMIO_QEMU_DEBUG). Anything written there
-will be printed as a character by qemu on the console.
+If you're running the device app on our qemu emulator we have added a
+debug port on 0xfe00\_1000 (TK1_MMIO_QEMU_DEBUG). Anything written
+there will be printed as a character by qemu on the console.
 
 `qemu_putchar()`, `qemu_puts()`, `qemu_putinthex()`, `qemu_hexdump()`
 and friends (see `apps/libcommon/lib.[ch]`) use this debug port to

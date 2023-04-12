@@ -46,7 +46,7 @@ func main() {
 		"Fetch `COUNT` number of random bytes.")
 	pflag.BoolVar(&helpOnly, "help", false, "Output this help.")
 	pflag.Usage = func() {
-		fmt.Fprintf(os.Stderr, `runrandom is a host program for the random-app, used to fetch random numbers
+		fmt.Fprintf(os.Stderr, `runrandom is a client app for the random-app, used to fetch random numbers
 from the TRNG on the Tillitis TKey. This program embeds the random-app binary,
 which it loads onto the USB stick and starts.
 

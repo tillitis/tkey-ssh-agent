@@ -144,7 +144,16 @@ indicating that it is ready to receive an app to run.
 
 #### User on MacOS
 
-You can check that the OS has found and enumerated the USB stick by
+The client apps tries to auto-detect serial ports of TKey USB sticks,
+but if more than one is found you'll need to choose one using the
+`--port` flag.
+
+To find the serial ports device path manually you can do `ls -l
+/dev/cu.*`. There should be a device named like `/dev/cu.usbmodemN`
+(where N is a number, for example 101). This is the device path that
+might need to be passed as `--port` when running the client app.
+
+You can verify that the OS has found and enumerated the USB stick by
 running:
 
 ```
@@ -152,11 +161,6 @@ ioreg -p IOUSB -w0 -l
 ```
 
 There should be an entry with `"USB Vendor Name" = "Tillitis"`.
-
-Looking in the `/dev` directory, there should be a device named like
-`/dev/tty.usbmodemXYZ`. Where XYZ is a number, for example 101. This
-is the device path that might need to be passed as `--port` when
-running the client app.
 
 ### Running device apps in QEMU
 

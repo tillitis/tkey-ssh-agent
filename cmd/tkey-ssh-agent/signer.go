@@ -88,11 +88,12 @@ func (s *Signer) connect() bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	if s.disconnectTimer != nil {
+		s.disconnectTimer.Stop()
+		s.disconnectTimer = nil
+	}
+
 	if s.connected {
-		if s.disconnectTimer != nil {
-			s.disconnectTimer.Stop()
-			s.disconnectTimer = nil
-		}
 		return true
 	}
 
@@ -234,6 +235,7 @@ func (s *Signer) disconnect() {
 
 	if s.disconnectTimer != nil {
 		s.disconnectTimer.Stop()
+		s.disconnectTimer = nil
 	}
 
 	s.disconnectTimer = time.AfterFunc(idleDisconnect, func() {

@@ -244,7 +244,7 @@ func (tk TillitisKey) ReadFrame(expectedResp Cmd, expectedID int) ([]byte, Frami
 		rest := make([]byte, hdr.CmdLen.Bytelen())
 		if _, readErr := io.ReadFull(tk.conn, rest); readErr != nil {
 			// NOTE: go 1.20 has errors.Join()
-			err = fmt.Errorf("%w; ReadFull: %s", ErrResponseStatusNotOK, readErr)
+			err = fmt.Errorf("%w; ReadFull: %w", ErrResponseStatusNotOK, readErr)
 		}
 		return nil, hdr, err
 	}

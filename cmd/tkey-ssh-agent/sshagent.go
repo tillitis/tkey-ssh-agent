@@ -123,18 +123,18 @@ func (s *SSHAgent) SignWithFlags(key ssh.PublicKey, data []byte, _ agent.Signatu
 	return s.Sign(key, data)
 }
 
-func (s *SSHAgent) Extension(extensionType string, contents []byte) ([]byte, error) {
+func (s *SSHAgent) Extension(_ string, _ []byte) ([]byte, error) {
 	// there is a new extensionType session-bind@openssh.com, but
 	// implementation still seems optional
 	// https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.agent
 	return nil, agent.ErrExtensionUnsupported
 }
 
-func (s *SSHAgent) Add(key agent.AddedKey) error {
+func (s *SSHAgent) Add(_ agent.AddedKey) error {
 	return ErrNotImplemented
 }
 
-func (s *SSHAgent) Remove(key ssh.PublicKey) error {
+func (s *SSHAgent) Remove(_ ssh.PublicKey) error {
 	return ErrNotImplemented
 }
 
@@ -142,11 +142,11 @@ func (s *SSHAgent) RemoveAll() error {
 	return ErrNotImplemented
 }
 
-func (s *SSHAgent) Lock(passphrase []byte) error {
+func (s *SSHAgent) Lock(_ []byte) error {
 	return ErrNotImplemented
 }
 
-func (s *SSHAgent) Unlock(passphrase []byte) error {
+func (s *SSHAgent) Unlock(_ []byte) error {
 	return ErrNotImplemented
 }
 

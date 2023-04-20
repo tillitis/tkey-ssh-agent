@@ -280,7 +280,7 @@ func (s *Signer) Public() crypto.PublicKey {
 	return ed25519.PublicKey(pub)
 }
 
-func (s *Signer) Sign(rand io.Reader, message []byte, opts crypto.SignerOpts) ([]byte, error) {
+func (s *Signer) Sign(_ io.Reader, message []byte, opts crypto.SignerOpts) ([]byte, error) {
 	if !s.connect() {
 		return nil, fmt.Errorf("Connect failed")
 	}

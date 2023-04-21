@@ -164,6 +164,26 @@ There should be an entry with `"USB Vendor Name" = "Tillitis"`.
 
 ### Running device apps in QEMU
 
+For making development easier, we provide a container image and
+support script for running a TKey/QEMU machine with the latest
+firmware. The script assumes a working rootless Podman setup (and
+socat). It currently only works on a Linux system (specifically, it
+does not work when containers are run in Podman's virtual machine,
+which is required on MacOS and Windows). On Ubuntu 22.10, running `apt
+install podman rootlesskit slirp4netns socat` should be enough. Then
+you can just run the script like:
+
+    ./contrib/run-tkey-qemu
+
+Among other advice, the script outputs the path which you need to pass
+to the client app so that it can communicate with the virtualised TKey
+inside the container. An example, run in a new terminal but in the
+same directory as the above:
+
+    ./tkey-runapp --port ./tkey-qemu-pty apps/signer/app.bin
+
+#### Building and running QEMU manually
+
 Build our [qemu](https://github.com/tillitis/qemu). Use the `tk1`
 branch. Please follow the
 [toolchain_setup.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/toolchain_setup.md)
@@ -205,8 +225,8 @@ This is what you need to use as `--port` when running the client apps.
 
 The TK1 machine running on QEMU (which in turn runs the firmware, and
 then the device app) can output some memory access (and other)
-logging. You can add `-d guest_errors` to the qemu commandline To make
-QEMU send these to stderr.
+logging. You can add `-d guest_errors` to the QEMU commandline to make
+it send these to stderr.
 
 
 ## The ed25519 signer app

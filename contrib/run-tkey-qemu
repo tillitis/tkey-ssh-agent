@@ -1,0 +1,57 @@
+#!/bin/sh
+
+image=ghcr.io/tillitis/tkey-qemu-tk1-23.03.1:latest
+if [ "$(uname -s)" != Linux ]; then
+  printf "Currently this only works on Linux (not when using podman machine)\n"
+  exit 1
+fi
+
+if ! hash 2>/dev/null socat; then
+  printf "Please install socat. Ubuntu: apt install socat\n"
+  exit 1
+fi
+
+printf "Using image: %s\n" "$image"
+if [ "${1:-}" = "-p" ]; then
+  shift
+  podman pull $image || true
+else
+  printf "You can pass argument '-p' to pull any update to this image.\n"
+fi
+
+hostside=$(pwd)/tkey-qemu-pty
+containerside=/tmp/tkey-qemu-$(id -u)-pty-for-container
+
+for pty in "$hostside" "$containerside"; do
+  if [ -e "$pty" ]; then
+    printf "%s already exists, bailing out\n" "$pty"
+    exit 1
+  fi
+done
+
+socat "pty,raw,echo=0,link=$hostside" \
+      "pty,raw,echo=0,link=$containerside" &
+socatpid=$$
+
+cleanup() {
+  trap - EXIT INT HUP TERM
+  kill -1 $socatpid || true
+  rm -f "$hostside" "$containerside"
+}
+trap cleanup EXIT INT HUP TERM
+
+while true; do
+  printf "\033[32m"
+  printf "Running TKey/QEMU container using image: %s\n" "$image"
+  printf "Let your TKey client app talk to it by passing: --port %s\n" "$hostside"
+  printf "Stop QEMU by typing 'Ctrl-a' and then 'x'. It will then restart.\n"
+  printf "\033[0m"
+
+  podman run --rm -it --device "$containerside:/pty-on-host" $image
+
+  printf "\033[33m"
+  printf "Restarting in 1s... Type 'Ctrl-c' now to quit!\n"
+  printf "\033[0m"
+
+  sleep 1s
+done

@@ -34,6 +34,8 @@ apps/rng_stream/README.md
 apps/signer/app.bin.sha512
 apps/signer/runsign.sh
 cmd/tkey-ssh-agent-tray/trayicon.ico
+contrib/run-tkey-qemu
+contrib/tkey-qemu.dockerfile
 dco.md
 go.mod
 go.sum

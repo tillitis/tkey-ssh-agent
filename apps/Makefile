@@ -25,7 +25,7 @@ RM=/bin/rm
 
 
 .PHONY: all
-all: signer/app.bin timer/app.bin random/app.bin rng_stream/app.bin blink/app.bin nx/app.bin
+all: signer/app.bin timer/app.bin random/app.bin rng_stream/app.bin blink/app.bin nx/app.bin touch/app.bin
 
 # C runtime library
 libcrt0/libcrt0.a: libcrt0/crt0.o
@@ -89,6 +89,11 @@ $(NX_OBJS): $(INCLUDE)/tk1_mem.h
 blink/app.elf: blink/blink.o
 	ld.lld -o $@ blink/blink.o --oformat elf
 
+TOUCHOBJS = touch/main.o
+touch/app.elf: $(LIBS) $(TOUCHOBJS) app.lds
+	$(CC) $(CFLAGS) $(TOUCHOBJS) $(LDFLAGS) -o $@
+$(TOUCHOBJS): $(INCLUDE)/tk1_mem.h
+
 .PHONY: clean
 clean:
 	$(RM) -f signer/app.bin signer/app.elf $(SIGNEROBJS)
@@ -99,9 +104,10 @@ clean:
 	$(RM) -f monocypher/libmonocypher.a $(MONOOBJS)
 	$(RM) -f blink/app.bin blink/app.elf blink/blink.o
 	$(RM) -f nx/app.bin nx/app.elf nx/main.o
+	$(RM) -f touch/app.bin touch/app.elf touch/main.o
 
 # Uses ../.clang-format
-FMTFILES=include/*.h libcommon/*.c signer/*.[ch] timer/*.[ch] random/*.[ch] rng_stream/*.[ch] nx/main.c
+FMTFILES=include/*.h libcommon/*.c signer/*.[ch] timer/*.[ch] random/*.[ch] rng_stream/*.[ch] nx/main.c touch/*.[ch]
 .PHONY: fmt
 fmt:
 	clang-format --dry-run --ferror-limit=0 $(FMTFILES)

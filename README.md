@@ -398,12 +398,17 @@ article](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershel
 
 The SSH Agent can also be used with the Git-for-Windows client
 (`winget install Git.Git`). By default, it uses its own bundled
-ssh-client. Run this command to make `git.exe` use the system's native
-ssh.exe:
+ssh-client. Run the following PowerShell commands to make `git.exe`
+use the system's native ssh.exe:
 
 ```
-git config --global core.sshCommand C:/Windows/System32/OpenSSH/ssh.exe
+$sshpath = (get-command ssh.exe).path -replace '\\','/'
+git config --global core.sshCommand $sshpath
+git config --global --get core.sshCommand
 ```
+
+The last command should output something like
+`C:/Windows/System32/OpenSSH/ssh.exe`.
 
 For details on how we package and build an MSI installer, see
 [system/windows/README.md](system/windows/README.md).

@@ -48,7 +48,7 @@ func main() {
 		return pflag.NormalizedName(name)
 	})
 	pflag.StringVarP(&agentPath, "agent-path", "a", "",
-		fmt.Sprintf("Start the agent, setting the `PATH` to the UNIX-domain socket that it should listen on. On Windows, a Named Pipe named %s\\PATH will be used.", windowsPipePrefix))
+		fmt.Sprintf("Start the agent, setting the `PATH` to the UNIX-domain socket that it should listen on. On Windows, a Named Pipe at '%s\\PATH' will be used.", windowsPipePrefix))
 	pflag.BoolVarP(&showPubkeyOnly, "show-pubkey", "p", false,
 		"Don't start the agent, only output the ssh-ed25519 public key.")
 	pflag.BoolVarP(&listPortsOnly, "list-ports", "L", false,

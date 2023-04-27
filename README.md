@@ -447,7 +447,11 @@ assembler, `blink.bin` (blink.S) that blinks the LED.
 
 ##  Example Touch app
 
-In `touch/` resides an example app of how to use the built in touch feature of the TKey. The application simply waits for a touch from the user while flashing the LED. A touch is confirmed by switching the flashing color while starting to wait for a new touch - shifting colors between green, red and blue.
+In `touch/` resides an example app of how to use the built in touch
+feature of the TKey. The application simply waits for a touch from 
+the user while flashing the LED. A touch is confirmed by switching 
+the flashing color while starting to wait for a new touch - shifting
+colors between green, red and blue.
 
 Run the app by invoking
 

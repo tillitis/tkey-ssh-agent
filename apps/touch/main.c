@@ -17,7 +17,7 @@ static volatile uint32_t *touch = (volatile uint32_t *)TK1_MMIO_TOUCH_STATUS;
 void wait_touch_ledflash(int ledvalue, int loopcount)
 {
 	int led_on = 0;
-	// first a write, to ensure no stray touch?
+	// first a write, to ensure no stray touch
 	*touch = 0;
 	for (;;) {
 		*led = led_on ? ledvalue : 0;
@@ -38,7 +38,7 @@ int main(void)
 
 	for (;;) {
 		// Wait for a touch, confirming a succesfull touch by
-		// waiting with a new color. Continuing indefintely.
+		// waiting with a new color. Continuing indefinitely.
 		wait_touch_ledflash(LED_GREEN, 350000);
 		wait_touch_ledflash(LED_RED, 350000);
 		wait_touch_ledflash(LED_BLUE, 350000);

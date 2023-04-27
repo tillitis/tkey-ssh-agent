@@ -78,11 +78,27 @@ this and work. Please see
 (in the tillitis-key1 repository) for detailed information on the
 currently supported build and development environment.
 
-Build everything:
+You need the device libraries in a directory next to this one. The
+device libraries are available in:
+
+https://github.com/tillitis/tkey-libs
+
+Clone and build them first:
+
+```
+$ git clone https://github.com/tillitis/tkey-libs
+$ cd tkey-libs
+$ make
+```
+
+Then go back to this directory and build everything:
 
 ```
 $ make
 ```
+
+If you cloned `tkey-libs` to somewhere else then the default set
+`LIBDIR` to the path of the directory.
 
 If your available `objcopy` is anything other than the default
 `llvm-objcopy`, then define `OBJCOPY` to whatever they're called on
@@ -488,7 +504,8 @@ $ ./tkey-runapp apps/touch/app.bin
 ## Developing apps
 
 Device apps and libraries are kept under the `apps` directory. A C
-runtime is provided as `apps/libcrt0/libcrt0.a` which you can link
+runtime is provided as `libcrt0.a` in the
+[tkey-libs](https://github.com/tillitis/tkey-libs) which you can link
 your C apps with.
 
 ### Memory
@@ -504,17 +521,16 @@ There are no heap allocation functions, no `malloc()` and friends.
 Special memory areas for memory mapped hardware functions are
 available at base 0xc000\_0000 and an offset. See
 [software.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/system_description/software.md)
-(in the tillitis-key1 repository), and the include file `tk1_mem.h`.
+(in the tillitis-key1 repository), and the include file
+[tk1_mem.h](https://github.com/tillitis/tkey-libs/blob/main/include/tk1_mem.h)
+(in the tkey-libs repository).
 
 ### Debugging
 
 If you're running the device app on our qemu emulator we have added a
-debug port on 0xfe00\_1000 (TK1_MMIO_QEMU_DEBUG). Anything written
+debug port on 0xfe00\_1000 (`TK1_MMIO_QEMU_DEBUG`). Anything written
 there will be printed as a character by qemu on the console.
 
-`qemu_putchar()`, `qemu_puts()`, `qemu_putinthex()`, `qemu_hexdump()`
-and friends (see `apps/libcommon/lib.[ch]`) use this debug port to
-print stuff.
-
-`libcommon` is compiled with no debug output by default. Rebuild
-`libcommon` without `-DNODEBUG` to get the debug output.
+See documentation in
+[tkey-libs](https://github.com/tillitis/tkey-libs) for how to use the
+convienence functions for interacting with this debug port.

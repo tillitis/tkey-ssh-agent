@@ -36,6 +36,9 @@ reload-rules:
 	udevadm control --reload
 	udevadm trigger
 
+podman:
+	podman run --rm --mount type=bind,source=.,target=/src --mount type=bind,source=../tkey-libs,target=/tkey-libs -w /src -it ghcr.io/tillitis/tkey-builder:2 make -j
+
 .PHONY: apps
 apps:
 	$(MAKE) -C apps

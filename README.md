@@ -70,20 +70,48 @@ All contributors must adhere to the [Developer Certificate of Origin](dco.md).
 
 ## Building device apps
 
-To build you need the `clang`, `llvm`, `lld`, `golang` packages
-installed. Version 15 or later of LLVM/Clang is required (with riscv32
-support and Zmmul extension). Ubuntu 22.10 (Kinetic) is known to have
-this and work. Please see
+You have two options, either our OCI image
+`ghcr.io/tillitis/tkey-builder` for use with a rootless podman setup,
+or native tools.
+
+In either case you need the device libraries in a directory next to
+this one. The device libraries are available in:
+
+https://github.com/tillitis/tkey-libs
+
+Clone them next this repo and build them first.
+
+### Building with Podman
+
+We provide an OCI image with all tools you can use to build the
+tkey-libs and the apps. If you have `make` and Podman installed you
+can us it like this in the `tkey-libs` directory and then this
+directory:
+
+```
+make podman
+```
+
+and everything should be built. This assumes a working rootless
+podman. On Ubuntu 22.10, running
+
+```
+apt install podman rootlesskit slirp4netns
+```
+
+should be enough to get you a working Podman setup.
+
+### Building with host tools
+
+To build with native tools you need the `clang`, `llvm`, `lld`,
+`golang` packages installed. Version 15 or later of LLVM/Clang is
+required (with riscv32 support and Zmmul extension). Ubuntu 22.10
+(Kinetic) is known to have this and work. Please see
 [toolchain_setup.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/toolchain_setup.md)
 (in the tillitis-key1 repository) for detailed information on the
 currently supported build and development environment.
 
-You need the device libraries in a directory next to this one. The
-device libraries are available in:
-
-https://github.com/tillitis/tkey-libs
-
-Clone and build them first:
+Clone and build the device libraries first:
 
 ```
 $ git clone https://github.com/tillitis/tkey-libs

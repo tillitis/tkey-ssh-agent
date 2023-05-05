@@ -5,9 +5,15 @@ package tk1
 
 import (
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
+	"time"
+
+	"go.bug.st/serial"
 )
+
+var ErrReadTimeout = errors.New("Read timeout")
 
 type Endpoint byte
 
@@ -209,8 +215,9 @@ const ErrResponseStatusNotOK = constError("response status not OK")
 // header ID is checked against expectedID. The response code (first
 // byte after header) is also checked against the code in
 // expectedResp. It returns the whole frame read, the parsed header
-// byte, and any error separately.
-func (tk TillitisKey) ReadFrame(expectedResp Cmd, expectedID int) ([]byte, FramingHdr, error) {
+// byte, and any error separately. The error is ErrReadTimeout if the
+// read times out.
+func (tk TillitisKey) ReadFrame(expectedResp Cmd, expectedID int, milliseconds int) ([]byte, FramingHdr, error) {
 	if expectedID > 3 {
 		return nil, FramingHdr{}, fmt.Errorf("frame ID to expect must be 0..3")
 	}
@@ -221,9 +228,18 @@ func (tk TillitisKey) ReadFrame(expectedResp Cmd, expectedID int) ([]byte, Frami
 		return nil, FramingHdr{}, fmt.Errorf("cmdlen to expect must be 0..3")
 	}
 
+	if milliseconds > 0 {
+		if err := tk.conn.SetReadTimeout(time.Duration(milliseconds) * time.Millisecond); err != nil {
+			return nil, FramingHdr{}, fmt.Errorf("SetReadTimeout: %w", err)
+		}
+		defer func() {
+			_ = tk.conn.SetReadTimeout(serial.NoTimeout)
+		}()
+	}
+
 	// Try to read the single header byte
 	rxHdr := make([]byte, 1)
-	// Read() obeys timeout set using SetReadTimeout()
+	// Read obeys timeout set using SetReadTimeout
 	n, err := tk.conn.Read(rxHdr)
 	if err != nil {
 		return nil, FramingHdr{}, fmt.Errorf("Read: %w", err)
@@ -265,10 +281,11 @@ func (tk TillitisKey) ReadFrame(expectedResp Cmd, expectedID int) ([]byte, Frami
 	// Prepare a buffer with the header byte first, for returning
 	rx := make([]byte, 1+expectedResp.CmdLen().Bytelen())
 	rx[0] = rxHdr[0]
-	// Try to read the whole rest of the frame; ReadFull() overrides
-	// any timeout set using SetReadTimeout()
-	if _, err = io.ReadFull(tk.conn, rx[1:]); err != nil {
-		return nil, hdr, fmt.Errorf("ReadFull: %w", err)
+	// If err == nil then the returned read length is always >= the
+	// length of the passed buffer
+	_, err = readFull(tk.conn, rx[1:])
+	if err != nil {
+		return nil, hdr, fmt.Errorf("readFull: %w", err)
 	}
 
 	if rx[1] != expectedResp.Code() {
@@ -276,4 +293,28 @@ func (tk TillitisKey) ReadFrame(expectedResp Cmd, expectedID int) ([]byte, Frami
 	}
 
 	return rx, hdr, nil
+}
+
+// readFull reads until buf is full. It is based on io.ReadFull, but
+// cares about the fact that go-serial's Read implementation returns 0
+// bytes read and a nil error when its SetReadTimeout occurs. In this
+// case our own ErrReadTimeout is returned. See also:
+// https://github.com/bugst/go-serial/issues/148
+func readFull(conn serial.Port, buf []byte) (int, error) {
+	var readCount int
+	var err error
+	for readCount < len(buf) && err == nil {
+		var r int
+		r, err = conn.Read(buf[readCount:])
+		if r == 0 && err == nil {
+			return readCount, ErrReadTimeout
+		}
+		readCount += r
+	}
+	if readCount >= len(buf) {
+		err = nil
+	} else if readCount > 0 && errors.Is(err, io.EOF) {
+		err = io.ErrUnexpectedEOF
+	}
+	return readCount, err
 }

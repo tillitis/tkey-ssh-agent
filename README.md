@@ -5,20 +5,20 @@
 
 This repository contains device applications to run on the TKey USB
 security stick, as well as companion client apps (running on the host
-computer). For testing and development purposes the device apps can
-also be run in QEMU, this is also explained in detail below.
+computer). For testing and development purposes, the device apps can
+also be run in QEMU; this is also explained in detail below.
 
-Current list of device appsp:
+Current list of device apps:
 
-- The Ed25519 signer app. Used as root of trust and SSH authentication
-- The RNG stream app. Providing arbitrary high quality random numbers
+- The Ed25519 signer app. Used for root of trust and SSH authentication
+- The RNG stream app. Providing arbitrarily high quality random numbers
 - blink. A minimalistic example application
 - nx. Test program for our execution monitor.
 
-For more information about the apps, see subsections below.
+For more information about the apps, see the subsections below.
 
 The documentation for the Go module and packages (along with this
-README) can also be read over at
+README) can also be read at
 https://pkg.go.dev/github.com/tillitis/tillitis-key1-apps
 
 Note that development is ongoing. For example, changes might be made
@@ -56,7 +56,7 @@ with a similar `LICENSE` file in every directory containing imported
 sources.
 
 The project uses single-line references to Unique License Identifiers
-as defined by the Linux Foundation's [SPDX project](https://spdx.org/)
+- as defined by the Linux Foundation's [SPDX project](https://spdx.org/) -
 on its own source files, but not necessarily imported files. The line
 in each individual source file identifies the license applicable to
 that file.
@@ -79,14 +79,13 @@ this one. The device libraries are available in:
 
 https://github.com/tillitis/tkey-libs
 
-Clone them next this repo and build them first.
+Clone them to the directory above this repo and build them first.
 
 ### Building with Podman
 
-We provide an OCI image with all tools you can use to build the
-tkey-libs and the apps. If you have `make` and Podman installed you
-can us it like this in the `tkey-libs` directory and then this
-directory:
+We provide an OCI image with all the tools needed to build the
+tkey-libs and apps. If you have `make` and Podman installed, you
+can us it for `tkey-libs` directory this directory as shown below:
 
 ```
 make podman
@@ -103,10 +102,10 @@ should be enough to get you a working Podman setup.
 
 ### Building with host tools
 
-To build with native tools you need the `clang`, `llvm`, `lld`,
-`golang` packages installed. Version 15 or later of LLVM/Clang is
+To build with native tools, you need the `clang`, `llvm`, `lld`,
+and `golang` packages installed. Version 15 or later of LLVM/Clang is
 required (with riscv32 support and Zmmul extension). Ubuntu 22.10
-(Kinetic) is known to have this and work. Please see
+(Kinetic) is known to have this and works. Please see
 [toolchain_setup.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/toolchain_setup.md)
 (in the tillitis-key1 repository) for detailed information on the
 currently supported build and development environment.
@@ -125,41 +124,41 @@ Then go back to this directory and build everything:
 $ make
 ```
 
-If you cloned `tkey-libs` to somewhere else then the default set
-`LIBDIR` to the path of the directory.
+If you cloned `tkey-libs` to somewhere else then the default directory,
+set `LIBDIR` to the path of that directory.
 
-If your available `objcopy` is anything other than the default
-`llvm-objcopy`, then define `OBJCOPY` to whatever they're called on
+If the `objcopy` binary on your system is anything other than the default
+`llvm-objcopy`, define `OBJCOPY` to whatever they're called on
 your system.
 
 The device apps can be run both on the hardware TKey, and on a QEMU
 machine that emulates the platform. In both cases, the client apps
 (the program that runs on your computer, for example `tkey-ssh-agent`)
-will talk to the app over a serial port, virtual or real. There is a
-separate section below which explains running in QEMU.
+will talk to the app over a serial port. There is a
+separate section below which explains how to run it in QEMU.
 
 
 ## Running device apps
 
 Plug the USB stick into your computer. If the LED in one of the outer
-corners of the USB stick is a steady white, then it has been
+corners of the USB stick is a steady white, it has been
 programmed with the standard FPGA bitstream (including the firmware).
-If it is not then please refer to
+If it is not, then please refer to
 [quickstart.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/quickstart.md)
-(in the tillitis-key1 repository) for instructions on initial
-programming of the USB stick.
+(in the tillitis-key1 repository) for instructions on how to
+initialise the USB stick.
 
-### Users on Linux
+### Linux Users
 
 Running `lsusb` should list the USB stick as `1207:8887 Tillitis
 MTA1-USB-V1`. On Linux, the TKey's serial port device path is
-typically `/dev/ttyACM0` (but it may end with another digit, if you
+typically `/dev/ttyACM0` (but it may end with another digit if you
 have other devices plugged in). The client apps tries to auto-detect
-serial ports of TKey USB sticks, but if more than one is found you'll
-need to choose one using the `--port` flag.
+serial ports of TKey USB sticks but if more than one is found, you'll
+need to choose one explicitly using the `--port` flag.
 
-However, you should make sure that you can read and write to the
-serial port as your regular user.
+You should make sure that you have the necessary privileges to read and
+write to the serial port.
 
 One way to accomplish this is by installing the provided
 `system/60-tkey.rules` in `/etc/udev/rules.d/` and running `udevadm
@@ -167,8 +166,8 @@ control --reload`. Now when a TKey is plugged in, its device path
 (like `/dev/ttyACM0`) should be read/writable by you who are logged in
 locally (see `loginctl`).
 
-Another way is becoming a member of the group that owns the serial
-port. On Ubuntu that group is `dialout`, and you can do it like this:
+Another way is to become a member of the group that owns the serial
+port. On Ubuntu the group is `dialout` and you can do it like this:
 
 ```
 $ id -un
@@ -178,21 +177,20 @@ crw-rw---- 1 root dialout 166, 0 Sep 16 08:20 /dev/ttyACM0
 $ sudo usermod -a -G dialout exampleuser
 ```
 
-For the change to take effect everywhere you need to logout from your
-system, and then log back in again. Then logout from your system and
-log back in again. You can also (following the above example) run
-`newgrp dialout` in the terminal that you're working in.
+For the change to take effect everywhere, you need to logout from your
+system and then log back in again. You can also run (in addition to the
+example above) `newgrp dialout` in the terminal that you're working in.
 
-Your TKey is now running the firmware. Its LED is a steady white,
+Your TKey should now be running the firmware. Its LED should be a steady white,
 indicating that it is ready to receive an app to run.
 
-#### User on MacOS
+#### MacOS Users
 
-The client apps tries to auto-detect serial ports of TKey USB sticks,
-but if more than one is found you'll need to choose one using the
+The client apps tries to auto-detect serial ports of TKey USB sticks
+but if more than one is found, you'll need to choose one explicitly using the
 `--port` flag.
 
-To find the serial ports device path manually you can do `ls -l
+To find the serial ports device path manually, you can do `ls -l
 /dev/cu.*`. There should be a device named like `/dev/cu.usbmodemN`
 (where N is a number, for example 101). This is the device path that
 might need to be passed as `--port` when running the client app.
@@ -221,14 +219,13 @@ you can just run the script like:
 
 Among other advice, the script outputs the path which you need to pass
 to the client app so that it can communicate with the virtualised TKey
-inside the container. An example, run in a new terminal but in the
-same directory as the above:
+inside the container. An example:
 
     ./tkey-runapp --port ./tkey-qemu-pty apps/signer/app.bin
 
 #### Building and running QEMU manually
 
-Build our [qemu](https://github.com/tillitis/qemu). Use the `tk1`
+Build our [qemu](https://github.com/tillitis/qemu) fork. Use the `tk1`
 branch. Please follow the
 [toolchain_setup.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/toolchain_setup.md)
 and install the packages listed there first.
@@ -255,9 +252,9 @@ $ make firmware.elf
 
 Please refer to the mentioned
 [toolchain_setup.md](https://github.com/tillitis/tillitis-key1/blob/main/doc/toolchain_setup.md)
-if you have any issues building.
+if you have any issues building it.
 
-Then run the emulator, passing using the built firmware to "-bios":
+Then run the emulator, passing the firmware built to "-bios":
 
 ```
 $ /path/to/qemu/build/qemu-system-riscv32 -nographic -M tk1,fifo=chrid -bios firmware.elf \
@@ -265,7 +262,7 @@ $ /path/to/qemu/build/qemu-system-riscv32 -nographic -M tk1,fifo=chrid -bios fir
 ```
 
 It tells you what serial port it is using, for instance `/dev/pts/1`.
-This is what you need to use as `--port` when running the client apps.
+This is what you need to pass to `--port` when running the client apps.
 
 The TK1 machine running on QEMU (which in turn runs the firmware, and
 then the device app) can output some memory access (and other)
@@ -275,7 +272,7 @@ it send these to stderr.
 
 ## The ed25519 signer app
 
-This is a message signer, for root of trust and SSH authentication
+This is a message signer for root of trust and SSH authentication
 using ed25519. There are two client apps which can communicate with
 the app. `tkey-sign` just performs a complete test signing.
 `tkey-ssh-agent` is an SSH agent that allow using the signer for SSH
@@ -287,9 +284,9 @@ If you're running on hardware, the LED on the USB stick is expected to
 be a steady white, indicating that firmware is ready to receive a
 device app to run.
 
-There's a script called `runsign.sh` which runs `tkey-runapp` to load
+There's a script called `runsign.sh`, which runs `tkey-runapp` to load
 the signer app onto TKey and start it. The script then runs
-`tkey-sign` which communicates with the signer app to make it sign a
+`tkey-sign`, which communicates with the signer app to make it sign a
 message and then verifies the signature. You can use it like this:
 
 ```
@@ -301,10 +298,10 @@ flags needs to be used, you can pass it after the message argument.
 
 The client app `tkey-runapp` only loads and starts a device app.
 You'll then have to switch to a different client app that speaks your
-app's specific protocol. For instance the `tkey-sign` program provided
+app's specific protocol. For instance, the `tkey-sign` program provided
 here.
 
-To run `tkey-runapp` you need to pass it the raw app binary that
+To run `tkey-runapp`, you need to pass it the raw app binary that
 should be run (and possibly `--port`, if the auto-detection is not
 sufficient).
 
@@ -314,17 +311,17 @@ $ ./tkey-runapp apps/signer/app.bin
 While the app is being loaded, the LED on the USB stick (in one of the
 outer corners) will be turned off. `tkey-runapp` also supports sending
 a User Supplied Secret (USS) to the firmware when loading the app. By
-adding the flag `--uss`, you will be asked to type a phrase which will
+adding the`--uss` flag, you will be asked to type a phrase which will
 be hashed to become the USS digest (the final newline is removed from
 the phrase before hashing).
 
 Alternatively, you may use `--uss-file=filename` to make it read the
 contents of a file, which is then hashed as the USS. The filename can
-be `-` for reading from stdin. Note that all data in file/stdin is
-read and hashed without any modification.
+be set to `-` to read from the stdin instead. Note that all data from
+the file/stdin is read and hashed without any modification.
 
 The firmware uses the USS digest, together with a hash digest of the
-raw device app binary, and the Unique Device Secret (UDS, unique per
+raw device app binary and the Unique Device Secret (UDS, unique per
 physical device) to derive secrets for use by the application.
 
 The practical result for users of the signer app is that the ed25519
@@ -341,7 +338,7 @@ signer app and can be used like this (again, `--port` is optional):
 ./tkey-sign file-with-message
 ```
 
-If you're using real hardware, the LED on the USB stick is a steady
+If you're using real hardware, the LED on the USB stick becomes a steady
 green while the app is receiving data to sign. The LED then flashes
 green, indicating that you're required to physically touch the USB
 stick for the signing to complete. The touch sensor is located next to
@@ -351,13 +348,13 @@ virtual device is always touched automatically.
 The program should eventually output a signature and say that it was
 verified.
 
-When all is done, the LED on the hardware USB stick will be steady
+When all is done, the LED on the hardware USB stick will become a steady
 blue, indicating that it is ready to make (another) signature.
 
-Note that to load a new device app, the USB stick needs to be
+Note that, to load a new device app, the USB stick needs to be
 unplugged and plugged in again. Similarly, QEMU would need to be
-restarted (`Ctrl-a x` to quit). If you're using the setup with the USB
-stick sitting in the programming jig and at the same time plugged into
+restarted (`Ctrl-a x` to quit). If you're using a setup with the USB
+stick sitting in a programming jig and at the same time plugged into
 the computer, then you need to unplug both the USB stick and the
 programmer. Or alternatively run the `reset-tk1` script (in the
 tillitis-key1 repo).
@@ -367,7 +364,7 @@ That was fun, now let's try the SSH agent!
 ### Using tkey-ssh-agent
 
 This client app is a complete, alternative SSH agent with practical
-use. The needed signer device app binary gets built into the
+use. The required signer device app binary gets built into the
 tkey-ssh-agent, which will load it onto USB stick when started. Like
 the other client apps, tkey-ssh-agent tries to auto-detect serial
 ports of TKey USB sticks. If more than one is found, or if you're
@@ -383,11 +380,11 @@ socket `./agent.sock`.
 
 It will also output the SSH ed25519 public key for this instance of
 the app on this specific TKey USB stick. So again; if the signer app
-binary, the USS, or the UDS in the physical USB stick change, then the
-private key will also change -- and thus the derived public key, your
+binary, the USS, or the UDS in the physical USB stick change, the
+private key will also change -- and thus the derived public key: your
 public identity in the world of SSH.
 
-If you copy-paste the public key into your `~/.ssh/authorized_keys`
+If you copy-paste the public key into your `~/.ssh/authorized_keys`,
 you can try to log onto your local computer (if sshd is running
 there). The socket path set/output above is also needed by SSH in
 `SSH_AUTH_SOCK`:
@@ -396,7 +393,7 @@ there). The socket path set/output above is also needed by SSH in
 $ SSH_AUTH_SOCK=/path/to/agent.sock ssh -F /dev/null localhost
 ```
 
-`-F /dev/null` is used to ignore your ~/.ssh/config which could
+`-F /dev/null` is used to ignore your `~/.ssh/config`, which could
 interfere with this test.
 
 The tkey-ssh-agent also supports the `--uss` and `--uss-file` flags,
@@ -409,10 +406,10 @@ messages are still present on stderr.
 #### Installing tkey-ssh-agent
 
 The [`Makefile`](Makefile) has an `install` target that installs
-tkey-ssh-agent and the above mentioned `60-tkey.rules`. First `make`
-then `sudo make install`, then `sudo make reload-rules` to apply the
+tkey-ssh-agent and the above mentioned `60-tkey.rules`. Run `make`,
+`sudo make install`, and then `sudo make reload-rules` to apply the
 rules to the running system. This also installs a man page which
-contains some useful information, try `man ./system/tkey-ssh-agent.1`
+contains some useful information; try `man ./system/tkey-ssh-agent.1`
 to read it before installing.
 
 There is also a Work In Progress Debian/Ubuntu package which can be
@@ -423,35 +420,35 @@ build using the script `debian/build-pkg.sh`.
 tkey-ssh-agent can be built for and run on Windows. The Makefile has a
 `windows` target that produces `tkey-ssh-agent.exe` and
 `tkey-ssh-agent-tray.exe`. The former is a regular command-line
-program that can be used for example in PowerShell. The latter is a
+program that can be used, for example, in PowerShell. The latter is a
 small program (built for the `windowsgui` subsystem; no console) that
 sets up a tray icon and launches `tkey-ssh-agent.exe` (which it
-expects to find next to itself) with the same arguments that it was
-itself passed. For automatically starting the SSH agent when logging
+expects to find in the same directory as itself) with the arguments
+provided. For automatically starting the SSH agent when logging
 onto the computer, a shortcut to `tkey-ssh-agent-tray.exe`, with the
 required arguments, can be added in your user's `Startup` folder.
 
 When using the `--uss` option (as described for `tkey-runapp` above),
-the Windows build by default uses the pinentry program from Gpg4win
+the Windows build defaults to the pinentry program from Gpg4win
 for requesting the User-Supplied Secret. This package can be installed
 using: `winget install GnuPG.Gpg4win`.
 
 The SSH Agent supports being used by the native OpenSSH client
 `ssh.exe` (part of Windows Optional Features and installable using
-`winget`). The environment variable `SSH_AUTH_SOCK` should be set to
+`winget`). The `SSH_AUTH_SOCK` environment variable should be set to
 the complete path of the Named Pipe that tkey-ssh-agent listens on.
 
 For example, if it is started using `./tkey-ssh-agent.exe -a
-tkey-ssh-agent` the environment variable could be set for the current
+tkey-ssh-agent`, the environment variable could be set for the current
 PowerShell like this:
 
 ```powershell
 $env:SSH_AUTH_SOCK = '\\.\pipe\tkey-ssh-agent'
 ```
 
-Setting this environment variable persistently, for future PowerShell
-terminals, Visual Studio Code, and other programs can be done through
-the System Control Panel. Or using PowerShell:
+The System Control Panel can be used to set the environment variable
+persistently for future PowerShell terminals, Visual Studio Code, and
+other programs. Or using PowerShell:
 
 ```powershell
 [Environment]::SetEnvironmentVariable('SSH_AUTH_SOCK', '\\.\pipe\tkey-ssh-agent', 'User')
@@ -481,40 +478,40 @@ For details on how we package and build an MSI installer, see
 
 The signer app normally requires the USB stick to be physically
 touched for signing to complete. For special purposes it can be
-compiled with this requirement removed, by setting the environment
-variable `TKEY_SIGNER_APP_NO_TOUCH` to some value when building.
+compiled with this requirement removed by setting the environment
+variable `TKEY_SIGNER_APP_NO_TOUCH` when building.
 Example: `make TKEY_SIGNER_APP_NO_TOUCH=yesplease`.
 
-The client apps will also stop displaying this requirement. Of course
-this changes the signer app binary and as a consequence the derived
+The client apps will also stop displaying this requirement. Of course,
+this changes the signer app binary and as a consequence, the derived
 private key and identity will change.
 
 ## The RNG stream app
 
 This app generates a continuous stream of high quality random numbers
-that can be read from the TKey's serial port device. In Linux for
-example like: `dd bs=1 count=1024 if=/dev/ttyACM0 of=rngdata` (or just
+that can be read from the TKey's serial port device. An example
+use-case in Linux: `dd bs=1 count=1024 if=/dev/ttyACM0 of=rngdata` (or just
 a plain `cat`).
 
 The app can be loaded and started using the `tkey-runapp` as described
 above.
 
 The RNG is a Hash_DRBG implementation using the BLAKE2s hash function
-as primitive. The generator will extract at most 128 bits from each
-hash operation, using 128 bits as exclusive evolving state. The RNG
+as a primitive. The generator will extract at most 128 bits from each
+hash operation, using 128 bits as an exclusive, evolving state. The RNG
 will be reseeded after 1000 hash operations. Reseeding is done by
 extracting 256 entropy bits from the TK1 TRNG core. Note that the
 reseed rate can be changed during compile time by adjusting the
-RESEED_TIME define in main.c.
+`RESEED_TIME` defined in main.c.
 
 
 ## Example blink app in assembler
 
 In `blink/` there is also a very, very simple app written in
-assembler, `blink.bin` (blink.S) that blinks the LED.
+assembly, `blink.bin` (blink.S) that blinks the LED.
 
 
-##  Example Touch app
+## Example Touch app
 
 In `touch/` resides an example app of how to use the built in touch
 feature of the TKey. The application simply waits for a touch from
@@ -539,8 +536,8 @@ your C apps with.
 ### Memory
 
 RAM starts at 0x4000\_0000 and ends at 0x4002\_0000 (128 KB). The app
-will be loaded by firmware at RAM start. The stack for the app is
-setup to start just below RAM end (see
+will be loaded by firmware at the top of RAM. The stack for the app is
+setup to start at the bottom of RAM (see
 [apps/libcrt0/crt0.S](apps/libcrt0/crt0.S)). A larger app comes at a
 compromise of it having a smaller stack.
 
@@ -555,7 +552,7 @@ available at base 0xc000\_0000 and an offset. See
 
 ### Debugging
 
-If you're running the device app on our qemu emulator we have added a
+If you're running the device app on our qemu emulator, we have added a
 debug port on 0xfe00\_1000 (`TK1_MMIO_QEMU_DEBUG`). Anything written
 there will be printed as a character by qemu on the console.
 

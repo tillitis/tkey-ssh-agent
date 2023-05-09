@@ -71,7 +71,7 @@ All contributors must adhere to the [Developer Certificate of Origin](dco.md).
 ## Building device apps
 
 You have two options, either our OCI image
-`ghcr.io/tillitis/tkey-builder` for use with a rootless podman setup,
+`ghcr.io/tillitis/tkey-builder` for use with a rootless Podman setup,
 or native tools.
 
 In either case you need the device libraries in a directory next to
@@ -92,7 +92,7 @@ make podman
 ```
 
 and everything should be built. This assumes a working rootless
-podman. On Ubuntu 22.10, running
+Podman. On Ubuntu 22.10, running
 
 ```
 apt install podman rootlesskit slirp4netns
@@ -124,7 +124,7 @@ Then go back to this directory and build everything:
 $ make
 ```
 
-If you cloned `tkey-libs` to somewhere else then the default directory,
+If you cloned `tkey-libs` to somewhere else than the default directory,
 set `LIBDIR` to the path of that directory.
 
 If the `objcopy` binary on your system is anything other than the default

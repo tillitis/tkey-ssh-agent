@@ -1,5 +1,3 @@
-RM=/bin/rm
-
 .PHONY: all
 all: apps tkey-runapp tkey-sign runsign.sh tkey-ssh-agent runtimer runrandom
 
@@ -88,7 +86,7 @@ tkey-ssh-agent-tray.exe:
 
 .PHONY: clean
 clean:
-	$(RM) -f tkey-runapp tkey-sign runsign.sh \
+	rm -f tkey-runapp tkey-sign runsign.sh \
 	tkey-ssh-agent cmd/tkey-ssh-agent/app.bin \
 	tkey-ssh-agent.exe cmd/tkey-ssh-agent/rsrc_windows_amd64.syso \
 	tkey-ssh-agent-tray.exe cmd/tkey-ssh-agent-tray/rsrc_windows_amd64.syso \

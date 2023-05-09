@@ -24,9 +24,6 @@ ASFLAGS = -target riscv32-unknown-none-elf -march=rv32iczmmul -mabi=ilp32 -mcmod
 
 LDFLAGS=-T $(LIBDIR)/app.lds -L $(LIBDIR)/libcommon/ -lcommon -L $(LIBDIR)/libcrt0/ -lcrt0
 
-RM=/bin/rm
-
-
 .PHONY: all
 all: signer/app.bin timer/app.bin random/app.bin rng_stream/app.bin blink/app.bin nx/app.bin touch/app.bin
 
@@ -81,13 +78,13 @@ $(TOUCHOBJS): $(INCLUDE)/tk1_mem.h
 
 .PHONY: clean
 clean:
-	$(RM) -f signer/app.bin signer/app.elf $(SIGNEROBJS)
-	$(RM) -f timer/app.bin timer/app.elf $(TIMEROBJS)
-	$(RM) -f random/app.bin random/app.elf $(RANDOMOBJS)
-	$(RM) -f rng_stream/app.bin rng_stream/app.elf $(RNG_STREAM_OBJS)
-	$(RM) -f blink/app.bin blink/app.elf blink/blink.o
-	$(RM) -f nx/app.bin nx/app.elf nx/main.o
-	$(RM) -f touch/app.bin touch/app.elf touch/main.o
+	rm -f signer/app.bin signer/app.elf $(SIGNEROBJS)
+	rm -f timer/app.bin timer/app.elf $(TIMEROBJS)
+	rm -f random/app.bin random/app.elf $(RANDOMOBJS)
+	rm -f rng_stream/app.bin rng_stream/app.elf $(RNG_STREAM_OBJS)
+	rm -f blink/app.bin blink/app.elf blink/blink.o
+	rm -f nx/app.bin nx/app.elf nx/main.o
+	rm -f touch/app.bin touch/app.elf touch/main.o
 
 # Uses ../.clang-format
 FMTFILES=signer/*.[ch] timer/*.[ch] random/*.[ch] rng_stream/*.[ch] nx/main.c touch/*.[ch]

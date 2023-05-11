@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/tillitis/tillitis-key1-apps/internal/util"
 	"github.com/tillitis/tkeyclient"
-	"github.com/tillitis/tillitis-key1-apps/tk1sign"
+	"github.com/tillitis/tkeysign"
 )
 
 // Use when printing err/diag msgs
@@ -100,7 +100,7 @@ public key of the signer app on the TKey.`, os.Args[0])
 		os.Exit(1)
 	}
 
-	signer := tk1sign.New(tk)
+	signer := tkeysign.New(tk)
 	exit := func(code int) {
 		if err := signer.Close(); err != nil {
 			le.Printf("%v\n", err)
@@ -126,8 +126,8 @@ public key of the signer app on the TKey.`, os.Args[0])
 		os.Exit(1)
 	}
 
-	if len(message) > tk1sign.MaxSignSize {
-		le.Printf("Message too long, max is %d bytes\n", tk1sign.MaxSignSize)
+	if len(message) > tkeysign.MaxSignSize {
+		le.Printf("Message too long, max is %d bytes\n", tkeysign.MaxSignSize)
 		exit(1)
 	}
 

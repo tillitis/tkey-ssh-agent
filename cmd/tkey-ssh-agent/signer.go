@@ -18,7 +18,7 @@ import (
 
 	"github.com/tillitis/tillitis-key1-apps/internal/util"
 	"github.com/tillitis/tkeyclient"
-	"github.com/tillitis/tillitis-key1-apps/tk1sign"
+	"github.com/tillitis/tkeysign"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -43,7 +43,7 @@ const (
 
 type Signer struct {
 	tk              *tkeyclient.TillitisKey
-	tkSigner        *tk1sign.Signer
+	tkSigner        *tkeysign.Signer
 	devPath         string
 	speed           int
 	enterUSS        bool
@@ -61,7 +61,7 @@ func NewSigner(devPathArg string, speedArg int, enterUSS bool, fileUSS string, p
 
 	tk := tkeyclient.New()
 
-	tkSigner := tk1sign.New(tk)
+	tkSigner := tkeysign.New(tk)
 	signer = Signer{
 		tk:       tk,
 		tkSigner: &tkSigner,

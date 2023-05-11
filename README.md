@@ -8,7 +8,7 @@ security stick, as well as companion client apps (running on the host
 computer). For testing and development purposes the device apps can
 also be run in QEMU, this is also explained in detail below.
 
-Current list of device appsp:
+Current list of device apps:
 
 - The Ed25519 signer app. Used as root of trust and SSH authentication
 - The RNG stream app. Providing arbitrary high quality random numbers
@@ -17,9 +17,11 @@ Current list of device appsp:
 
 For more information about the apps, see subsections below.
 
-The documentation for the Go module and packages (along with this
-README) can also be read over at
-https://pkg.go.dev/github.com/tillitis/tillitis-key1-apps
+Go packages used with the client apps reside in their own
+repositories:
+
+- https://github.com/tillitis/tkeyclient [Go doc](https://pkg.go.dev/github.com/tillitis/tkeyclient)
+- https://github.com/tillitis/tkeysign [Go doc](https://pkg.go.dev/github.com/tillitis/tkeysign)
 
 Note that development is ongoing. For example, changes might be made
 to the signer app, causing the public/private keys it provides to

@@ -17,7 +17,7 @@ import (
 	"time"
 
 	"github.com/tillitis/tillitis-key1-apps/internal/util"
-	"github.com/tillitis/tillitis-key1-apps/tk1"
+	"github.com/tillitis/tkeyclient"
 	"github.com/tillitis/tillitis-key1-apps/tk1sign"
 	"golang.org/x/crypto/ssh"
 )
@@ -42,7 +42,7 @@ const (
 )
 
 type Signer struct {
-	tk              *tk1.TillitisKey
+	tk              *tkeyclient.TillitisKey
 	tkSigner        *tk1sign.Signer
 	devPath         string
 	speed           int
@@ -57,9 +57,9 @@ type Signer struct {
 func NewSigner(devPathArg string, speedArg int, enterUSS bool, fileUSS string, pinentry string, exitFunc func(int)) *Signer {
 	var signer Signer
 
-	tk1.SilenceLogging()
+	tkeyclient.SilenceLogging()
 
-	tk := tk1.New()
+	tk := tkeyclient.New()
 
 	tkSigner := tk1sign.New(tk)
 	signer = Signer{
@@ -117,7 +117,7 @@ func (s *Signer) connect() bool {
 	}
 
 	le.Printf("Connecting to TKey on serial port %s\n", devPath)
-	if err := s.tk.Connect(devPath, tk1.WithSpeed(s.speed)); err != nil {
+	if err := s.tk.Connect(devPath, tkeyclient.WithSpeed(s.speed)); err != nil {
 		notify(fmt.Sprintf("Could not connect to a TKey on port %v.", devPath))
 		le.Printf("Failed to connect: %v", err)
 		return false

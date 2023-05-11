@@ -14,7 +14,7 @@ import (
 
 	"github.com/spf13/pflag"
 	"github.com/tillitis/tillitis-key1-apps/internal/util"
-	"github.com/tillitis/tillitis-key1-apps/tk1"
+	"github.com/tillitis/tkeyclient"
 	"github.com/tillitis/tillitis-key1-apps/tk1sign"
 )
 
@@ -35,7 +35,7 @@ func main() {
 		"Don't sign anything, only output the public key.")
 	pflag.StringVar(&devPath, "port", "",
 		"Set serial port device `PATH`. If this is not passed, auto-detection will be attempted.")
-	pflag.IntVar(&speed, "speed", tk1.SerialSpeed,
+	pflag.IntVar(&speed, "speed", tkeyclient.SerialSpeed,
 		"Set serial port speed in `BPS` (bits per second).")
 	pflag.BoolVar(&verbose, "verbose", false, "Enable verbose output.")
 	pflag.BoolVar(&helpOnly, "help", false, "Output this help.")
@@ -82,7 +82,7 @@ public key of the signer app on the TKey.`, os.Args[0])
 	}
 
 	if !verbose {
-		tk1.SilenceLogging()
+		tkeyclient.SilenceLogging()
 	}
 
 	if devPath == "" {
@@ -93,9 +93,9 @@ public key of the signer app on the TKey.`, os.Args[0])
 		}
 	}
 
-	tk := tk1.New()
+	tk := tkeyclient.New()
 	le.Printf("Connecting to TKey on serial port %s ...\n", devPath)
-	if err := tk.Connect(devPath, tk1.WithSpeed(speed)); err != nil {
+	if err := tk.Connect(devPath, tkeyclient.WithSpeed(speed)); err != nil {
 		le.Printf("Could not open %s: %v\n", devPath, err)
 		os.Exit(1)
 	}

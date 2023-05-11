@@ -5,7 +5,7 @@
 // running on the TKey. You're expected to pass an existing connection
 // to it, so use it like this:
 //
-//	tk := tk1.New()
+//	tk := tkeyclient.New()
 //	err := tk.Connect(port)
 //	signer := tk1sign.New(tk)
 //
@@ -21,20 +21,20 @@ package tk1sign
 import (
 	"fmt"
 
-	"github.com/tillitis/tillitis-key1-apps/tk1"
+	"github.com/tillitis/tkeyclient"
 )
 
 var (
-	cmdGetPubkey      = appCmd{0x01, "cmdGetPubkey", tk1.CmdLen1}
-	rspGetPubkey      = appCmd{0x02, "rspGetPubkey", tk1.CmdLen128}
-	cmdSetSize        = appCmd{0x03, "cmdSetSize", tk1.CmdLen32}
-	rspSetSize        = appCmd{0x04, "rspSetSize", tk1.CmdLen4}
-	cmdSignData       = appCmd{0x05, "cmdSignData", tk1.CmdLen128}
-	rspSignData       = appCmd{0x06, "rspSignData", tk1.CmdLen4}
-	cmdGetSig         = appCmd{0x07, "cmdGetSig", tk1.CmdLen1}
-	rspGetSig         = appCmd{0x08, "rspGetSig", tk1.CmdLen128}
-	cmdGetNameVersion = appCmd{0x09, "cmdGetNameVersion", tk1.CmdLen1}
-	rspGetNameVersion = appCmd{0x0a, "rspGetNameVersion", tk1.CmdLen32}
+	cmdGetPubkey      = appCmd{0x01, "cmdGetPubkey", tkeyclient.CmdLen1}
+	rspGetPubkey      = appCmd{0x02, "rspGetPubkey", tkeyclient.CmdLen128}
+	cmdSetSize        = appCmd{0x03, "cmdSetSize", tkeyclient.CmdLen32}
+	rspSetSize        = appCmd{0x04, "rspSetSize", tkeyclient.CmdLen4}
+	cmdSignData       = appCmd{0x05, "cmdSignData", tkeyclient.CmdLen128}
+	rspSignData       = appCmd{0x06, "rspSignData", tkeyclient.CmdLen4}
+	cmdGetSig         = appCmd{0x07, "cmdGetSig", tkeyclient.CmdLen1}
+	rspGetSig         = appCmd{0x08, "rspGetSig", tkeyclient.CmdLen128}
+	cmdGetNameVersion = appCmd{0x09, "cmdGetNameVersion", tkeyclient.CmdLen1}
+	rspGetNameVersion = appCmd{0x0a, "rspGetNameVersion", tkeyclient.CmdLen32}
 )
 
 const MaxSignSize = 4096
@@ -42,19 +42,19 @@ const MaxSignSize = 4096
 type appCmd struct {
 	code   byte
 	name   string
-	cmdLen tk1.CmdLen
+	cmdLen tkeyclient.CmdLen
 }
 
 func (c appCmd) Code() byte {
 	return c.code
 }
 
-func (c appCmd) CmdLen() tk1.CmdLen {
+func (c appCmd) CmdLen() tkeyclient.CmdLen {
 	return c.cmdLen
 }
 
-func (c appCmd) Endpoint() tk1.Endpoint {
-	return tk1.DestApp
+func (c appCmd) Endpoint() tkeyclient.Endpoint {
+	return tkeyclient.DestApp
 }
 
 func (c appCmd) String() string {
@@ -62,17 +62,17 @@ func (c appCmd) String() string {
 }
 
 type Signer struct {
-	tk *tk1.TillitisKey // A connection to a TKey
+	tk *tkeyclient.TillitisKey // A connection to a TKey
 }
 
 // New allocates a struct for communicating with the ed25519 signer
 // app running on the TKey. You're expected to pass an existing
 // connection to it, so use it like this:
 //
-//	tk := tk1.New()
+//	tk := tkeyclient.New()
 //	err := tk.Connect(port)
 //	signer := tk1sign.New(tk)
-func New(tk *tk1.TillitisKey) Signer {
+func New(tk *tkeyclient.TillitisKey) Signer {
 	var signer Signer
 
 	signer.tk = tk
@@ -90,14 +90,14 @@ func (s Signer) Close() error {
 
 // GetAppNameVersion gets the name and version of the running app in
 // the same style as the stick itself.
-func (s Signer) GetAppNameVersion() (*tk1.NameVersion, error) {
+func (s Signer) GetAppNameVersion() (*tkeyclient.NameVersion, error) {
 	id := 2
-	tx, err := tk1.NewFrameBuf(cmdGetNameVersion, id)
+	tx, err := tkeyclient.NewFrameBuf(cmdGetNameVersion, id)
 	if err != nil {
 		return nil, fmt.Errorf("NewFrameBuf: %w", err)
 	}
 
-	tk1.Dump("GetAppNameVersion tx", tx)
+	tkeyclient.Dump("GetAppNameVersion tx", tx)
 	if err = s.tk.Write(tx); err != nil {
 		return nil, fmt.Errorf("Write: %w", err)
 	}
@@ -117,7 +117,7 @@ func (s Signer) GetAppNameVersion() (*tk1.NameVersion, error) {
 		return nil, fmt.Errorf("SetReadTimeout: %w", err)
 	}
 
-	nameVer := &tk1.NameVersion{}
+	nameVer := &tkeyclient.NameVersion{}
 	nameVer.Unpack(rx[2:])
 
 	return nameVer, nil
@@ -126,18 +126,18 @@ func (s Signer) GetAppNameVersion() (*tk1.NameVersion, error) {
 // GetPubkey fetches the public key of the signer.
 func (s Signer) GetPubkey() ([]byte, error) {
 	id := 2
-	tx, err := tk1.NewFrameBuf(cmdGetPubkey, id)
+	tx, err := tkeyclient.NewFrameBuf(cmdGetPubkey, id)
 	if err != nil {
 		return nil, fmt.Errorf("NewFrameBuf: %w", err)
 	}
 
-	tk1.Dump("GetPubkey tx", tx)
+	tkeyclient.Dump("GetPubkey tx", tx)
 	if err = s.tk.Write(tx); err != nil {
 		return nil, fmt.Errorf("Write: %w", err)
 	}
 
 	rx, _, err := s.tk.ReadFrame(rspGetPubkey, id)
-	tk1.Dump("GetPubKey rx", rx)
+	tkeyclient.Dump("GetPubKey rx", rx)
 	if err != nil {
 		return nil, fmt.Errorf("ReadFrame: %w", err)
 	}
@@ -175,7 +175,7 @@ func (s Signer) Sign(data []byte) ([]byte, error) {
 // SetSize sets the size of the data to sign.
 func (s Signer) setSize(size int) error {
 	id := 2
-	tx, err := tk1.NewFrameBuf(cmdSetSize, id)
+	tx, err := tkeyclient.NewFrameBuf(cmdSetSize, id)
 	if err != nil {
 		return fmt.Errorf("NewFrameBuf: %w", err)
 	}
@@ -185,18 +185,18 @@ func (s Signer) setSize(size int) error {
 	tx[3] = byte(size >> 8)
 	tx[4] = byte(size >> 16)
 	tx[5] = byte(size >> 24)
-	tk1.Dump("SetAppSize tx", tx)
+	tkeyclient.Dump("SetAppSize tx", tx)
 	if err = s.tk.Write(tx); err != nil {
 		return fmt.Errorf("Write: %w", err)
 	}
 
 	rx, _, err := s.tk.ReadFrame(rspSetSize, id)
-	tk1.Dump("SetAppSize rx", rx)
+	tkeyclient.Dump("SetAppSize rx", rx)
 	if err != nil {
 		return fmt.Errorf("ReadFrame: %w", err)
 	}
 
-	if rx[2] != tk1.StatusOK {
+	if rx[2] != tkeyclient.StatusOK {
 		return fmt.Errorf("SetSignSize NOK")
 	}
 
@@ -207,7 +207,7 @@ func (s Signer) setSize(size int) error {
 // response from the signer.
 func (s Signer) signLoad(content []byte) (int, error) {
 	id := 2
-	tx, err := tk1.NewFrameBuf(cmdSignData, id)
+	tx, err := tkeyclient.NewFrameBuf(cmdSignData, id)
 	if err != nil {
 		return 0, fmt.Errorf("NewFrameBuf: %w", err)
 	}
@@ -223,7 +223,7 @@ func (s Signer) signLoad(content []byte) (int, error) {
 
 	copy(tx[2:], payload)
 
-	tk1.Dump("LoadSignData tx", tx)
+	tkeyclient.Dump("LoadSignData tx", tx)
 	if err = s.tk.Write(tx); err != nil {
 		return 0, fmt.Errorf("Write: %w", err)
 	}
@@ -234,7 +234,7 @@ func (s Signer) signLoad(content []byte) (int, error) {
 		return 0, fmt.Errorf("ReadFrame: %w", err)
 	}
 
-	if rx[2] != tk1.StatusOK {
+	if rx[2] != tkeyclient.StatusOK {
 		return 0, fmt.Errorf("SignData NOK")
 	}
 
@@ -245,12 +245,12 @@ func (s Signer) signLoad(content []byte) (int, error) {
 // available.
 func (s Signer) getSig() ([]byte, error) {
 	id := 2
-	tx, err := tk1.NewFrameBuf(cmdGetSig, id)
+	tx, err := tkeyclient.NewFrameBuf(cmdGetSig, id)
 	if err != nil {
 		return nil, fmt.Errorf("NewFrameBuf: %w", err)
 	}
 
-	tk1.Dump("getSig tx", tx)
+	tkeyclient.Dump("getSig tx", tx)
 	if err = s.tk.Write(tx); err != nil {
 		return nil, fmt.Errorf("Write: %w", err)
 	}
@@ -260,7 +260,7 @@ func (s Signer) getSig() ([]byte, error) {
 		return nil, fmt.Errorf("ReadFrame: %w", err)
 	}
 
-	if rx[2] != tk1.StatusOK {
+	if rx[2] != tkeyclient.StatusOK {
 		return nil, fmt.Errorf("getSig NOK")
 	}
 

@@ -15,7 +15,7 @@ import (
 
 	"github.com/spf13/pflag"
 	"github.com/tillitis/tillitis-key1-apps/internal/util"
-	"github.com/tillitis/tillitis-key1-apps/tk1"
+	"github.com/tillitis/tkeyclient"
 )
 
 // nolint:typecheck // Avoid lint error when the embedding file is missing.
@@ -40,7 +40,7 @@ func main() {
 	pflag.CommandLine.SortFlags = false
 	pflag.StringVar(&devPath, "port", "",
 		"Set serial port device `PATH`. If this is not passed, auto-detection will be attempted.")
-	pflag.IntVar(&speed, "speed", tk1.SerialSpeed,
+	pflag.IntVar(&speed, "speed", tkeyclient.SerialSpeed,
 		"Set serial port speed in `BPS` (bits per second).")
 	pflag.IntVarP(&bytes, "bytes", "b", 0,
 		"Fetch `COUNT` number of random bytes.")
@@ -76,11 +76,11 @@ Usage:
 		}
 	}
 
-	tk1.SilenceLogging()
+	tkeyclient.SilenceLogging()
 
-	tk := tk1.New()
+	tk := tkeyclient.New()
 	le.Printf("Connecting to device on serial port %s...\n", devPath)
-	if err := tk.Connect(devPath, tk1.WithSpeed(speed)); err != nil {
+	if err := tk.Connect(devPath, tkeyclient.WithSpeed(speed)); err != nil {
 		le.Printf("Could not open %s: %v\n", devPath, err)
 		os.Exit(1)
 	}
@@ -144,10 +144,10 @@ func handleSignals(action func(), sig ...os.Signal) {
 	}()
 }
 
-func isFirmwareMode(tk *tk1.TillitisKey) bool {
+func isFirmwareMode(tk *tkeyclient.TillitisKey) bool {
 	nameVer, err := tk.GetNameVersion()
 	if err != nil {
-		if !errors.Is(err, io.EOF) && !errors.Is(err, tk1.ErrResponseStatusNotOK) {
+		if !errors.Is(err, io.EOF) && !errors.Is(err, tkeyclient.ErrResponseStatusNotOK) {
 			le.Printf("GetNameVersion failed: %s\n", err)
 		}
 		return false

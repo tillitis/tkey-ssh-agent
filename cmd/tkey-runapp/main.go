@@ -14,7 +14,7 @@ import (
 
 	"github.com/spf13/pflag"
 	"github.com/tillitis/tillitis-key1-apps/internal/util"
-	"github.com/tillitis/tillitis-key1-apps/tk1"
+	"github.com/tillitis/tkeyclient"
 )
 
 // Use when printing err/diag msgs
@@ -28,7 +28,7 @@ func main() {
 	pflag.CommandLine.SortFlags = false
 	pflag.StringVar(&devPath, "port", "",
 		"Set serial port device `PATH`. If this is not passed, auto-detection will be attempted.")
-	pflag.IntVar(&speed, "speed", tk1.SerialSpeed,
+	pflag.IntVar(&speed, "speed", tkeyclient.SerialSpeed,
 		"Set serial port speed in `BPS` (bits per second).")
 	pflag.BoolVar(&enterUSS, "uss", false,
 		"Enable typing of a phrase to be hashed as the User Supplied Secret. The USS is loaded onto the TKey along with the app itself and used by the firmware, together with other material, for deriving secrets for the application.")
@@ -71,7 +71,7 @@ running some app.`, os.Args[0])
 	}
 
 	if !verbose {
-		tk1.SilenceLogging()
+		tkeyclient.SilenceLogging()
 	}
 
 	if enterUSS && fileUSS != "" {
@@ -97,9 +97,9 @@ running some app.`, os.Args[0])
 		}
 	}
 
-	tk := tk1.New()
+	tk := tkeyclient.New()
 	le.Printf("Connecting to device on serial port %s ...\n", devPath)
-	if err = tk.Connect(devPath, tk1.WithSpeed(speed)); err != nil {
+	if err = tk.Connect(devPath, tkeyclient.WithSpeed(speed)); err != nil {
 		le.Printf("Could not open %s: %v\n", devPath, err)
 		os.Exit(1)
 	}

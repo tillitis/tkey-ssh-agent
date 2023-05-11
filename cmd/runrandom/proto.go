@@ -6,14 +6,14 @@ package main
 import (
 	"fmt"
 
-	"github.com/tillitis/tillitis-key1-apps/tk1"
+	"github.com/tillitis/tkeyclient"
 )
 
 var (
-	cmdGetNameVersion = appCmd{0x01, "cmdGetNameVersion", tk1.CmdLen1}
-	rspGetNameVersion = appCmd{0x02, "rspGetNameVersion", tk1.CmdLen32}
-	cmdGetRandom      = appCmd{0x03, "cmdGetRandom", tk1.CmdLen4}
-	rspGetRandom      = appCmd{0x04, "rspGetRandom", tk1.CmdLen128}
+	cmdGetNameVersion = appCmd{0x01, "cmdGetNameVersion", tkeyclient.CmdLen1}
+	rspGetNameVersion = appCmd{0x02, "rspGetNameVersion", tkeyclient.CmdLen32}
+	cmdGetRandom      = appCmd{0x03, "cmdGetRandom", tkeyclient.CmdLen4}
+	rspGetRandom      = appCmd{0x04, "rspGetRandom", tkeyclient.CmdLen128}
 )
 
 // cmdlen - (responsecode + status)
@@ -22,19 +22,19 @@ var RandomPayloadMaxBytes = rspGetRandom.CmdLen().Bytelen() - (1 + 1)
 type appCmd struct {
 	code   byte
 	name   string
-	cmdLen tk1.CmdLen
+	cmdLen tkeyclient.CmdLen
 }
 
 func (c appCmd) Code() byte {
 	return c.code
 }
 
-func (c appCmd) CmdLen() tk1.CmdLen {
+func (c appCmd) CmdLen() tkeyclient.CmdLen {
 	return c.cmdLen
 }
 
-func (c appCmd) Endpoint() tk1.Endpoint {
-	return tk1.DestApp
+func (c appCmd) Endpoint() tkeyclient.Endpoint {
+	return tkeyclient.DestApp
 }
 
 func (c appCmd) String() string {
@@ -42,17 +42,17 @@ func (c appCmd) String() string {
 }
 
 type RandomGen struct {
-	tk *tk1.TillitisKey // A connection to a TKey
+	tk *tkeyclient.TillitisKey // A connection to a TKey
 }
 
 // New allocates a struct for communicating with the random app
 // running on the TKey. You're expected to pass an existing connection
 // to it, so use it like this:
 //
-//	tk := tk1.New()
+//	tk := tkeyclient.New()
 //	err := tk.Connect(port)
 //	randomGen := New(tk)
-func New(tk *tk1.TillitisKey) RandomGen {
+func New(tk *tkeyclient.TillitisKey) RandomGen {
 	var randomGen RandomGen
 
 	randomGen.tk = tk
@@ -70,14 +70,14 @@ func (s RandomGen) Close() error {
 
 // GetAppNameVersion gets the name and version of the running app in
 // the same style as the stick itself.
-func (s RandomGen) GetAppNameVersion() (*tk1.NameVersion, error) {
+func (s RandomGen) GetAppNameVersion() (*tkeyclient.NameVersion, error) {
 	id := 2
-	tx, err := tk1.NewFrameBuf(cmdGetNameVersion, id)
+	tx, err := tkeyclient.NewFrameBuf(cmdGetNameVersion, id)
 	if err != nil {
 		return nil, fmt.Errorf("NewFrameBuf: %w", err)
 	}
 
-	tk1.Dump("GetAppNameVersion tx", tx)
+	tkeyclient.Dump("GetAppNameVersion tx", tx)
 	if err = s.tk.Write(tx); err != nil {
 		return nil, fmt.Errorf("Write: %w", err)
 	}
@@ -97,7 +97,7 @@ func (s RandomGen) GetAppNameVersion() (*tk1.NameVersion, error) {
 		return nil, fmt.Errorf("SetReadTimeout: %w", err)
 	}
 
-	nameVer := &tk1.NameVersion{}
+	nameVer := &tkeyclient.NameVersion{}
 	nameVer.Unpack(rx[2:])
 
 	return nameVer, nil
@@ -110,24 +110,24 @@ func (s RandomGen) GetRandom(bytes int) ([]byte, error) {
 	}
 
 	id := 2
-	tx, err := tk1.NewFrameBuf(cmdGetRandom, id)
+	tx, err := tkeyclient.NewFrameBuf(cmdGetRandom, id)
 	if err != nil {
 		return nil, fmt.Errorf("NewFrameBuf: %w", err)
 	}
 
 	tx[2] = byte(bytes)
-	tk1.Dump("GetRandom tx", tx)
+	tkeyclient.Dump("GetRandom tx", tx)
 	if err = s.tk.Write(tx); err != nil {
 		return nil, fmt.Errorf("Write: %w", err)
 	}
 
 	rx, _, err := s.tk.ReadFrame(rspGetRandom, id)
-	tk1.Dump("GetRandom rx", rx)
+	tkeyclient.Dump("GetRandom rx", rx)
 	if err != nil {
 		return nil, fmt.Errorf("ReadFrame: %w", err)
 	}
 
-	if rx[2] != tk1.StatusOK {
+	if rx[2] != tkeyclient.StatusOK {
 		return nil, fmt.Errorf("GetRandom NOK")
 	}
 

@@ -12,34 +12,34 @@ import (
 
 	"github.com/spf13/pflag"
 	"github.com/tillitis/tillitis-key1-apps/internal/util"
-	"github.com/tillitis/tillitis-key1-apps/tk1"
+	"github.com/tillitis/tkeyclient"
 )
 
 var (
-	cmdSetTimer     = appCmd{0x01, "cmdSetTimer", tk1.CmdLen32}
-	rspSetTimer     = appCmd{0x02, "rspSetTimer", tk1.CmdLen4}
-	cmdSetPrescaler = appCmd{0x03, "cmdSetPrescaler", tk1.CmdLen32}
-	rspSetPrescaler = appCmd{0x04, "rspSetPrescaler", tk1.CmdLen4}
-	cmdStartTimer   = appCmd{0x05, "cmdStartTimer", tk1.CmdLen1}
-	rspStartTimer   = appCmd{0x06, "rspStartTimer", tk1.CmdLen4}
+	cmdSetTimer     = appCmd{0x01, "cmdSetTimer", tkeyclient.CmdLen32}
+	rspSetTimer     = appCmd{0x02, "rspSetTimer", tkeyclient.CmdLen4}
+	cmdSetPrescaler = appCmd{0x03, "cmdSetPrescaler", tkeyclient.CmdLen32}
+	rspSetPrescaler = appCmd{0x04, "rspSetPrescaler", tkeyclient.CmdLen4}
+	cmdStartTimer   = appCmd{0x05, "cmdStartTimer", tkeyclient.CmdLen1}
+	rspStartTimer   = appCmd{0x06, "rspStartTimer", tkeyclient.CmdLen4}
 )
 
 type appCmd struct {
 	code   byte
 	name   string
-	cmdLen tk1.CmdLen
+	cmdLen tkeyclient.CmdLen
 }
 
 func (c appCmd) Code() byte {
 	return c.code
 }
 
-func (c appCmd) CmdLen() tk1.CmdLen {
+func (c appCmd) CmdLen() tkeyclient.CmdLen {
 	return c.cmdLen
 }
 
-func (c appCmd) Endpoint() tk1.Endpoint {
-	return tk1.DestApp
+func (c appCmd) Endpoint() tkeyclient.Endpoint {
+	return tkeyclient.DestApp
 }
 
 func (c appCmd) String() string {
@@ -47,17 +47,17 @@ func (c appCmd) String() string {
 }
 
 type Timer struct {
-	tk *tk1.TillitisKey // A connection to a TKey
+	tk *tkeyclient.TillitisKey // A connection to a TKey
 }
 
 // New allocates a struct for communicating with the timer app running
 // on the TKey. You're expected to pass an existing connection to it,
 // so use it like this:
 //
-//	tk := tk1.New()
+//	tk := tkeyclient.New()
 //	err := tk.Connect(port)
 //	timer := NewTimer(tk)
-func NewTimer(tk *tk1.TillitisKey) Timer {
+func NewTimer(tk *tkeyclient.TillitisKey) Timer {
 	var timer Timer
 
 	timer.tk = tk
@@ -68,7 +68,7 @@ func NewTimer(tk *tk1.TillitisKey) Timer {
 // setInt sets an int with the command cmd
 func (t Timer) setInt(sendCmd appCmd, expectedReceiveCmd appCmd, i int) error {
 	id := 2
-	tx, err := tk1.NewFrameBuf(sendCmd, id)
+	tx, err := tkeyclient.NewFrameBuf(sendCmd, id)
 	if err != nil {
 		return fmt.Errorf("NewFrameBuf: %w", err)
 	}
@@ -78,18 +78,18 @@ func (t Timer) setInt(sendCmd appCmd, expectedReceiveCmd appCmd, i int) error {
 	tx[3] = byte(i >> 8)
 	tx[4] = byte(i >> 16)
 	tx[5] = byte(i >> 24)
-	tk1.Dump("tx", tx)
+	tkeyclient.Dump("tx", tx)
 	if err = t.tk.Write(tx); err != nil {
 		return fmt.Errorf("Write: %w", err)
 	}
 
 	rx, _, err := t.tk.ReadFrame(expectedReceiveCmd, id)
-	tk1.Dump("rx", rx)
+	tkeyclient.Dump("rx", rx)
 	if err != nil {
 		return fmt.Errorf("ReadFrame: %w", err)
 	}
 
-	if rx[2] != tk1.StatusOK {
+	if rx[2] != tkeyclient.StatusOK {
 		return fmt.Errorf("Command BAD")
 	}
 
@@ -106,7 +106,7 @@ func (t Timer) SetPrescaler(prescaler int) error {
 
 func (t Timer) StartTimer() error {
 	id := 2
-	tx, err := tk1.NewFrameBuf(cmdStartTimer, id)
+	tx, err := tkeyclient.NewFrameBuf(cmdStartTimer, id)
 	if err != nil {
 		return fmt.Errorf("NewFrameBuf: %w", err)
 	}
@@ -116,12 +116,12 @@ func (t Timer) StartTimer() error {
 	}
 
 	rx, _, err := t.tk.ReadFrame(rspStartTimer, id)
-	tk1.Dump("rx", rx)
+	tkeyclient.Dump("rx", rx)
 	if err != nil {
 		return fmt.Errorf("ReadFrame: %w", err)
 	}
 
-	if rx[2] != tk1.StatusOK {
+	if rx[2] != tkeyclient.StatusOK {
 		return fmt.Errorf("Command BAD")
 	}
 
@@ -138,7 +138,7 @@ func main() {
 	pflag.CommandLine.SortFlags = false
 	pflag.StringVar(&devPath, "port", "",
 		"Set serial port device `PATH`. If this is not passed, auto-detection will be attempted.")
-	pflag.IntVar(&speed, "speed", tk1.SerialSpeed,
+	pflag.IntVar(&speed, "speed", tkeyclient.SerialSpeed,
 		"Set serial port speed in `BPS` (bits per second).")
 	pflag.BoolVar(&verbose, "verbose", false,
 		"Enable verbose output.")
@@ -159,7 +159,7 @@ func main() {
 	}
 
 	if !verbose {
-		tk1.SilenceLogging()
+		tkeyclient.SilenceLogging()
 	}
 
 	if devPath == "" {
@@ -170,9 +170,9 @@ func main() {
 		}
 	}
 
-	tk := tk1.New()
+	tk := tkeyclient.New()
 	fmt.Printf("Connecting to device on serial port %s ...\n", devPath)
-	if err := tk.Connect(devPath, tk1.WithSpeed(speed)); err != nil {
+	if err := tk.Connect(devPath, tkeyclient.WithSpeed(speed)); err != nil {
 		fmt.Printf("Could not open %s: %v\n", devPath, err)
 		os.Exit(1)
 	}

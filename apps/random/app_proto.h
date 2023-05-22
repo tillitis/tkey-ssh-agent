@@ -13,6 +13,12 @@ enum appcmd {
 	APP_RSP_GET_NAMEVERSION = 0x02,
 	APP_CMD_GET_RANDOM      = 0x03,
 	APP_RSP_GET_RANDOM      = 0x04,
+	APP_CMD_GET_PUBKEY      = 0x05,
+	APP_RSP_GET_PUBKEY      = 0x06,
+	APP_CMD_GET_SIG         = 0x07,
+	APP_RSP_GET_SIG         = 0x08,
+	APP_CMD_GET_HASH        = 0x09,
+	APP_RSP_GET_HASH        = 0x0a,
 
 	APP_RSP_UNKNOWN_CMD     = 0xff,
 };

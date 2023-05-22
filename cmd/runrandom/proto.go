@@ -14,6 +14,12 @@ var (
 	rspGetNameVersion = appCmd{0x02, "rspGetNameVersion", tkeyclient.CmdLen32}
 	cmdGetRandom      = appCmd{0x03, "cmdGetRandom", tkeyclient.CmdLen4}
 	rspGetRandom      = appCmd{0x04, "rspGetRandom", tkeyclient.CmdLen128}
+	cmdGetPubkey      = appCmd{0x05, "cmdGetPubkey", tkeyclient.CmdLen4}
+	rspGetPubkey      = appCmd{0x06, "rspGetPubkey", tkeyclient.CmdLen128}
+	cmdGetSig         = appCmd{0x07, "cmdGetSig", tkeyclient.CmdLen4}
+	rspCmdSig         = appCmd{0x08, "rspCmdSig", tkeyclient.CmdLen128}
+	cmdGetHash        = appCmd{0x09, "cmdGetHash", tkeyclient.CmdLen4}
+	rspCmdHash        = appCmd{0x0a, "rspCmdHash", tkeyclient.CmdLen128}
 )
 
 // cmdlen - (responsecode + status)
@@ -137,4 +143,75 @@ func (s RandomGen) GetRandom(bytes int) ([]byte, error) {
 	}
 	// Skipping frame header, app header, and status
 	return rx[3 : 3+ret], nil
+}
+
+// GetPubkey fetches the public key of the signer.
+func (s RandomGen) GetPubkey() ([]byte, error) {
+	id := 2
+	tx, err := tkeyclient.NewFrameBuf(cmdGetPubkey, id)
+	if err != nil {
+		return nil, fmt.Errorf("NewFrameBuf: %w", err)
+	}
+
+	tkeyclient.Dump("GetPubkey tx", tx)
+	if err = s.tk.Write(tx); err != nil {
+		return nil, fmt.Errorf("Write: %w", err)
+	}
+
+	rx, _, err := s.tk.ReadFrame(rspGetPubkey, id)
+	tkeyclient.Dump("GetPubKey rx", rx)
+	if err != nil {
+		return nil, fmt.Errorf("ReadFrame: %w", err)
+	}
+
+	// Skip frame header & app header, returning size of ed25519 pubkey
+	return rx[2 : 2+32], nil
+}
+
+func (s RandomGen) GetSignature() ([]byte, error) {
+	id := 2
+	tx, err := tkeyclient.NewFrameBuf(cmdGetSig, id)
+	if err != nil {
+		return nil, fmt.Errorf("NewFrameBuf: %w", err)
+	}
+
+	tkeyclient.Dump("GetSig tx", tx)
+	if err = s.tk.Write(tx); err != nil {
+		return nil, fmt.Errorf("Write: %w", err)
+	}
+
+	rx, _, err := s.tk.ReadFrame(rspCmdSig, id)
+	tkeyclient.Dump("GetSig rx", rx)
+	if err != nil {
+		return nil, fmt.Errorf("ReadFrame: %w", err)
+	}
+
+	// Skipping frame header & app header
+	return rx[3 : 3+64], nil
+}
+
+func (s RandomGen) GetHash() ([]byte, error) {
+	id := 2
+	tx, err := tkeyclient.NewFrameBuf(cmdGetHash, id)
+	if err != nil {
+		return nil, fmt.Errorf("NewFrameBuf: %w", err)
+	}
+
+	tkeyclient.Dump("GeHash tx", tx)
+	if err = s.tk.Write(tx); err != nil {
+		return nil, fmt.Errorf("Write: %w", err)
+	}
+
+	rx, _, err := s.tk.ReadFrame(rspCmdHash, id)
+	tkeyclient.Dump("GetHash rx", rx)
+	if err != nil {
+		return nil, fmt.Errorf("ReadFrame: %w", err)
+	}
+
+	if rx[2] != 0 {
+		return nil, fmt.Errorf("Return frame NOK")
+	}
+
+	// Skipping frame header & app header
+	return rx[3 : 3+32], nil
 }

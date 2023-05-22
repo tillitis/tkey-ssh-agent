@@ -13,8 +13,7 @@ CFLAGS = -target riscv32-unknown-none-elf -march=rv32iczmmul -mabi=ilp32 -mcmode
    -static -std=gnu99 -O2 -ffast-math -fno-common -fno-builtin-printf \
    -fno-builtin-putchar -nostdlib -mno-relax -flto -g \
    -Wall -Werror=implicit-function-declaration \
-   -I $(INCLUDE) -I $(LIBDIR)  \
-   -DNODEBUG
+   -I $(INCLUDE) -I $(LIBDIR)
 ifneq ($(TKEY_SIGNER_APP_NO_TOUCH),)
 CFLAGS := $(CFLAGS) -DTKEY_SIGNER_APP_NO_TOUCH
 endif
@@ -54,10 +53,10 @@ timer/app.elf: $(TIMEROBJS)
 $(TIMEROBJS): $(INCLUDE)/tk1_mem.h timer/app_proto.h
 
 # Random number generator app
-RANDOMOBJS=random/main.o random/app_proto.o
+RANDOMOBJS=random/main.o random/app_proto.o random/rng.o random/blake2s/blake2s.o
 random/app.elf: $(RANDOMOBJS)
-	$(CC) $(CFLAGS) $(RANDOMOBJS) $(LDFLAGS) -o $@
-$(RANDOMOBJS): $(INCLUDE)/tk1_mem.h random/app_proto.h
+	$(CC) $(CFLAGS) $(RANDOMOBJS) $(LDFLAGS) -L $(LIBDIR)/monocypher -lmonocypher -o $@
+$(RANDOMOBJS): $(INCLUDE)/tk1_mem.h random/app_proto.h random/rng.h random/blake2s/blake2s.h
 
 # Streaming RNG random number app
 RNG_STREAM_OBJS=rng_stream/main.o

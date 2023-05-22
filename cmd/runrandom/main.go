@@ -4,6 +4,7 @@
 package main
 
 import (
+	"crypto/ed25519"
 	_ "embed"
 	"errors"
 	"fmt"
@@ -16,6 +17,7 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/tillitis/tillitis-key1-apps/internal/util"
 	"github.com/tillitis/tkeyclient"
+	"golang.org/x/crypto/blake2s"
 )
 
 // nolint:typecheck // Avoid lint error when the embedding file is missing.
@@ -34,17 +36,20 @@ const (
 var le = log.New(os.Stderr, "", 0)
 
 func main() {
-	var devPath string
+	var devPath, filePath string
 	var speed, bytes int
-	var helpOnly bool
+	var helpOnly, sig, toFile bool
 	pflag.CommandLine.SortFlags = false
-	pflag.StringVar(&devPath, "port", "",
+	pflag.StringVarP(&devPath, "port", "p", "",
 		"Set serial port device `PATH`. If this is not passed, auto-detection will be attempted.")
 	pflag.IntVar(&speed, "speed", tkeyclient.SerialSpeed,
 		"Set serial port speed in `BPS` (bits per second).")
 	pflag.IntVarP(&bytes, "bytes", "b", 0,
 		"Fetch `COUNT` number of random bytes.")
-	pflag.BoolVar(&helpOnly, "help", false, "Output this help.")
+	pflag.BoolVarP(&sig, "signature", "s", false, "Get the signature of the generated random data.")
+	pflag.StringVarP(&filePath, "file", "f", "",
+		"Output random data as binary to file with `PATH`.")
+	pflag.BoolVarP(&helpOnly, "help", "h", false, "Output this help.")
 	pflag.Usage = func() {
 		fmt.Fprintf(os.Stderr, `runrandom is a client app for the random-app, used to fetch random numbers
 from the TRNG on the Tillitis TKey. This program embeds the random-app binary,
@@ -74,6 +79,17 @@ Usage:
 		if err != nil {
 			os.Exit(1)
 		}
+	}
+	var file *os.File
+	var file_err error
+	if filePath != "" {
+		toFile = true
+		file, file_err = os.Create(filePath)
+		if file_err != nil {
+			le.Printf("Could not create file %s: %v\n", filePath, file_err)
+			os.Exit(1)
+		}
+		defer file.Close()
 	}
 
 	tkeyclient.SilenceLogging()
@@ -108,7 +124,13 @@ Usage:
 		exit(1)
 	}
 
-	le.Printf("Random data follows on stdout...\n")
+	if !toFile {
+		le.Printf("Random data follows on stdout...\n\n")
+	} else {
+		le.Printf("Writing random data to: %s\n", filePath)
+	}
+
+	var tot_random []byte = nil
 
 	left := bytes
 	for {
@@ -121,16 +143,84 @@ Usage:
 			le.Printf("GetRandom failed: %v\n", err)
 			exit(1)
 		}
+		tot_random = append(tot_random, random...)
+
+		if toFile {
+			_, err := file.Write(random)
+			if err != nil {
+				le.Printf("Error could not write to file %v\n", err)
+				exit(1)
+			}
+		} else {
+			fmt.Printf("%x", random)
+		}
+
 		if left > len(random) {
-			os.Stdout.Write(random)
+
 			left -= len(random)
 			continue
 		}
-		os.Stdout.Write(random[0:left])
 		break
 	}
 
+	fmt.Printf("\n\n")
+
+	if sig {
+		signature, err := randomGen.GetSignature()
+		if err != nil {
+			le.Printf("GetSig failed: %v\n", err)
+			exit(1)
+		}
+		fmt.Printf("Signature: %x\n", signature)
+
+		// Need to fetch the signature first to get the correct hash.
+		hash, err := randomGen.GetHash()
+		if err != nil {
+			le.Printf("GetHash failed: %v\n", err)
+			exit(1)
+		}
+		fmt.Printf("Hash: %x\n", hash)
+
+		pubkey, err := randomGen.GetPubkey()
+		if err != nil {
+			le.Printf("GetPubkey failed: %v\n", err)
+			exit(1)
+		}
+		fmt.Printf("Public key: %x\n", pubkey)
+
+		le.Print(("\nVerifying signature ... "))
+		if !ed25519.Verify(pubkey, hash, signature) {
+			le.Printf("signature FAILED verification.\n")
+			// Don't exit, let's calculate hash
+		} else {
+			le.Printf("signature verified.\n")
+		}
+
+		local_hash := blake2s.Sum256(tot_random)
+
+		le.Printf("\nVerifying hash ... ")
+
+		if !testEq(hash, local_hash) {
+			le.Printf("hash FAILED verification.\n")
+			exit(1)
+		}
+		le.Printf("hash verified.\n")
+
+	}
+
 	exit(0)
+}
+
+func testEq(a []byte, b [32]byte) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
 }
 
 func handleSignals(action func(), sig ...os.Signal) {

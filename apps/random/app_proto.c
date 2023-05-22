@@ -17,14 +17,29 @@ void appreply(struct frame_header hdr, enum appcmd rspcode, void *buf)
 	enum cmdlen len;
 
 	switch (rspcode) {
+	case APP_RSP_GET_NAMEVERSION:
+		len = LEN_32;
+		nbytes = 32;
+		break;
+
 	case APP_RSP_GET_RANDOM:
 		len = LEN_128;
 		nbytes = 128;
 		break;
 
-	case APP_RSP_GET_NAMEVERSION:
-		len = LEN_32;
-		nbytes = 32;
+	case APP_RSP_GET_PUBKEY:
+		len = LEN_128;
+		nbytes = 128;
+		break;
+
+	case APP_RSP_GET_SIG:
+		len = LEN_128;
+		nbytes = 128;
+		break;
+
+	case APP_RSP_GET_HASH:
+		len = LEN_128;
+		nbytes = 128;
 		break;
 
 	default:

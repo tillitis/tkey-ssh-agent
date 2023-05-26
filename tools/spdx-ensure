@@ -12,6 +12,7 @@ tag="SPDX-License-Identifier:"
 
 missingok_dirs=(
 .github/workflows/
+apps/random/blake2s/
 cmd/tkey-ssh-agent-tray/winres/
 cmd/tkey-ssh-agent/winres/
 debian/
@@ -28,6 +29,7 @@ LICENSE
 Makefile
 README.md
 apps/Makefile
+apps/random/README.md
 apps/rng_stream/README.md
 apps/signer/app.bin.sha512
 apps/signer/runsign.sh

@@ -81,15 +81,14 @@ Usage:
 		}
 	}
 	var file *os.File
-	var file_err error
+	var fileErr error
 	if filePath != "" {
 		toFile = true
-		file, file_err = os.Create(filePath)
-		if file_err != nil {
-			le.Printf("Could not create file %s: %v\n", filePath, file_err)
+		file, fileErr = os.Create(filePath)
+		if fileErr != nil {
+			le.Printf("Could not create file %s: %v\n", filePath, fileErr)
 			os.Exit(1)
 		}
-		defer file.Close()
 	}
 
 	tkeyclient.SilenceLogging()
@@ -130,7 +129,7 @@ Usage:
 		le.Printf("Writing random data to: %s\n", filePath)
 	}
 
-	var tot_random []byte = nil
+	var totRandom []byte
 
 	left := bytes
 	for {
@@ -143,7 +142,7 @@ Usage:
 			le.Printf("GetRandom failed: %v\n", err)
 			exit(1)
 		}
-		tot_random = append(tot_random, random...)
+		totRandom = append(totRandom, random...)
 
 		if toFile {
 			_, err := file.Write(random)
@@ -196,11 +195,11 @@ Usage:
 			le.Printf("signature verified.\n")
 		}
 
-		local_hash := blake2s.Sum256(tot_random)
+		localHash := blake2s.Sum256(totRandom)
 
 		le.Printf("\nVerifying hash ... ")
 
-		if !testEq(hash, local_hash) {
+		if !testEq(hash, localHash) {
 			le.Printf("hash FAILED verification.\n")
 			exit(1)
 		}
@@ -208,6 +207,7 @@ Usage:
 
 	}
 
+	file.Close()
 	exit(0)
 }
 

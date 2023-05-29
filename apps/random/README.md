@@ -18,7 +18,7 @@ following requests:
 | *command*             | *FP length* | *code* | *data*                              | *response*            |
 |-----------------------|-------------|--------|-------------------------------------|-----------------------|
 | `CMD_GET_NAMEVERSION` | 1 B         | 0x01   | none                                | `RSP_GET_NAMEVERSION` |
-| `CMD_GET_RANDOM`      | 1 B         | 0x03   | none                                | `RSP_GET_RANDOM`      |
+| `CMD_GET_RANDOM`      | 4 B         | 0x03   | Number of bytes, 1 < x < 126        | `RSP_GET_RANDOM`      |
 | `CMD_GET_PUBKEY`      | 1 B         | 0x05   | none                                | `RSP_GET_PUBKEY`      |
 | `CMD_GET_SIG`         | 1 B         | 0x07   | none                                | `RSP_GET_SIG`         |
 | `CMD_GET_HASH`        | 1 B         | 0x09   | none                                | `RSP_GET_HASH`        |
@@ -26,11 +26,11 @@ following requests:
 
 | *response*            | *FP length* | *code* | *data*                             |
 |-----------------------|-------------|--------|------------------------------------|
-| `RSP_GET_NAMEVERSION` | 32 B        | 0x02   | 2 * 4 byte name, version 32 bit LE |
-| `RSP_GET_RANDOM`      | 128 B       | 0x04   | 126 byte of random data            |
-| `RSP_GET_PUBKEY`      | 128 B       | 0x06   | 32 byte ed25519 public key         |
-| `RSP_GET_SIG`         | 128 B       | 0x08   | 64 byte ed25519 signature          |
-| `RSP_GET_HASH`        | 128 B       | 0x0a   | 32 byte hash                       |
+| `RSP_GET_NAMEVERSION` | 32 B        | 0x02   | 2 * 4 bytes name, version 32 bit LE|
+| `RSP_GET_RANDOM`      | 128 B       | 0x04   | Up to 126 byte of random data      |
+| `RSP_GET_PUBKEY`      | 128 B       | 0x06   | 32 bytes ed25519 public key        |
+| `RSP_GET_SIG`         | 128 B       | 0x08   | 64 bytes ed25519 signature         |
+| `RSP_GET_HASH`        | 128 B       | 0x0a   | 32 bytes hash                      |
 
 | `RSP_UNKNOWN_CMD`     | 1 B         | 0xff   | none                               |
 

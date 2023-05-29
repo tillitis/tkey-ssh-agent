@@ -14,11 +14,11 @@ var (
 	rspGetNameVersion = appCmd{0x02, "rspGetNameVersion", tkeyclient.CmdLen32}
 	cmdGetRandom      = appCmd{0x03, "cmdGetRandom", tkeyclient.CmdLen4}
 	rspGetRandom      = appCmd{0x04, "rspGetRandom", tkeyclient.CmdLen128}
-	cmdGetPubkey      = appCmd{0x05, "cmdGetPubkey", tkeyclient.CmdLen4}
+	cmdGetPubkey      = appCmd{0x05, "cmdGetPubkey", tkeyclient.CmdLen1}
 	rspGetPubkey      = appCmd{0x06, "rspGetPubkey", tkeyclient.CmdLen128}
-	cmdGetSig         = appCmd{0x07, "cmdGetSig", tkeyclient.CmdLen4}
+	cmdGetSig         = appCmd{0x07, "cmdGetSig", tkeyclient.CmdLen1}
 	rspCmdSig         = appCmd{0x08, "rspCmdSig", tkeyclient.CmdLen128}
-	cmdGetHash        = appCmd{0x09, "cmdGetHash", tkeyclient.CmdLen4}
+	cmdGetHash        = appCmd{0x09, "cmdGetHash", tkeyclient.CmdLen1}
 	rspCmdHash        = appCmd{0x0a, "rspCmdHash", tkeyclient.CmdLen128}
 )
 

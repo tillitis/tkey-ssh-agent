@@ -48,7 +48,7 @@ func main() {
 		"Fetch `COUNT` number of random bytes.")
 	pflag.BoolVarP(&sig, "signature", "s", false, "Get the signature of the generated random data.")
 	pflag.StringVarP(&filePath, "file", "f", "",
-		"Output random data as binary to file with `PATH`.")
+		"Output random data as binary to `FILE`.")
 	pflag.BoolVarP(&helpOnly, "help", "h", false, "Output this help.")
 	pflag.Usage = func() {
 		fmt.Fprintf(os.Stderr, `runrandom is a client app for the random-app, used to fetch random numbers

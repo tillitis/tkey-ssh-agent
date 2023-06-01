@@ -15,9 +15,6 @@ CFLAGS = -target riscv32-unknown-none-elf -march=rv32iczmmul -mabi=ilp32 -mcmode
    -Wall -Werror=implicit-function-declaration \
    -I $(INCLUDE) -I $(LIBDIR)  \
    -DNODEBUG
-ifneq ($(TKEY_SIGNER_APP_NO_TOUCH),)
-CFLAGS := $(CFLAGS) -DTKEY_SIGNER_APP_NO_TOUCH
-endif
 
 AS = clang
 ASFLAGS = -target riscv32-unknown-none-elf -march=rv32iczmmul -mabi=ilp32 -mcmodel=medany -mno-relax
@@ -25,7 +22,7 @@ ASFLAGS = -target riscv32-unknown-none-elf -march=rv32iczmmul -mabi=ilp32 -mcmod
 LDFLAGS=-T $(LIBDIR)/app.lds -L $(LIBDIR)/libcommon/ -lcommon -L $(LIBDIR)/libcrt0/ -lcrt0
 
 .PHONY: all
-all: signer/app.bin timer/app.bin random/app.bin rng_stream/app.bin blink/app.bin nx/app.bin touch/app.bin
+all: timer/app.bin random/app.bin rng_stream/app.bin blink/app.bin nx/app.bin touch/app.bin
 
 # Turn elf into bin for device
 %.bin: %.elf
@@ -34,15 +31,6 @@ all: signer/app.bin timer/app.bin random/app.bin rng_stream/app.bin blink/app.bi
 
 show-%-hash: %/app.bin
 	cd $$(dirname $^) && sha512sum app.bin
-
-check-signer-hash: signer/app.bin
-	cd signer && sha512sum -c app.bin.sha512
-
-# Simple ed25519 signer app
-SIGNEROBJS=signer/main.o signer/app_proto.o
-signer/app.elf: $(SIGNEROBJS)
-	$(CC) $(CFLAGS) $(SIGNEROBJS) $(LDFLAGS) -L $(LIBDIR)/monocypher -lmonocypher -I $(LIBDIR) -o $@
-$(SIGNEROBJS): $(INCLUDE)/tk1_mem.h signer/app_proto.h
 
 # A simpler timer app
 TIMEROBJS = timer/main.o timer/app_proto.o
@@ -78,7 +66,6 @@ $(TOUCHOBJS): $(INCLUDE)/tk1_mem.h
 
 .PHONY: clean
 clean:
-	rm -f signer/app.bin signer/app.elf $(SIGNEROBJS)
 	rm -f timer/app.bin timer/app.elf $(TIMEROBJS)
 	rm -f random/app.bin random/app.elf $(RANDOMOBJS)
 	rm -f rng_stream/app.bin rng_stream/app.elf $(RNG_STREAM_OBJS)
@@ -87,7 +74,7 @@ clean:
 	rm -f touch/app.bin touch/app.elf touch/main.o
 
 # Uses ../.clang-format
-FMTFILES=signer/*.[ch] timer/*.[ch] random/*.[ch] rng_stream/*.[ch] nx/main.c touch/*.[ch]
+FMTFILES=timer/*.[ch] random/*.[ch] rng_stream/*.[ch] nx/main.c touch/*.[ch]
 
 .PHONY: fmt
 fmt:

@@ -1,9 +1,9 @@
 .PHONY: all
-all: apps tkey-runapp tkey-sign runsign.sh tkey-ssh-agent runtimer runrandom
+all: apps tkey-runapp tkey-sign tkey-ssh-agent runtimer runrandom
 
 .PHONY: windows
 windows: tkey-ssh-agent.exe tkey-ssh-agent-tray.exe
-	make -C apps check-signer-hash
+	make -C apps
 
 DESTDIR=/
 PREFIX=/usr/local
@@ -64,11 +64,14 @@ runrandom: apps
 	cp -af apps/random/app.bin cmd/runrandom/app.bin
 	go build ./cmd/runrandom
 
+.PHONY: check-signer-hash
+check-signer-hash:
+	cd cmd/tkey-ssh-agent && sha512sum -c app.bin.sha512
+
 TKEY_SSH_AGENT_VERSION ?=
 # .PHONY to let go-build handle deps and rebuilds
 .PHONY: tkey-ssh-agent
-tkey-ssh-agent: apps
-	cp -af apps/signer/app.bin cmd/tkey-ssh-agent/app.bin
+tkey-ssh-agent: apps check-signer-hash
 	CGO_ENABLED=0 go build -ldflags "-X main.version=$(TKEY_SSH_AGENT_VERSION) -X main.signerAppNoTouch=$(TKEY_SIGNER_APP_NO_TOUCH)" -trimpath ./cmd/tkey-ssh-agent
 
 .PHONY: tkey-ssh-agent.exe

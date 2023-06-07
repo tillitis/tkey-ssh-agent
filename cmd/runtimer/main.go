@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/spf13/pflag"
-	"github.com/tillitis/tillitis-key1-apps/internal/util"
 	"github.com/tillitis/tkeyclient"
 )
 
@@ -164,7 +163,7 @@ func main() {
 
 	if devPath == "" {
 		var err error
-		devPath, err = util.DetectSerialPort(true)
+		devPath, err = tkeyclient.DetectSerialPort(true)
 		if err != nil {
 			os.Exit(1)
 		}

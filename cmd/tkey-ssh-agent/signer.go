@@ -16,9 +16,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/tillitis/tillitis-key1-apps/internal/util"
 	"github.com/tillitis/tkeyclient"
 	"github.com/tillitis/tkeysign"
+	"github.com/tillitis/tkeyutil"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -29,7 +29,7 @@ import (
 var appBinary []byte
 
 var notify = func(msg string) {
-	util.Notify(progname, msg)
+	tkeyutil.Notify(progname, msg)
 }
 
 const (
@@ -100,12 +100,12 @@ func (s *Signer) connect() bool {
 	devPath := s.devPath
 	if devPath == "" {
 		var err error
-		devPath, err = util.DetectSerialPort(false)
+		devPath, err = tkeyclient.DetectSerialPort(false)
 		if err != nil {
 			switch {
-			case errors.Is(err, util.ErrNoDevice):
+			case errors.Is(err, tkeyclient.ErrNoDevice):
 				notify("Could not find any TKey plugged in.")
-			case errors.Is(err, util.ErrManyDevices):
+			case errors.Is(err, tkeyclient.ErrManyDevices):
 				notify("Cannot work with more than 1 TKey plugged in.")
 			default:
 				notify(fmt.Sprintf("TKey detection failed: %s\n", err))
@@ -188,7 +188,7 @@ func (s *Signer) loadApp() error {
 		}
 	} else if s.fileUSS != "" {
 		var err error
-		secret, err = util.ReadUSS(s.fileUSS)
+		secret, err = tkeyutil.ReadUSS(s.fileUSS)
 		if err != nil {
 			notify(fmt.Sprintf("Could not read USS file: %s", err))
 			return fmt.Errorf("Failed to read uss-file %s: %w", s.fileUSS, err)

@@ -49,8 +49,12 @@ github.com/tawesoft/golib/v2 v2.9.0 h1:R84RNHs+A8UYuRVlLKVpb3Xzp1bvyP2qgAAZQ/ZRX
 github.com/tawesoft/golib/v2 v2.9.0/go.mod h1:jGw0nDuOLpji2TW5QfSQLcWnZ4WtS4TizzRuXu3hZ/Y=
 github.com/tillitis/tkeyclient v0.0.0-20230511144543-9ee035fb0288 h1:CHmvhOmNGklUHWEdmoCIdS+OptIBd50d+l+Iwxann+Q=
 github.com/tillitis/tkeyclient v0.0.0-20230511144543-9ee035fb0288/go.mod h1:B/O+T4WWEXDbJ/w7ktWxoZ7GE8+WZDWrw7RJS1xAAYQ=
+github.com/tillitis/tkeyclient v0.0.0-20230601163902-215257bafa81 h1:B2PaOBW8d2XGuTb8kJxxcg9dN02OmBNrym7WzIML/Ks=
+github.com/tillitis/tkeyclient v0.0.0-20230601163902-215257bafa81/go.mod h1:LJF9olZ1FL4zIvDY4OoKSp/9YiQY0e8JoKLo0Wg1+Zc=
 github.com/tillitis/tkeysign v0.0.0-20230511181826-bdde22885b71 h1:ij0tJ+CNjGj2C1rexax1ZGhszhH6LODfVC52K1XNwHs=
 github.com/tillitis/tkeysign v0.0.0-20230511181826-bdde22885b71/go.mod h1:sEDRw2sHyXT1CojrTViorg98dpI3L1G+TBhZrkNba7Y=
+github.com/tillitis/tkeyutil v0.0.0-20230601165544-6d4b739494a2 h1:oCNPwncK9CNqEkFjr7Ia8QrsLSRftpj9PqsgV14d6pI=
+github.com/tillitis/tkeyutil v0.0.0-20230601165544-6d4b739494a2/go.mod h1:KI+trqptqoe+7hQaryBxgRENZPb24NrPlLexIFd/dFU=
 github.com/twpayne/go-pinentry-minimal v0.0.0-20220113210447-2a5dc4396c2a h1:a1bRrtgkiv0tytmDVXU5Dqse/WOTws7JvsY2WxPMZ6M=
 github.com/twpayne/go-pinentry-minimal v0.0.0-20220113210447-2a5dc4396c2a/go.mod h1:ARJJXqNuaxVS84jX6ST52hQh0TtuQZWABhTe95a6BI4=
 go.bug.st/serial v1.5.0 h1:ThuUkHpOEmCVXxGEfpoExjQCS2WBVV4ZcUKVYInM9T4=
@@ -67,6 +71,8 @@ golang.org/x/sys v0.0.0-20200515095857-1151b9dac4a9/go.mod h1:h1NjWce9XRLGQEsW7w
 golang.org/x/sys v0.6.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.7.0 h1:3jlCCIQZPdOYu1h8BkNvLz8Kgwtae2cagcG/VamtZRU=
 golang.org/x/sys v0.7.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
+golang.org/x/sys v0.8.0 h1:EBmGv8NaZBZTWvrbjNoL6HVt+IVy3QDQpJs7VRIw3tU=
+golang.org/x/sys v0.8.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/term v0.7.0 h1:BEvjmm5fURWqcfbSKTdpkDXYBrUS1c0m8agp14W48vQ=
 golang.org/x/term v0.7.0/go.mod h1:P32HKFT3hSsZrRxla30E9HqToFYAQPCMs/zFMBUFqPY=
 golang.org/x/text v0.8.0 h1:57P1ETyNKtuIjB4SRd15iJxuhj8Gc416Y78H3qgMh68=

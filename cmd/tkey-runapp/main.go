@@ -13,8 +13,8 @@ import (
 	"syscall"
 
 	"github.com/spf13/pflag"
-	"github.com/tillitis/tillitis-key1-apps/internal/util"
 	"github.com/tillitis/tkeyclient"
+	"github.com/tillitis/tkeyutil"
 )
 
 // Use when printing err/diag msgs
@@ -91,7 +91,7 @@ running some app.`, os.Args[0])
 	}
 
 	if devPath == "" {
-		devPath, err = util.DetectSerialPort(true)
+		devPath, err = tkeyclient.DetectSerialPort(true)
 		if err != nil {
 			os.Exit(1)
 		}
@@ -131,13 +131,13 @@ running some app.`, os.Args[0])
 
 	var secret []byte
 	if enterUSS {
-		secret, err = util.InputUSS()
+		secret, err = tkeyutil.InputUSS()
 		if err != nil {
 			le.Printf("Failed to get USS: %v\n", err)
 			exit(1)
 		}
 	} else if fileUSS != "" {
-		secret, err = util.ReadUSS(fileUSS)
+		secret, err = tkeyutil.ReadUSS(fileUSS)
 		if err != nil {
 			le.Printf("Failed to read uss-file %s: %v", fileUSS, err)
 			exit(1)

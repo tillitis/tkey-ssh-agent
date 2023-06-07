@@ -13,7 +13,7 @@ require (
 	github.com/twpayne/go-pinentry-minimal v0.0.0-20220113210447-2a5dc4396c2a
 	go.bug.st/serial v1.5.0
 	golang.org/x/crypto v0.7.0
-	golang.org/x/sys v0.7.0
+	golang.org/x/sys v0.8.0
 	golang.org/x/term v0.7.0
 )
 
@@ -32,8 +32,9 @@ require (
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d // indirect
 	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c // indirect
 	github.com/tadvi/systray v0.0.0-20190226123456-11a2b8fa57af // indirect
-	github.com/tillitis/tkeyclient v0.0.0-20230511144543-9ee035fb0288 // indirect
+	github.com/tillitis/tkeyclient v0.0.0-20230601163902-215257bafa81 // indirect
 	github.com/tillitis/tkeysign v0.0.0-20230511181826-bdde22885b71 // indirect
+	github.com/tillitis/tkeyutil v0.0.0-20230601165544-6d4b739494a2 // indirect
 	golang.org/x/exp v0.0.0-20221208152030-732eee02a75a // indirect
 	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/text v0.8.0 // indirect

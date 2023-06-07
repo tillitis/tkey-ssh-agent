@@ -14,7 +14,6 @@ import (
 	"strings"
 
 	"github.com/spf13/pflag"
-	"github.com/tillitis/tillitis-key1-apps/internal/util"
 	"github.com/tillitis/tkeyclient"
 )
 
@@ -202,7 +201,7 @@ func readBuildInfo() string {
 }
 
 func printPorts() (int, error) {
-	ports, err := util.GetSerialPorts()
+	ports, err := tkeyclient.GetSerialPorts()
 	if err != nil {
 		return 0, fmt.Errorf("Failed to list ports: %w", err)
 	}

@@ -19,7 +19,7 @@ import (
 	"github.com/apenwarr/fixconsole"
 	"github.com/getlantern/systray"
 	"github.com/tawesoft/golib/v2/dialog"
-	"github.com/tillitis/tillitis-key1-apps/internal/util"
+	"github.com/tillitis/tkeyutil"
 )
 
 var le = log.New(os.Stderr, "", 0)
@@ -31,7 +31,7 @@ const (
 )
 
 var notify = func(msg string) {
-	util.Notify(progname, msg)
+	tkeyutil.Notify(progname, msg)
 }
 
 func main() {

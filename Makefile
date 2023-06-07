@@ -1,5 +1,5 @@
 .PHONY: all
-all: apps tkey-runapp tkey-sign tkey-ssh-agent runtimer runrandom
+all: apps tkey-runapp tkey-sign tkey-ssh-agent runtimer
 
 .PHONY: windows
 windows: tkey-ssh-agent.exe tkey-ssh-agent-tray.exe
@@ -57,12 +57,6 @@ runsign.sh: apps/signer/runsign.sh
 .PHONY: runtimer
 runtimer:
 	go build ./cmd/runtimer
-
-# .PHONY to let go-build handle deps and rebuilds
-.PHONY: runrandom
-runrandom: apps
-	cp -af apps/random/app.bin cmd/runrandom/app.bin
-	go build ./cmd/runrandom
 
 .PHONY: check-signer-hash
 check-signer-hash:

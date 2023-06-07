@@ -22,7 +22,7 @@ ASFLAGS = -target riscv32-unknown-none-elf -march=rv32iczmmul -mabi=ilp32 -mcmod
 LDFLAGS=-T $(LIBDIR)/app.lds -L $(LIBDIR)/libcommon/ -lcommon -L $(LIBDIR)/libcrt0/ -lcrt0
 
 .PHONY: all
-all: timer/app.bin random/app.bin rng_stream/app.bin blink/app.bin nx/app.bin touch/app.bin
+all: timer/app.bin rng_stream/app.bin blink/app.bin nx/app.bin touch/app.bin
 
 # Turn elf into bin for device
 %.bin: %.elf
@@ -74,7 +74,7 @@ clean:
 	rm -f touch/app.bin touch/app.elf touch/main.o
 
 # Uses ../.clang-format
-FMTFILES=timer/*.[ch] random/*.[ch] rng_stream/*.[ch] nx/main.c touch/*.[ch]
+FMTFILES=timer/*.[ch] rng_stream/*.[ch] nx/main.c touch/*.[ch]
 
 .PHONY: fmt
 fmt:

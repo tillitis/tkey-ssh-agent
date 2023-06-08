@@ -1,5 +1,5 @@
 .PHONY: all
-all: apps tkey-runapp tkey-sign tkey-ssh-agent runtimer
+all: apps tkey-runapp tkey-ssh-agent runtimer
 
 .PHONY: windows
 windows: tkey-ssh-agent.exe tkey-ssh-agent-tray.exe

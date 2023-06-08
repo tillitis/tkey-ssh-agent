@@ -67,11 +67,11 @@ If you want to do it manually, clone and build tkey-libs and
 tkey-device-signer manually like this:
 
 ```
-$ git clone https://github.com/tillitis/tkey-libs
+$ git clone -b v0.0.1 https://github.com/tillitis/tkey-libs
 $ cd tkey-libs
 $ make
 $ cd ..
-$ git clone https://github.com/tillitis/tkey-device-signer
+$ git clone -b v0.0.7 https://github.com/tillitis/tkey-device-signer
 $ cd tkey-device-signer
 $ make
 $ cd ..

@@ -44,7 +44,7 @@ jobs:
           repository: tillitis/tkey-device-signer
           ref: main
           path: tkey-device-signer
-          
+
       - name: make signer
         run: make -j -C tkey-device-signer LIBDIR=../tkey-libs
 

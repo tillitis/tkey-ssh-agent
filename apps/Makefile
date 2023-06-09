@@ -38,12 +38,6 @@ timer/app.elf: $(TIMEROBJS)
 	$(CC) $(CFLAGS) $(TIMEROBJS) $(LDFLAGS) -o $@
 $(TIMEROBJS): $(INCLUDE)/tk1_mem.h timer/app_proto.h
 
-# Random number generator app
-RANDOMOBJS=random/main.o random/app_proto.o
-random/app.elf: $(RANDOMOBJS)
-	$(CC) $(CFLAGS) $(RANDOMOBJS) $(LDFLAGS) -o $@
-$(RANDOMOBJS): $(INCLUDE)/tk1_mem.h random/app_proto.h
-
 # Streaming RNG random number app
 RNG_STREAM_OBJS=rng_stream/main.o
 rng_stream/app.elf: $(RNG_STREAM_OBJS)
@@ -67,7 +61,6 @@ $(TOUCHOBJS): $(INCLUDE)/tk1_mem.h
 .PHONY: clean
 clean:
 	rm -f timer/app.bin timer/app.elf $(TIMEROBJS)
-	rm -f random/app.bin random/app.elf $(RANDOMOBJS)
 	rm -f rng_stream/app.bin rng_stream/app.elf $(RNG_STREAM_OBJS)
 	rm -f blink/app.bin blink/app.elf blink/blink.o
 	rm -f nx/app.bin nx/app.elf nx/main.o

@@ -8,8 +8,6 @@ This repository contains some applications for the
 
 Client apps:
 
-- `tkey-runapp`: A simple development tool to load and start any TKey
-  device app, like those below.
 - `tkey-ssh-agent`: An OpenSSH compatible agent.
 - `runtimer`: Control the `timer` device app.
 
@@ -108,13 +106,6 @@ To help prevent unpleasant surprises we keep a hash of the `signer` in
 `cmd/tkey-ssh-agent/app.bin.sha512`. The compilation will fail if this
 is not the expected binary.
 
-### Using tkey-runapp
-
-The client app `tkey-runapp` only loads and starts a device app. It's
-mostly a development tool. You'll then have to switch to a different
-client app that speaks your app's specific protocol. Run with `-h` to
-get help.
-
 ### Using tkey-ssh-agent
 
 This client app is a complete, alternative SSH agent with practical
@@ -150,8 +141,8 @@ $ SSH_AUTH_SOCK=/path/to/agent.sock ssh -F /dev/null localhost
 `-F /dev/null` is used to ignore your ~/.ssh/config which could
 interfere with this test.
 
-The tkey-ssh-agent also supports the `--uss` and `--uss-file` flags,
-as described for `tkey-runapp` above.
+The tkey-ssh-agent also supports the `--uss` and `--uss-file` flags to
+enter a User Supplied Secret.
 
 You can use `--show-pubkey` (short flag: `-p`) to only output the
 pubkey. The pubkey is printed to stdout for easy redirection, but some
@@ -182,10 +173,9 @@ itself passed. For automatically starting the SSH agent when logging
 onto the computer, a shortcut to `tkey-ssh-agent-tray.exe`, with the
 required arguments, can be added in your user's `Startup` folder.
 
-When using the `--uss` option (as described for `tkey-runapp` above),
-the Windows build by default uses the pinentry program from Gpg4win
-for requesting the User-Supplied Secret. This package can be installed
-using: `winget install GnuPG.Gpg4win`.
+When using the `--uss` option the Windows build by default uses the
+pinentry program from Gpg4win for requesting the User-Supplied Secret.
+This package can be installed using: `winget install GnuPG.Gpg4win`.
 
 The SSH Agent supports being used by the native OpenSSH client
 `ssh.exe` (part of Windows Optional Features and installable using

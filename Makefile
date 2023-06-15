@@ -1,5 +1,5 @@
 .PHONY: all
-all: apps tkey-runapp tkey-ssh-agent runtimer
+all: apps tkey-ssh-agent runtimer
 
 .PHONY: windows
 windows: tkey-ssh-agent.exe tkey-ssh-agent-tray.exe
@@ -42,11 +42,6 @@ apps:
 	$(MAKE) -C apps
 
 # .PHONY to let go-build handle deps and rebuilds
-.PHONY: tkey-runapp
-tkey-runapp:
-	go build ./cmd/tkey-runapp
-
-# .PHONY to let go-build handle deps and rebuilds
 .PHONY: tkey-sign
 tkey-sign:
 	go build -ldflags "-X main.signerAppNoTouch=$(TKEY_SIGNER_APP_NO_TOUCH)" ./cmd/tkey-sign
@@ -83,7 +78,7 @@ tkey-ssh-agent-tray.exe:
 
 .PHONY: clean
 clean:
-	rm -f tkey-runapp tkey-sign runsign.sh \
+	rm -f \
 	tkey-ssh-agent cmd/tkey-ssh-agent/app.bin \
 	tkey-ssh-agent.exe cmd/tkey-ssh-agent/rsrc_windows_amd64.syso \
 	tkey-ssh-agent-tray.exe cmd/tkey-ssh-agent-tray/rsrc_windows_amd64.syso \

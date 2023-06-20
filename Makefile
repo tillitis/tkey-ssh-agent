@@ -41,14 +41,6 @@ podman:
 apps:
 	$(MAKE) -C apps
 
-# .PHONY to let go-build handle deps and rebuilds
-.PHONY: tkey-sign
-tkey-sign:
-	go build -ldflags "-X main.signerAppNoTouch=$(TKEY_SIGNER_APP_NO_TOUCH)" ./cmd/tkey-sign
-
-runsign.sh: apps/signer/runsign.sh
-	cp -af $< $@
-
 .PHONY: runtimer
 runtimer:
 	go build ./cmd/runtimer
@@ -82,7 +74,7 @@ clean:
 	tkey-ssh-agent cmd/tkey-ssh-agent/app.bin \
 	tkey-ssh-agent.exe cmd/tkey-ssh-agent/rsrc_windows_amd64.syso \
 	tkey-ssh-agent-tray.exe cmd/tkey-ssh-agent-tray/rsrc_windows_amd64.syso \
-	runtimer runrandom cmd/runrandom/app.bin
+	runtimer
 	$(MAKE) -C apps clean
 
 .PHONY: lint

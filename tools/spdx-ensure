@@ -20,15 +20,12 @@ system/windows/
 )
 
 missingok_files=(
-.clang-format
 .editorconfig
 .gitignore
 .golangci.yml
 LICENSE
 Makefile
 README.md
-apps/Makefile
-apps/rng_stream/README.md
 build.sh
 cmd/tkey-ssh-agent/app.bin.sha512
 cmd/tkey-ssh-agent-tray/trayicon.ico

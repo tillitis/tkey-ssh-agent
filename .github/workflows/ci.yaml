@@ -57,8 +57,5 @@ jobs:
       - name: lint go code
         run: make lint
 
-      - name: check fmt of c code
-        run: make -C apps checkfmt
-
       - name: check for SPDX tags
         run: ./tools/spdx-ensure

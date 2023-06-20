@@ -1,39 +1,10 @@
-
 [![ci](https://github.com/tillitis/tillitis-key1-apps/actions/workflows/ci.yaml/badge.svg?branch=main&event=push)](https://github.com/tillitis/tillitis-key1-apps/actions/workflows/ci.yaml)
 
-# Tillitis TKey Apps
+# TKey SSH Agent
 
-This repository contains some applications for the
-[Tillitis](https://tillitis.se/) TKey USB security stick.
-
-Client apps:
-
-- `tkey-ssh-agent`: An OpenSSH compatible agent.
-- `runtimer`: Control the `timer` device app.
-
-Device apps:
-
-- `rng_stream`: Outputs high quality random numbers directly. You can
-  `cat` directly from the TKey device but see also
-  [tkey-random-generator](https://github.com/tillitis/tkey-random-generator)
-  for something more polished.
-- `blink`: A minimalistic example in assembly.
-- `nx`: Test program for the execution monitor.
-- `timer`: Example/test app on how to use the hardware timer.
-- `touch`: Example/test app for the touch sensor. Cycles between
-  colours when touching.
-
-See the [TKey Developer Handbook](https://dev.tillitis.se/) for how to
-develop your own apps, how to run and debug them in the emulator or on
-real hardware.
-
-[Current list of known projects](https://dev.tillitis.se/projects/).
-
-Go packages used with the client apps reside in their own
-repositories:
-
-- https://github.com/tillitis/tkeyclient [Go doc](https://pkg.go.dev/github.com/tillitis/tkeyclient)
-- https://github.com/tillitis/tkeysign [Go doc](https://pkg.go.dev/github.com/tillitis/tkeysign)
+This repository contains the `tkey-ssh-agent`, an OpenSSH-compatible
+agent for use with the [Tillitis](https://tillitis.se/) TKey USB
+security token.
 
 Note that development is ongoing. For example, changes might be made
 to [the signer device
@@ -41,8 +12,15 @@ app](https://github.com/tillitis/tkey-device-signer), causing the
 public/private key it provides to change. To avoid unexpected changes
 please use a tagged release.
 
-
 See [Release notes](docs/release_notes.md).
+
+## Developing
+
+See the [TKey Developer Handbook](https://dev.tillitis.se/) for how to
+develop your own TKey apps, how to run and debug them in the emulator
+or on real hardware.
+
+[Current list of known projects](https://dev.tillitis.se/projects/).
 
 ## Building
 
@@ -110,11 +88,11 @@ is not the expected binary.
 
 This client app is a complete, alternative SSH agent with practical
 use. The needed signer device app binary gets built into the
-tkey-ssh-agent, which will load it onto USB stick when started. Like
-the other client apps, tkey-ssh-agent tries to auto-detect serial
-ports of TKey USB sticks. If more than one is found, or if you're
-running on QEMU, then you'll need to use the `--port` flag. An example
-of that:
+tkey-ssh-agent, which will load it onto USB stick when started.
+
+`tkey-ssh-agent` tries to auto-detect the TKey. If more than one is
+found, or if you're running on QEMU, then you'll need to use the
+`--port` flag:
 
 ```
 $ ./tkey-ssh-agent -a ./agent.sock --port /dev/pts/1
@@ -124,10 +102,10 @@ This will start the SSH agent and tell it to listen on the specified
 socket `./agent.sock`.
 
 It will also output the SSH ed25519 public key for this instance of
-the app on this specific TKey USB stick. So again; if the signer app
-binary, the USS, or the UDS in the physical USB stick change, then the
-private key will also change -- and thus the derived public key, your
-public identity in the world of SSH.
+the app on this specific TKey USB stick. 
+
+**Nota bene**: If the signer app binary, the USS, or the UDS in the
+physical USB stick change your key pair will change.
 
 If you copy-paste the public key into your `~/.ssh/authorized_keys`
 you can try to log onto your local computer (if sshd is running
@@ -274,3 +252,4 @@ the SPDX License List at:
 https://spdx.org/licenses/
 
 All contributors must adhere to the [Developer Certificate of Origin](dco.md).
+

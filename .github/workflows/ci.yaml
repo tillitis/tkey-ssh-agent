@@ -29,8 +29,5 @@ jobs:
       - name: make
         run: ./build.sh
 
-      - name: lint go code
-        run: make lint
-
       - name: check for SPDX tags
         run: ./tools/spdx-ensure

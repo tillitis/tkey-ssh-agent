@@ -21,38 +21,13 @@ jobs:
           # fetch-depth: 0
           persist-credentials: false
 
-      - name: Clone tkey-libs
-        uses: actions/checkout@v3
-        with:
-          repository: tillitis/tkey-libs
-          ref: main
-          path: tkey-libs
-
       - name: fix
         # https://github.com/actions/runner-images/issues/6775
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-      - name: Build tkey-libs
-        run: |
-          cd tkey-libs
-          make
-
-      - name: Clone signer
-        uses: actions/checkout@v3
-        with:
-          repository: tillitis/tkey-device-signer
-          ref: main
-          path: tkey-device-signer
-
-      - name: make signer
-        run: make -j -C tkey-device-signer LIBDIR=../tkey-libs
-
-      - name: Copy signer
-        run: cp tkey-device-signer/signer/app.bin cmd/tkey-ssh-agent/app.bin
-
       - name: make
-        run: make -j LIBDIR=../tkey-libs
+        run: ./build.sh
 
       - name: lint go code
         run: make lint

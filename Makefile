@@ -1,3 +1,13 @@
+# Check for OS
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+	shasum = shasum -a 512
+	BUILD_CGO_ENABLED ?= 1
+else
+	shasum = sha512sum
+	BUILD_CGO_ENABLED ?= 0
+endif
+
 .PHONY: all
 all: tkey-ssh-agent
 
@@ -38,13 +48,13 @@ podman:
 
 .PHONY: check-signer-hash
 check-signer-hash:
-	cd cmd/tkey-ssh-agent && sha512sum -c app.bin.sha512
+	cd cmd/tkey-ssh-agent && $(shasum) -c app.bin.sha512
 
 TKEY_SSH_AGENT_VERSION ?=
 # .PHONY to let go-build handle deps and rebuilds
 .PHONY: tkey-ssh-agent
 tkey-ssh-agent: check-signer-hash
-	CGO_ENABLED=0 go build -ldflags "-X main.version=$(TKEY_SSH_AGENT_VERSION) -X main.signerAppNoTouch=$(TKEY_SIGNER_APP_NO_TOUCH)" -trimpath ./cmd/tkey-ssh-agent
+	CGO_ENABLED=$(BUILD_CGO_ENABLED) go build -ldflags "-X main.version=$(TKEY_SSH_AGENT_VERSION) -X main.signerAppNoTouch=$(TKEY_SIGNER_APP_NO_TOUCH)" -trimpath ./cmd/tkey-ssh-agent
 
 .PHONY: tkey-ssh-agent.exe
 tkey-ssh-agent.exe:

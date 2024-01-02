@@ -32,6 +32,9 @@ cmd/tkey-ssh-agent-tray/trayicon.ico
 dco.md
 go.mod
 go.sum
+gotools/Makefile
+gotools/go.mod
+gotools/go.sum
 system/60-tkey.rules
 system/tkey-ssh-agent.1
 system/tkey-ssh-agent.service.tmpl

@@ -48,7 +48,7 @@ podman:
 
 .PHONY: check-signer-hash
 check-signer-hash:
-	cd cmd/tkey-ssh-agent && $(shasum) -c app.bin.sha512
+	cd cmd/tkey-ssh-agent && $(shasum) -c signer.bin.sha512
 
 TKEY_SSH_AGENT_VERSION ?=
 # .PHONY to let go-build handle deps and rebuilds
@@ -72,7 +72,7 @@ tkey-ssh-agent-tray.exe:
 .PHONY: clean
 clean:
 	rm -f \
-	tkey-ssh-agent cmd/tkey-ssh-agent/app.bin \
+	tkey-ssh-agent \
 	tkey-ssh-agent.exe cmd/tkey-ssh-agent/rsrc_windows_amd64.syso \
 	tkey-ssh-agent-tray.exe cmd/tkey-ssh-agent-tray/rsrc_windows_amd64.syso
 

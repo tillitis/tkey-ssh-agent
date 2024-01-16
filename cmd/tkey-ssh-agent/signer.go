@@ -25,7 +25,7 @@ import (
 // nolint:typecheck // Avoid lint error when the embedding file is missing.
 // Makefile copies the built app here ./app.bin
 //
-//go:embed app.bin
+//go:embed signer.bin-v0.0.7
 var appBinary []byte
 
 var notify = func(msg string) {

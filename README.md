@@ -24,9 +24,9 @@ or on real hardware.
 
 ## Building
 
-You have two options, either our OCI image
-`ghcr.io/tillitis/tkey-builder` for use with a rootless podman setup,
-or native tools. See [the Devoloper
+If you want to build it all, including the signer device app, you have
+two options, either our OCI image `ghcr.io/tillitis/tkey-builder` for
+use with a rootless podman setup, or native tools. See [the Devoloper
 Handbook](https://dev.tillitis.se/) for setup.
 
 With native tools you should be able to use our build script:
@@ -39,29 +39,13 @@ which also clones and builds the [TKey device
 libraries](https://github.com/tillitis/tkey-libs) and the [signer
 device app](https://github.com/tillitis/tkey-device-signer) first.
 
-If you want to do it manually, clone and build tkey-libs and
-tkey-device-signer manually like this:
+If you want to do it manually please inspect the build script, but
+basically you clone the `tkey-libs` and `tkey-device-signer` repos,
+build the signer, copy it's `app.bin` to
+`cmd/tkey-sign/signer.bin-${signer_version}` and run `make`.
 
-```
-$ git clone -b v0.0.1 https://github.com/tillitis/tkey-libs
-$ cd tkey-libs
-$ make
-$ cd ..
-$ git clone -b v0.0.7 https://github.com/tillitis/tkey-device-signer
-$ cd tkey-device-signer
-$ make
-$ cd ..
-$ cp ../tkey-device-signer/signer/app.bin cmd/tkey-ssh-agent/app.bin
-```
-
-Then go back to this directory and build everything:
-
-```
-$ make
-```
-
-If you cloned `tkey-libs` to somewhere else then the default set
-`LIBDIR` to the path of the directory.
+If you cloned `tkey-libs` to somewhere else than the default directory
+set `LIBDIR` to the path of the directory.
 
 If your available `objcopy` is anything other than the default
 `llvm-objcopy`, then define `OBJCOPY` to whatever they're called on
@@ -81,8 +65,28 @@ $ podman run --rm --mount type=bind,source=$(CURDIR),target=/src --mount type=bi
 ```
 
 To help prevent unpleasant surprises we keep a hash of the `signer` in
-`cmd/tkey-ssh-agent/app.bin.sha512`. The compilation will fail if this
-is not the expected binary.
+`cmd/tkey-ssh-agent/signer.bin.sha512`. The compilation will fail if
+this is not the expected binary.
+
+### Building with another signer
+
+For convenience, and to be able to support `go install` the signer
+device app binary is included under `cmd/tkey-ssh-agent`.
+
+If you want to replace the signer used you have to:
+
+1. Compile your own signer and place it in `cmd/tkey-ssh-agent`.
+2. Change the path to the embedded signer in `cmd/tkey-ssh-agent/main.go`.
+   Look for `go:embed...`.
+3. Compute a new SHA-512 hash digest for your binary, typically by
+   something like `sha512sum cmd/tkey-ssh-agent/signer.bin-v0.0.7` and
+   put the resulting output in the file `signer.bin.sha512` at the top
+   level.
+4. `make` in the top level.
+
+If you want to use the `build.sh` script you change the
+`signer_version` variable and the URL used to clone the signer device
+app repo.
 
 ### Using tkey-ssh-agent
 

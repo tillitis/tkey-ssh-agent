@@ -23,6 +23,6 @@ fi
 make -j -C ../tkey-libs
 make -j -C ../tkey-device-signer
 
-cp ../tkey-device-signer/signer/app.bin cmd/tkey-ssh-agent/app.bin
+cp ../tkey-device-signer/signer/app.bin cmd/tkey-ssh-agent/signer.bin-${signer_version}
 
 make -j

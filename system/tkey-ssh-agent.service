@@ -1,0 +1,26 @@
+[Unit]
+Description=An SSH agent backed by Tillitis TKey
+Documentation=https://github.com/tillitis/tkey-ssh-agent
+
+[Service]
+ExecStart=/usr/bin/tkey-ssh-agent --uss --agent-path /%t/tkey-ssh-agent/sock
+ExecReload=/usr/bin/kill -HUP $MAINPID
+NoNewPrivileges=yes
+KeyringMode=private
+UMask=0177
+ProtectSystem=strict
+RuntimeDirectory=tkey-ssh-agent
+RuntimeDirectoryMode=0700
+ReadWritePaths=/dev /run
+RestrictAddressFamilies=AF_UNIX
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources
+SystemCallErrorNumber=EPERM
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=default.target

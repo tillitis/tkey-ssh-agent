@@ -1,0 +1,226 @@
+# Make sure to check the documentation at https://goreleaser.com
+release:
+  draft: true
+  replace_existing_draft: true
+
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod tidy
+    # you may remove this if you don't need go generate
+    - go generate ./...
+builds:
+  - id: linux
+    main: ./cmd/tkey-ssh-agent
+    binary: tkey-ssh-agent
+    env:
+      - GOPROXY=https://proxy.golang.org,direct
+      - GOSUMDB=sum.golang.org
+      - CGO_ENABLED=0
+
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -trimpath
+
+    # Custom ldflags mostly to avoid setting main.date which for some
+    # reason is default
+    ldflags:
+      -w -X main.version={{ .Version }} -X main.signerAppNoTouch= -buildid=
+
+  - id: darwin
+    main: ./cmd/tkey-ssh-agent
+    binary: tkey-ssh-agent
+    env:
+      - GOPROXY=https://proxy.golang.org,direct
+      - GOSUMDB=sum.golang.org
+      - CGO_ENABLED=1
+
+    goos:
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -trimpath
+
+    # Custom ldflags mostly to avoid setting main.date which for some
+    # reason is default
+    ldflags:
+      -w -X main.version={{ .Version }} -X main.signerAppNoTouch= -buildid=
+
+  - id: windows
+    main: ./cmd/tkey-ssh-agent
+    binary: tkey-ssh-agent
+    env:
+      - GOPROXY=https://proxy.golang.org,direct
+      - GOSUMDB=sum.golang.org
+      - CGO_ENABLED=0
+
+    goos:
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -trimpath
+
+    # Custom ldflags mostly to avoid setting main.date which for some
+    # reason is default
+    ldflags:
+      -w -X main.version={{ .Version }} -X main.signerAppNoTouch= -buildid=
+
+    hooks:
+      pre: sh -c "cd ./cmd/tkey-ssh-agent && go-winres make --arch amd64"
+
+  - id: windows-tray
+    main: ./cmd/tkey-ssh-agent-tray
+    binary: tkey-ssh-agent-tray
+    env:
+      - GOPROXY=https://proxy.golang.org,direct
+      - GOSUMDB=sum.golang.org
+      - CGO_ENABLED=0
+
+    goos:
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -trimpath
+
+    # Custom ldflags mostly to avoid setting main.date which for some
+    # reason is default
+    ldflags:
+      -w -H windowsgui -buildid=
+
+    hooks:
+      pre: sh -c "cd ./cmd/tkey-ssh-agent-tray && go-winres make --arch amd64"
+
+universal_binaries:
+  - ids:
+      - darwin
+    replace: true
+    name_template: "tkey-ssh-agent"
+    hooks:
+      post: gon gon.hcl
+
+archives:
+  - format: tar.gz
+    allow_different_binary_count: true
+    # this name template makes the OS and Arch compatible with the results of uname.
+    name_template: >-
+      {{ "tkey-ssh-agent" }}_
+      {{- .Version }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "all" }}universal
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    # use zip for windows archives
+    format_overrides:
+    - goos: windows
+      format: zip
+    files:
+      - src: system/tkey-ssh-agent.1
+        dst: man
+        strip_parent: true
+
+nfpms:
+  # note that this is an array of nfpm configs
+  - #
+    # ID of the nfpm config, must be unique.
+
+    # Name of the package.
+    package_name: tkey-ssh-agent
+
+    # Your app's vendor.
+    vendor: Tillitis AB
+
+    # Your app's homepage.
+    homepage: https://tillitis.se/
+
+    # Your app's maintainer (probably you).
+    maintainer: Tillitis <hello@tillitis.se>
+
+    # Your app's description.
+    description: |-
+       SSH agent backed by Tillitis TKey
+       tkey-ssh-agent is an alternative SSH agent backed by a private ed25519 key
+       residing in the hardware TKey, a USB stick.
+
+    # Your app's license.
+    license: GPL 2.0
+
+    # Formats to be generated.
+    formats:
+      - apk
+      - deb
+      - rpm
+      - archlinux # Since: v1.13
+
+    dependencies:
+      - pinentry-gnome3
+
+    bindir: /usr/bin
+
+    release: 1
+
+    section: misc
+
+    # Contents to add to the package.
+    # GoReleaser will automatically add the binaries.
+    contents:
+      - src: system/tkey-ssh-agent.1
+        dst: /usr/share/man/man1/tkey-ssh-agent.1
+        file_info:
+           mode: 0644
+
+      - src: system/tkey-ssh-agent.service
+        dst: /usr/lib/systemd/user/tkey-ssh-agent.service
+        file_info:
+          mode: 0644
+
+      - src: system/60-tkey.rules
+        dst: /usr/lib/udev/rules.d/60-tkey.rules
+        file_info:
+          mode: 0644
+
+      - src: system/copyright
+        dst: /usr/share/docs/tkey-ssh-agent/
+        file_info:
+          mode: 0644
+
+    overrides:
+      apk:
+        dependencies:
+          - pinentry-gnome
+      archlinux:
+        dependencies:
+          - pinentry
+
+    # Scripts to execute during the installation of the package. (overridable)
+    scripts:
+      postinstall: "system/postinst"
+
+    # Custom configuration applied only to the Deb packager.
+    deb:
+      # Lintian overrides
+      lintian_overrides:
+        - statically-linked-binary
+        - changelog-file-missing-in-native-package
+
+
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort:
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+

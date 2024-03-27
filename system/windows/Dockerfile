@@ -1,4 +1,4 @@
-FROM docker.io/library/ubuntu:22.10
+FROM docker.io/library/ubuntu:23.10
 
 ENV WINEARCH=win32
 

@@ -1,9 +1,11 @@
 
+IMAGE=ghcr.io/tillitis/msi-builder:1
+
 .PHONY: msi
 msi:
 	@[ -n "$$SEMVER" ] || { printf "Run like: make SEMVER=0.0.6 msi\n"; false; }
-	podman run --rm -it --mount type=bind,source=$$(pwd),target=/build -w /build \
-	  ghcr.io/tillitis/msi-builder:1 \
+	podman run --arch=amd64 --rm -it --mount type=bind,source=$$(pwd),target=/build -w /build \
+	  $(IMAGE) \
 	  build-msi.sh "$$SEMVER" tkey-ssh-agent.wxs
 	ls -l *.msi
 

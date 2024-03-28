@@ -1,0 +1,35 @@
+name: build-msi
+
+on:
+  workflow_run:
+    workflows: ["ci"]
+    types:
+      - completed
+  # allow manual runs:
+  workflow_dispatch: {}
+
+jobs:
+  build-msi:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/tillitis/msi-builder:1
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          # fetch-depth: 0
+          persist-credentials: false
+
+      - name: download artifact from previous workflow
+        uses: actions/download-artifact@v4
+        with:
+          name: tkey-ssh-agent
+
+      - name: Unzip artifact
+        run: unzip tkey-ssh-agent.zip
+
+      - name: build
+        run: |
+          cp tkey-ssh-agent{,-tray}.exe system/windows/.
+          cd system/windows
+          ./build-msi.sh 0.0.6 tkey-ssh-agent.wxs

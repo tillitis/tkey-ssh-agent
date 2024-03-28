@@ -10,10 +10,10 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  ci:
+  build:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/tillitis/tkey-builder:2
+      image: ghcr.io/tillitis/tkey-builder:4
     steps:
       - name: checkout
         uses: actions/checkout@v3
@@ -27,7 +27,10 @@ jobs:
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: make
-        run: ./build.sh
+        run: make tkey-ssh-agent -j
+
+      - name: make windows
+        run: make windows
 
       - name: check for SPDX tags
         run: ./tools/spdx-ensure

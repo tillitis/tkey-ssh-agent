@@ -10,7 +10,7 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  ci:
+  build:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/tillitis/tkey-builder:4
@@ -27,7 +27,7 @@ jobs:
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: make
-        run: ./build.sh
+        run: make tkey-ssh-agent -j
 
       - name: make windows
         run: make windows -j

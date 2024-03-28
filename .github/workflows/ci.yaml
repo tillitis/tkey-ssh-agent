@@ -1,4 +1,3 @@
-
 name: ci
 
 on:
@@ -14,11 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/tillitis/tkey-builder:4
+
     steps:
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          # fetch-depth: 0
           persist-credentials: false
 
       - name: fix
@@ -26,7 +25,7 @@ jobs:
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-      - name: make
+      - name: make tkey-ssh-agent
         run: make tkey-ssh-agent -j
 
       - name: make windows
@@ -34,3 +33,45 @@ jobs:
 
       - name: check for SPDX tags
         run: ./tools/spdx-ensure
+
+      - name: Cache binaries
+        uses: actions/cache@v4
+        with:
+          path: |
+            tkey-ssh-agent.exe
+            tkey-ssh-agent-tray.exe
+          key: ${{ runner.os }}-build-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-build-
+
+  build-msi:
+    needs: build
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/tillitis/msi-builder:1
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Retrieve binaries from cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            tkey-ssh-agent.exe
+            tkey-ssh-agent-tray.exe
+          key: ${{ runner.os }}-build-${{ needs.build.outputs.commit_sha }}
+          restore-keys: ${{ runner.os }}-build-
+
+      - name: Move files
+        run: |
+          cp tkey-ssh-agent.exe system/windows/.
+          cp tkey-ssh-agent-tray.exe system/windows/.
+
+      - name: Build MSI
+        working-directory: ./system/windows
+        run: |
+          mkdir ~/.wine
+          ./build-msi.sh 0.0.6 tkey-ssh-agent.wxs
+

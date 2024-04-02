@@ -6,7 +6,9 @@ package main
 import (
 	"crypto"
 	"crypto/ed25519"
+	"crypto/sha512"
 	_ "embed"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
@@ -27,6 +29,8 @@ import (
 //
 //go:embed signer.bin-v0.0.7
 var appBinary []byte
+
+const appName string = "tkey-device-signer 0.0.7"
 
 var notify = func(msg string) {
 	tkeyutil.Notify(progname, msg)
@@ -308,4 +312,16 @@ func handleSignals(action func(), sig ...os.Signal) {
 			action()
 		}
 	}()
+}
+
+// GetEmbeddedAppName returns the name of the embedded device app.
+func GetEmbeddedAppName() string {
+	return appName
+}
+
+// GetEmbeddedAppDigest returns a string of the SHA512 digest for the embedded
+// device app
+func GetEmbeddedAppDigest() string {
+	digest := sha512.Sum512(appBinary)
+	return hex.EncodeToString(digest[:])
 }

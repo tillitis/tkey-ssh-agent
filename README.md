@@ -138,16 +138,20 @@ For convenience, and to be able to support `go install` a precompiled
 [signer device app](https://github.com/tkey-device-signer) binary is
 included under `cmd/tkey-ssh-agent`.
 
-If you want to replace the signer used you have to:
+If you want to replace the signer used by the agent you have to:
 
-1. Compile your own signer and place it in `cmd/tkey-ssh-agent`.
-2. Change the path to the embedded signer in `cmd/tkey-ssh-agent/main.go`.
-   Look for `go:embed...`.
-3. Compute a new SHA-512 hash digest for your binary, typically by
+1. Compile your own signer and place it in the `cmd/tkey-ssh-agent`
+   directory.
+2. Change the path to the embedded signer in
+   `cmd/tkey-ssh-agent/signer.go`. Look for `go:embed...`.
+3. Change the `appName` directly under the `go:embed` to whatever your
+   signer is called so the agent reports this correctly with
+   `--version`.
+4. Compute a new SHA-512 hash digest for your binary, typically by
    something like `sha512sum cmd/tkey-ssh-agent/signer.bin-v0.0.7` and
    put the resulting output in the file `signer.bin.sha512` at the top
    level.
-4. `make` in the top level.
+5. `make` in the top level.
 
 If you want to use the `build.sh` script you change the
 `signer_version` variable and the URL used to clone the signer device

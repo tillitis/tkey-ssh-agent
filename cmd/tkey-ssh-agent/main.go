@@ -99,7 +99,8 @@ will flash green when the stick must be touched to complete a signature.`, progn
 		exit(0)
 	}
 	if versionOnly {
-		fmt.Printf("%s %s\n", progname, version)
+		fmt.Printf("%s %s\n\n", progname, version)
+		fmt.Printf("Embedded device app:\n%s\nSHA512: %s\n", GetEmbeddedAppName(), GetEmbeddedAppDigest())
 		exit(0)
 	}
 

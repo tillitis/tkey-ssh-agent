@@ -26,9 +26,8 @@ missingok_files=(
 LICENSE
 Makefile
 README.md
-build.sh
 cmd/tkey-ssh-agent/signer.bin.sha512
-cmd/tkey-ssh-agent/signer.bin-v0.0.7
+cmd/tkey-ssh-agent/signer.bin-v1.0.0
 cmd/tkey-ssh-agent-tray/trayicon.ico
 dco.md
 go.mod

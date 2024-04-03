@@ -31,9 +31,9 @@ After this the `tkey-ssh-agent` command should be available in your
 `$GOBIN` directory.
 
 Note that installing with `go install` doesn't set the version like
-building with other methods does. See building below.
+building with other methods does. See building the agent below.
 
-You will also have to install these manually:
+You will also have to install these manually if you use go install:
 
 - Manual page `system/tkey-ssh-agent.1`.
 - udev rules, see `system/60-tkey.rules` (Linux).
@@ -86,55 +86,51 @@ You can use `--show-pubkey` (short flag: `-p`) to only output the
 pubkey. The pubkey is printed to stdout for easy redirection, but some
 messages are still present on stderr.
 
-## Building
+## Building the agent
 
-If you want to build it all, including the signer device app, you have
-two options, either our OCI image `ghcr.io/tillitis/tkey-builder` for
-use with a rootless podman setup, or native tools. See [the Devoloper
-Handbook](https://dev.tillitis.se/) for setup.
-
-With native tools you should be able to use our build script:
+If you have Go and make installed, a simple:
 
 ```
-$ ./build.sh
+$ make
 ```
 
-which also clones and builds the [TKey device
-libraries](https://github.com/tillitis/tkey-libs) and the [signer
-device app](https://github.com/tillitis/tkey-device-signer) first.
-
-If you want to do it manually please inspect the build script, but
-basically you clone the `tkey-libs` and `tkey-device-signer` repos,
-build the signer, copy it's `app.bin` to
-`cmd/tkey-sign/signer.bin-${signer_version}` and run `make`.
-
-If you cloned `tkey-libs` to somewhere else than the default directory
-set `LIBDIR` to the path of the directory.
-
-If your available `objcopy` is anything other than the default
-`llvm-objcopy`, then define `OBJCOPY` to whatever they're called on
-your system.
-
-If you want to use podman and you have `make` you can run:
+or, for a Windows executable,
 
 ```
-$ podman pull ghcr.io/tillitis/tkey-builder:2
+$ make tkey-ssh-agent.exe
+```
+
+should build the agent. A pre-compiled signer device app binary is
+included in the repo and will be automatically embedded.
+
+Cross compiling the usual Go way with `GOOS` and `GOARCH` environment
+variables works for most targets but currently doesn't work for
+`GOOS=darwin` since the `go.bug.st/serial` package relies on macOS
+shared libraries for port enumeration.
+
+### Building agent with tkey-builder
+
+If you want to use our tkey-builder image and you have `make` you can
+run:
+
+```
+$ podman pull ghcr.io/tillitis/tkey-builder:4
 $ make podman
 ```
 
-or run podman directly with
+or run it directly with Podman:
 
 ```
-$ podman run --rm --mount type=bind,source=$(CURDIR),target=/src --mount type=bind,source=$(CURDIR)/../tkey-libs,target=/tkey-libs -w /src -it ghcr.io/tillitis/tkey-builder:2 make -j
+$ podman run --rm --mount type=bind,source=$(CURDIR),target=/src --mount type=bind,source=$(CURDIR)/../tkey-libs,target=/tkey-libs -w /src -it ghcr.io/tillitis/tkey-builder:4 make -j
 ```
 
-To help prevent unpleasant surprises we keep a hash of the `signer` in
-`cmd/tkey-ssh-agent/signer.bin.sha512`. The compilation will fail if
-this is not the expected binary.
+Note that building with Podman like this by default creates a Linux
+binary. Set `GOOS` and `GOARCH` with `-e` in the call to `podman run`
+to desired target. Again, this won't work with a macOS target.
 
 ### Building with another signer
 
-For convenience, and to be able to support `go install` a precompiled
+For convenience, and to be able to support `go install`, a precompiled
 [signer device app](https://github.com/tkey-device-signer) binary is
 included under `cmd/tkey-ssh-agent`.
 
@@ -153,10 +149,6 @@ If you want to replace the signer used by the agent you have to:
    level.
 5. `make` in the top level.
 
-If you want to use the `build.sh` script you change the
-`signer_version` variable and the URL used to clone the signer device
-app repo.
-
 ### Disabling touch requirement
 
 The [signer device app](https://github.com/tkey-device-signer)
@@ -173,7 +165,22 @@ about touch if the variable is set.
 **Warning**: Of course changing the code also changes the signer
 binary and as a consequence the SSH key pair will also change.
 
-### Windows support
+## Building the signer
+
+1. See [the Devoloper Handbook](https://dev.tillitis.se/) for setup of
+   development tools. We recommend you use tkey-builder.
+2. See the instructions in the [tkey-device-signer
+   repo](https://github.com/tillitis/tkey-device-signer).
+3. Copy its `signer/app.bin` to
+   `cmd/tkey-sign/signer.bin-${signer_version}` and run `make`.
+
+To help prevent unpleasant surprises we keep a digest of the signer in
+`cmd/tkey-ssh-agent/signer.bin.sha512`. The compilation will fail if
+this is not the expected binary. If you really intended to build with
+another signer, see [Building with another
+signer](#building-with-another-signer) above.
+
+## Windows support
 
 `tkey-ssh-agent` can be built for Windows. The Makefile has a
 `windows` target that produces `tkey-ssh-agent.exe` and

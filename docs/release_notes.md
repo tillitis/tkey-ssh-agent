@@ -1,5 +1,26 @@
 # Release notes
 
+## v1.0.0
+
+- All other apps, libraries, and packages have moved to their own
+  repos.
+- Bug fix for Windows: Complain and quit cleanly when agent socket
+  already exists.
+- Embed binary signer in repo. This enables `go install` as install
+  method.
+- `--version` now also outputs version of embedded device app.
+- Builds releases and OS packages with
+  [goreleaser](https://goreleaser.com/).
+- [tkey-device-signer](https://github.com/tillitis/tkey-device-signer)
+  has been updated to v1.0.0. WARNING: Breaks CDI! Generates new key pair.
+- [tkeyclient](https://github.com/tillitis/tkeyclient) has been
+  updated to v1.0.0.
+- [tkeysign](https://github.com/tillitis/tkeysign) has been updated to
+  v1.0.0.
+
+Full
+[changelog](https://github.com/tillitis/tkey-ssh-agent/compare/v0.0.6...v1.0.0).
+
 ## v0.0.6
 
 - Change maximum frame length back to 128 bytes.

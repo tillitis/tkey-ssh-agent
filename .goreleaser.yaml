@@ -25,6 +25,7 @@ builds:
       - arm64
     flags:
       - -trimpath
+      - -buildvcs=false
 
     # Custom ldflags mostly to avoid setting main.date which for some
     # reason is default
@@ -46,6 +47,7 @@ builds:
       - arm64
     flags:
       - -trimpath
+      - -buildvcs=false
 
     # Custom ldflags mostly to avoid setting main.date which for some
     # reason is default
@@ -67,6 +69,7 @@ builds:
       - arm64
     flags:
       - -trimpath
+      - -buildvcs=false
 
     # Custom ldflags mostly to avoid setting main.date which for some
     # reason is default
@@ -91,6 +94,7 @@ builds:
       - arm64
     flags:
       - -trimpath
+      - -buildvcs=false
 
     # Custom ldflags mostly to avoid setting main.date which for some
     # reason is default

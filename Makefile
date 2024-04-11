@@ -54,7 +54,7 @@ TKEY_SSH_AGENT_VERSION ?=
 # .PHONY to let go-build handle deps and rebuilds
 .PHONY: tkey-ssh-agent
 tkey-ssh-agent: check-signer-hash
-	CGO_ENABLED=$(BUILD_CGO_ENABLED) go build -ldflags "-X main.version=$(TKEY_SSH_AGENT_VERSION) -X main.signerAppNoTouch=$(TKEY_SIGNER_APP_NO_TOUCH)" -trimpath ./cmd/tkey-ssh-agent
+	CGO_ENABLED=$(BUILD_CGO_ENABLED) go build -ldflags "-X main.version=$(TKEY_SSH_AGENT_VERSION) -X main.signerAppNoTouch=$(TKEY_SIGNER_APP_NO_TOUCH)" -trimpath -buildvcs=false ./cmd/tkey-ssh-agent
 
 .PHONY: tkey-ssh-agent.exe
 tkey-ssh-agent.exe:
@@ -67,7 +67,7 @@ tkey-ssh-agent.exe:
 tkey-ssh-agent-tray.exe:
 	$(MAKE) -C gotools go-winres
 	cd ./cmd/tkey-ssh-agent-tray && ../../gotools/go-winres make --arch amd64
-	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-H windowsgui" -trimpath ./cmd/tkey-ssh-agent-tray
+	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-H windowsgui" -trimpath -buildvcs=false ./cmd/tkey-ssh-agent-tray
 
 .PHONY: clean
 clean:

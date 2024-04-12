@@ -16,7 +16,7 @@ jobs:
       image: ghcr.io/tillitis/tkey-builder:4
     steps:
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           # fetch-depth: 0
           persist-credentials: false
@@ -26,11 +26,11 @@ jobs:
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
+      - name: check for SPDX tags
+        run: ./tools/spdx-ensure
+
       - name: make
         run: make tkey-ssh-agent -j
 
       - name: make windows
         run: make windows
-
-      - name: check for SPDX tags
-        run: ./tools/spdx-ensure

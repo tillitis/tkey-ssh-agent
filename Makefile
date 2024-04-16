@@ -43,8 +43,9 @@ reload-rules:
 	udevadm control --reload
 	udevadm trigger
 
+.PHONY: podman
 podman:
-	podman run --rm --mount type=bind,source=$(CURDIR),target=/src --mount type=bind,source=$(CURDIR)/../tkey-libs,target=/tkey-libs -w /src -it ghcr.io/tillitis/tkey-builder:2 make -j
+	podman run --rm --mount type=bind,source=$(CURDIR),target=/src -w /src -it ghcr.io/tillitis/tkey-builder:4 make -j
 
 .PHONY: check-signer-hash
 check-signer-hash:

@@ -30,6 +30,8 @@ const (
 	mainExe = "tkey-ssh-agent.exe"
 )
 
+var version string
+
 var notify = func(msg string) {
 	tkeyutil.Notify(progname, msg)
 }
@@ -38,6 +40,10 @@ func main() {
 	if runtime.GOOS != "windows" {
 		le.Printf("Only implemented for windows\n")
 		os.Exit(1)
+	}
+
+	if version == "" {
+		version = "unknown" // The version should be set from make during build.
 	}
 
 	// We're not supposed to be run in a console , but if we still are
@@ -122,10 +128,11 @@ Source code is licensed under
 GNU General Public License v2.0 only
 unless otherwise noted in the source code.
 
-Source repository: https://github.com/tillitis/tillitis-key1-apps
+Source repository: https://github.com/tillitis/tkey-ssh-agent
 Tillitis: https://www.tillitis.se
 
-Running: %s`, mainCmdLine))
+Version: %s
+Running: %s`, version, mainCmdLine))
 			}
 		}()
 

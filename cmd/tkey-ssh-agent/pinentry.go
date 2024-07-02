@@ -4,11 +4,15 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
+	"text/template"
 
 	"github.com/twpayne/go-pinentry-minimal/pinentry"
 )
@@ -19,6 +23,14 @@ func getSecret(udi string, pinentryProgram string) ([]byte, error) {
 	desc := fmt.Sprintf("%s needs a User Supplied Secret\n"+
 		"(USS) for your TKey with number:\n"+
 		"%v", progname, udi)
+
+	if runtime.GOOS == "darwin" && pinentryProgram == "" {
+		pin, err := macOSPrompt(desc, progname)
+		if err != nil {
+			return nil, fmt.Errorf("macOS Prompt: %w", err)
+		}
+		return []byte(pin), nil
+	}
 
 	// The default pinentry program (binaryName) in the client is
 	// "pinentry".
@@ -107,4 +119,40 @@ func findWindowsPinentry() string {
 	}
 
 	return found
+}
+
+var macOSScriptTemplate = template.Must(template.New("script").Parse(`
+var app = Application.currentApplication()
+app.includeStandardAdditions = true
+app.displayDialog(
+	"{{ .Message }}", {
+    defaultAnswer: "",
+	withTitle: "{{ .Title }}",
+    buttons: ["Cancel", "OK"],
+    defaultButton: "OK",
+	cancelButton: "Cancel",
+    hiddenAnswer: true,
+})`))
+
+func macOSPrompt(msg, title string) (string, error) {
+	script := new(bytes.Buffer)
+	if err := macOSScriptTemplate.Execute(script, map[string]interface{}{
+		"Message": strings.ReplaceAll(msg, "\n", `\n`), "Title": title,
+	}); err != nil {
+		return "", err
+	}
+
+	c := exec.Command("osascript", "-s", "se", "-l", "JavaScript")
+	c.Stdin = script
+	out, err := c.Output()
+	if err != nil {
+		return "", fmt.Errorf("failed to execute osascript: %v", err)
+	}
+	var x struct {
+		TextReturned string `json:"textReturned"`
+	}
+	if err := json.Unmarshal(out, &x); err != nil {
+		return "", fmt.Errorf("failed to parse osascript output: %v", err)
+	}
+	return x.TextReturned, nil
 }

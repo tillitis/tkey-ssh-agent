@@ -156,7 +156,7 @@ nfpms:
        residing in the hardware TKey, a USB stick.
 
     # Your app's license.
-    license: GPL 2.0
+    license: BSD-2-clause
 
     # Formats to be generated.
     formats:

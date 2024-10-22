@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (C) 2023 - Tillitis AB
+# SPDX-License-Identifier: BSD-2-Clause
 
 import struct
 import serial
@@ -66,10 +68,10 @@ class TK1:
         for i in range(0, 2):
             try:
                 response = self.getNameVersion()
-                print(response, len(response['name1']))
-                assert(response['name0'] == 'tk1 ')
-                assert(response['name1'] == 'mkdf')
-                assert(response['version'] == 5)
+                print(response, len(response["name1"]))
+                assert response["name0"] == "tk1 "
+                assert response["name1"] == "mkdf"
+                assert response["version"] == 5
                 return True
             except Exception:
                 pass

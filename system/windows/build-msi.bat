@@ -1,4 +1,6 @@
 @echo off
+:: Copyright (C) 2023 - Tillitis AB
+:: SPDX-License-Identifier: BSD-2-Clause
 
 set "SEMVER=%~1"
 

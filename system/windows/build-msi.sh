@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (C) 2023 - Tillitis AB
+# SPDX-License-Identifier: BSD-2-Clause
+
 set -e
 
 SEMVER="${1:-}"

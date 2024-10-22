@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (C) 2023 - Tillitis AB
+# SPDX-License-Identifier: BSD-2-Clause
+
 set -eu
 
 # Check for the SPDX tag in all files in the repo. Exit with a non-zero code if

@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (C) 2022 - Tillitis AB
+# SPDX-License-Identifier: BSD-2-Clause
+#
 set -eu
 
 # This script uses tkey-runapp to load a signer app which has been built with

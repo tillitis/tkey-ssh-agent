@@ -51,7 +51,7 @@ func (s *SSHAgent) Serve(absSockPath string) error {
 }
 
 func (s *SSHAgent) handleConn(c net.Conn) {
-	if err := agent.ServeAgent(s, c); !errors.Is(io.EOF, err) {
+	if err := agent.ServeAgent(s, c); !errors.Is(err, io.EOF) {
 		le.Printf("Agent client connection ended with error: %s\n", err)
 	}
 }

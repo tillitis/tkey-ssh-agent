@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 - Tillitis AB
+# SPDX-FileCopyrightText: 2023 Tillitis AB <tillitis.se>
 # SPDX-License-Identifier: BSD-2-Clause
 
 set -eu
@@ -19,6 +19,7 @@ cmd/tkey-ssh-agent-tray/winres/
 cmd/tkey-ssh-agent/winres/
 docs/
 system/windows/
+LICENSES/
 )
 
 missingok_files=(
@@ -40,14 +41,10 @@ gotools/go.mod
 gotools/go.sum
 system/60-tkey.rules
 system/copyright
-system/postinst
 system/tkey-ssh-agent.1
 system/tkey-ssh-agent.service
 system/tkey-ssh-agent.service.tmpl
-test/attic/test-loop.sh
 test/requirements.txt
-test/run
-test/test-loop.py
 tillitis-ant.png
 )
 

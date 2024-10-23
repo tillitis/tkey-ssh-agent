@@ -1,0 +1,48 @@
+# SPDX-FileCopyrightText: 2024 Tillitis AB <tillitis.se>
+# SPDX-License-Identifier: BSD-2-Clause
+version = 1
+
+[[annotations]]
+path = ".github/workflows/*"
+SPDX-FileCopyrightText = "2022 Tillitis AB <tillitis.se>"
+SPDX-License-Identifier = "BSD-2-Clause"
+
+[[annotations]]
+path = [
+     "cmd/tkey-ssh-agent/signer.bin-v1.0.2",
+     "cmd/tkey-ssh-agent/signer.bin.sha512",
+     "cmd/tkey-ssh-agent/winres/icon.png",
+     "cmd/tkey-ssh-agent/winres/icon16.png",
+     "cmd/tkey-ssh-agent/winres/winres.json",
+     "cmd/tkey-ssh-agent-tray/trayicon.ico",
+     "cmd/tkey-ssh-agent-tray/winres/icon.png",
+     "cmd/tkey-ssh-agent-tray/winres/icon16.png",
+     "cmd/tkey-ssh-agent-tray/winres/winres.json",
+     "docs/release_notes.md",
+     "gotools/Makefile",
+     "gotools/go.mod",
+     "gotools/go.sum",
+     "system/60-tkey.rules",
+     "system/copyright",
+     "system/tkey-ssh-agent.1",
+     "system/tkey-ssh-agent.service",
+     "system/tkey-ssh-agent.service.tmpl",
+     "system/windows/Dockerfile",
+     "system/windows/Makefile",
+     "system/windows/README.md",
+     "system/windows/tillitis-ant.ico",
+     "system/windows/tkey-ssh-agent.wxs",
+     "test/requirements.txt",
+     ".editorconfig",
+     ".gitignore",
+     ".golangci.yml",
+     ".goreleaser.yaml",
+     "Makefile",
+     "README.md",
+     "go.mod",
+     "go.sum",
+     "gon.hcl",
+     "tillitis-ant.png",
+]
+SPDX-FileCopyrightText = "2022 Tillitis AB <tillitis.se>"
+SPDX-License-Identifier = "BSD-2-Clause"

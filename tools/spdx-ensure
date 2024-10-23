@@ -29,7 +29,6 @@ README.md
 cmd/tkey-ssh-agent/signer.bin.sha512
 cmd/tkey-ssh-agent/signer.bin-v1.0.2
 cmd/tkey-ssh-agent-tray/trayicon.ico
-dco.md
 go.mod
 go.sum
 gon.hcl

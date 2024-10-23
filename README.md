@@ -277,6 +277,3 @@ The current set of valid, predefined SPDX identifiers can be found on
 the SPDX License List at:
 
 https://spdx.org/licenses/
-
-All contributors must adhere to the [Developer Certificate of Origin](dco.md).
-

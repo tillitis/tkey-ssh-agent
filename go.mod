@@ -10,7 +10,7 @@ require (
 	github.com/getlantern/systray v1.2.2
 	github.com/spf13/pflag v1.0.5
 	github.com/tawesoft/golib/v2 v2.16.0
-	github.com/tillitis/tkeyclient v1.0.0
+	github.com/tillitis/tkeyclient v1.1.0
 	github.com/tillitis/tkeysign v1.0.0
 	github.com/tillitis/tkeyutil v0.0.8
 	github.com/twpayne/go-pinentry-minimal v0.0.0-20220113210447-2a5dc4396c2a
@@ -20,6 +20,7 @@ require (
 require (
 	github.com/alessio/shellescape v1.4.2 // indirect
 	github.com/apenwarr/w32 v0.0.0-20190407065021-aa00fece76ab // indirect
+	github.com/ccoveille/go-safecast v1.1.0 // indirect
 	github.com/creack/goselect v0.1.2 // indirect
 	github.com/gen2brain/beeep v0.0.0-20240516210008-9c006672e7f4 // indirect
 	github.com/getlantern/context v0.0.0-20220418194847-3d5e7a086201 // indirect

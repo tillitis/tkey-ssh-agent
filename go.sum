@@ -11,6 +11,8 @@ github.com/apenwarr/fixconsole v0.0.0-20191012055117-5a9f6489cc29/go.mod h1:JYWa
 github.com/apenwarr/w32 v0.0.0-20190407065021-aa00fece76ab h1:CMGzRRCjnD50RjUFSArBLuCxiDvdp7b8YPAcikBEQ+k=
 github.com/apenwarr/w32 v0.0.0-20190407065021-aa00fece76ab/go.mod h1:nfFtvHn2Hgs9G1u0/J6LHQv//EksNC+7G8vXmd1VTJ8=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
+github.com/ccoveille/go-safecast v1.1.0 h1:iHKNWaZm+OznO7Eh6EljXPjGfGQsSfa6/sxPlIEKO+g=
+github.com/ccoveille/go-safecast v1.1.0/go.mod h1:QqwNjxQ7DAqY0C721OIO9InMk9zCwcsO7tnRuHytad8=
 github.com/creack/goselect v0.1.2 h1:2DNy14+JPjRBgPzAd1thbQp4BSIihxcBf0IXhQXDRa0=
 github.com/creack/goselect v0.1.2/go.mod h1:a/NhLweNvqIYMuxcMOuWY516Cimucms3DglDzQP3hKY=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -93,8 +95,8 @@ github.com/tawesoft/golib/v2 v2.9.0 h1:R84RNHs+A8UYuRVlLKVpb3Xzp1bvyP2qgAAZQ/ZRX
 github.com/tawesoft/golib/v2 v2.9.0/go.mod h1:jGw0nDuOLpji2TW5QfSQLcWnZ4WtS4TizzRuXu3hZ/Y=
 github.com/tawesoft/golib/v2 v2.16.0 h1:QJPqTFPVz++45fTVyP66o8IfCfz8MYgTrn6nypVLv2o=
 github.com/tawesoft/golib/v2 v2.16.0/go.mod h1:S+cpYdLd1NwKQmWnycfIJqJegOek/Zz+JY9FH7EJTWs=
-github.com/tillitis/tkeyclient v1.0.0 h1:Ox9mEwxon9SRUconYZXrcqrm0YxpMCblMZLPXzPtKro=
-github.com/tillitis/tkeyclient v1.0.0/go.mod h1:dg2fyhB6szX7n1QIf19WcWtl/ueBPQYVlTCjY/kG5pM=
+github.com/tillitis/tkeyclient v1.1.0 h1:/RTIGMZGR8cZ6bUkgZLUmDvTNH5C7qSU2qaSDl3nxhA=
+github.com/tillitis/tkeyclient v1.1.0/go.mod h1:K3b/zU58CLtP5iaOMypc4c7PAAmNqyw7F3bs5iNYtG0=
 github.com/tillitis/tkeysign v1.0.0 h1:qB4UZQzIRsEsQg1hLZE1bhQmk37O4c2qTStn5CAuhlg=
 github.com/tillitis/tkeysign v1.0.0/go.mod h1:7byJbKOEwCjCcUT9lw8WARl+0xO1fFrq+QMJc4MYiqA=
 github.com/tillitis/tkeyutil v0.0.7 h1:+QE4hvthUextFDiLt8Ssxffyn0FPNwDcloahS0sPSQU=

@@ -2,8 +2,6 @@ module github.com/tillitis/tkey-ssh-agent
 
 go 1.22.0
 
-toolchain go1.23.2
-
 require (
 	github.com/Microsoft/go-winio v0.6.2
 	github.com/apenwarr/fixconsole v0.0.0-20191012055117-5a9f6489cc29

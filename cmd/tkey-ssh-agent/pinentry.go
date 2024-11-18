@@ -4,6 +4,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -144,8 +145,16 @@ func macOSPrompt(msg, title string) (string, error) {
 
 	c := exec.Command("osascript", "-s", "se", "-l", "JavaScript")
 	c.Stdin = script
+
+	stderror := new(bytes.Buffer)
+	c.Stderr = stderror
+
 	out, err := c.Output()
 	if err != nil {
+		scanner := bufio.NewScanner(stderror)
+		for scanner.Scan() {
+			le.Printf("osascript stderr: %s\n", scanner.Text())
+		}
 		return "", fmt.Errorf("failed to execute osascript: %w", err)
 	}
 	var x struct {

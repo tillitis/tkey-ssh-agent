@@ -139,20 +139,20 @@ func macOSPrompt(msg, title string) (string, error) {
 	if err := macOSScriptTemplate.Execute(script, map[string]interface{}{
 		"Message": strings.ReplaceAll(msg, "\n", `\n`), "Title": title,
 	}); err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to execute template: %w", err)
 	}
 
 	c := exec.Command("osascript", "-s", "se", "-l", "JavaScript")
 	c.Stdin = script
 	out, err := c.Output()
 	if err != nil {
-		return "", fmt.Errorf("failed to execute osascript: %v", err)
+		return "", fmt.Errorf("failed to execute osascript: %w", err)
 	}
 	var x struct {
 		TextReturned string `json:"textReturned"`
 	}
 	if err := json.Unmarshal(out, &x); err != nil {
-		return "", fmt.Errorf("failed to parse osascript output: %v", err)
+		return "", fmt.Errorf("failed to parse osascript output: %w", err)
 	}
 	return x.TextReturned, nil
 }

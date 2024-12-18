@@ -10,15 +10,15 @@ require (
 	github.com/tawesoft/golib/v2 v2.16.0
 	github.com/tillitis/tkeyclient v1.1.0
 	github.com/tillitis/tkeysign v1.0.1
-	github.com/tillitis/tkeyutil v0.0.8
+	github.com/tillitis/tkeyutil v0.0.9
 	github.com/twpayne/go-pinentry-minimal v0.0.0-20220113210447-2a5dc4396c2a
-	golang.org/x/crypto v0.29.0
+	golang.org/x/crypto v0.31.0
 )
 
 require (
 	github.com/alessio/shellescape v1.4.2 // indirect
 	github.com/apenwarr/w32 v0.0.0-20190407065021-aa00fece76ab // indirect
-	github.com/ccoveille/go-safecast v1.1.0 // indirect
+	github.com/ccoveille/go-safecast v1.5.0 // indirect
 	github.com/creack/goselect v0.1.2 // indirect
 	github.com/gen2brain/beeep v0.0.0-20240516210008-9c006672e7f4 // indirect
 	github.com/getlantern/context v0.0.0-20220418194847-3d5e7a086201 // indirect
@@ -42,7 +42,7 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c // indirect
-	golang.org/x/sys v0.27.0 // indirect
-	golang.org/x/term v0.26.0 // indirect
-	golang.org/x/text v0.20.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/term v0.27.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 )

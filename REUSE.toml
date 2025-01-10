@@ -9,7 +9,7 @@ SPDX-License-Identifier = "BSD-2-Clause"
 
 [[annotations]]
 path = [
-     "cmd/tkey-ssh-agent/signer.bin-v1.0.2",
+     "cmd/tkey-ssh-agent/signer.bin-v1.0.3",
      "cmd/tkey-ssh-agent/signer.bin.sha512",
      "cmd/tkey-ssh-agent/winres/icon.png",
      "cmd/tkey-ssh-agent/winres/icon16.png",

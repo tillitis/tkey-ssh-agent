@@ -27,10 +27,10 @@ import (
 // nolint:typecheck // Avoid lint error when the embedding file is missing.
 // Makefile copies the built app here ./app.bin
 //
-//go:embed signer.bin-v1.0.2
+//go:embed signer.bin-v1.0.3
 var appBinary []byte
 
-const appName string = "tkey-device-signer 1.0.2"
+const appName string = "tkey-device-signer 1.0.3"
 
 var notify = func(msg string) {
 	tkeyutil.Notify(progname, msg)

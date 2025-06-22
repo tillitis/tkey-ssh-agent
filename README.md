@@ -6,7 +6,7 @@
 [Tillitis](https://tillitis.se/) TKey USB security token.
 
 **Warning**: Please use tagged releases for any real use. Development
-on main might mean we change which version of the [the signer device
+on main might mean we change which version of [the signer device
 app](https://github.com/tillitis/tkey-device-signer) we use which
 would cause the SSH key pair to change!
 
@@ -167,7 +167,7 @@ binary and as a consequence the SSH key pair will also change.
 
 ## Building the signer
 
-1. See [the Devoloper Handbook](https://dev.tillitis.se/) for setup of
+1. See [the Developer Handbook](https://dev.tillitis.se/) for setup of
    development tools. We recommend you use tkey-builder.
 2. See the instructions in the [tkey-device-signer
    repo](https://github.com/tillitis/tkey-device-signer).

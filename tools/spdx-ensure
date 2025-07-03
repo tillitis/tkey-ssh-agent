@@ -30,8 +30,9 @@ missingok_files=(
 LICENSE
 Makefile
 README.md
-cmd/tkey-ssh-agent/signer.bin.sha512
-cmd/tkey-ssh-agent/signer.bin-v1.0.2
+cmd/tkey-ssh-agent/device-app/signer.bin-castor-alpha-1
+cmd/tkey-ssh-agent/device-app/signer.bin-v1.0.2
+cmd/tkey-ssh-agent/device-app/signers.sha512
 cmd/tkey-ssh-agent-tray/trayicon.ico
 go.mod
 go.sum

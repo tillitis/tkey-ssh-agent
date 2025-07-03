@@ -49,7 +49,7 @@ podman:
 
 .PHONY: check-signer-hash
 check-signer-hash:
-	cd cmd/tkey-ssh-agent/device-app && $(shasum) -c signer.bin.sha512
+	cd cmd/tkey-ssh-agent/device-app && $(shasum) -c signers.sha512
 
 TKEY_SSH_AGENT_VERSION ?=
 # .PHONY to let go-build handle deps and rebuilds

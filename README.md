@@ -130,23 +130,30 @@ to desired target. Again, this won't work with a macOS target.
 
 ### Building with another signer
 
-For convenience, and to be able to support `go install`, a precompiled
-[signer device app](https://github.com/tkey-device-signer) binary is
-included under `cmd/tkey-ssh-agent`.
+For convenience, and to be able to support `go install`, precompiled
+[signer device app](https://github.com/tkey-device-signer) binaries
+are included under `cmd/tkey-ssh-agent/device-app`.
 
-If you want to replace the signer used by the agent you have to:
+If you want to replace a signer used by the agent you have to:
 
-1. Compile your own signer and place it in the `cmd/tkey-ssh-agent`
-   directory.
-2. Change the path to the embedded signer in
-   `cmd/tkey-ssh-agent/signer.go`. Look for `go:embed...`.
-3. Change the `appName` directly under the `go:embed` to whatever your
-   signer is called so the agent reports this correctly with
-   `--version`.
+1. Compile your own signer and place it in the
+   `cmd/tkey-ssh-agent/device-app` directory.
+2. Change the path to the embedded signers in
+   `cmd/tkey-ssh-agent/apps.go`. Look for `go:embed...`.
+
+   There are currently two variables for different app types: one for
+   older TKeys and one for the new Castor. If you're replacing one of
+   them, add the path to the right variable.
+
+   If you're adding a new application type for a new kind of TKey,
+   create a new variable. If you do, also update the switch in
+   `apps.go:GetApp()` to return your new app type for the new product
+   ID.
+3. Uppdate the `apps.go:List()` function that lists data about all
+   embedded apps.
 4. Compute a new SHA-512 hash digest for your binary, typically by
-   something like `sha512sum cmd/tkey-ssh-agent/signer.bin-v0.0.7` and
-   put the resulting output in the file `signer.bin.sha512` at the top
-   level.
+   something like `sha512sum signer.bin-${signer_version}` and put the
+   resulting output in the file `signers.sha512` next to the binary.
 5. `make` in the top level.
 
 ### Disabling touch requirement
@@ -172,12 +179,13 @@ binary and as a consequence the SSH key pair will also change.
 2. See the instructions in the [tkey-device-signer
    repo](https://github.com/tillitis/tkey-device-signer).
 3. Copy its `signer/app.bin` to
-   `cmd/tkey-sign/signer.bin-${signer_version}` and run `make`.
+   `cmd/tkey-sign/device-apps/signer.bin-${signer_version}` and run
+   `make`.
 
-To help prevent unpleasant surprises we keep a digest of the signer in
-`cmd/tkey-ssh-agent/signer.bin.sha512`. The compilation will fail if
-this is not the expected binary. If you really intended to build with
-another signer, see [Building with another
+To help prevent unpleasant surprises we keep digests of the signers in
+`cmd/tkey-ssh-agent/device-apps/signers.sha512`. The compilation will
+fail if a digest does not match the expected binary. If you really
+intended to build with another signer, see [Building with another
 signer](#building-with-another-signer) above.
 
 ## Windows support

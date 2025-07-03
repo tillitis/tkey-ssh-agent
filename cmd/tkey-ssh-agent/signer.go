@@ -6,9 +6,6 @@ package main
 import (
 	"crypto"
 	"crypto/ed25519"
-	"crypto/sha512"
-	_ "embed"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
@@ -23,14 +20,6 @@ import (
 	"github.com/tillitis/tkeyutil"
 	"golang.org/x/crypto/ssh"
 )
-
-// nolint:typecheck // Avoid lint error when the embedding file is missing.
-// Makefile copies the built app here ./app.bin
-//
-//go:embed device-app/signer.bin-v1.0.2
-var appBinary []byte
-
-const appName string = "tkey-device-signer 1.0.2"
 
 var notify = func(msg string) {
 	tkeyutil.Notify(progname, msg)
@@ -129,7 +118,23 @@ func (s *Signer) connect() bool {
 
 	if s.isFirmwareMode() {
 		le.Printf("TKey is in firmware mode.\n")
-		if err := s.loadApp(); err != nil {
+
+		udi, err := s.tk.GetUDI()
+		if err != nil {
+			le.Printf("Failed to get UDI: %v\n", err)
+			s.closeNow()
+			return false
+		}
+
+		app, err := GetApp(udi.ProductID)
+		if err != nil {
+			notify("Unknown product ID. Failed to identify what device app to use.")
+			s.closeNow()
+
+			return false
+		}
+
+		if err := s.loadApp(app, *udi); err != nil {
 			le.Printf("Failed to load app: %v\n", err)
 			s.closeNow()
 			return false
@@ -177,14 +182,11 @@ func (s *Signer) isWantedApp() bool {
 		nameVer.Name1 == wantAppName1
 }
 
-func (s *Signer) loadApp() error {
+func (s *Signer) loadApp(devApp []byte, udi tkeyclient.UDI) error {
 	var secret []byte
-	if s.enterUSS {
-		udi, err := s.tk.GetUDI()
-		if err != nil {
-			return fmt.Errorf("Failed to get UDI: %w", err)
-		}
+	var err error
 
+	if s.enterUSS {
 		secret, err = getSecret(udi.String(), s.pinentry)
 		if err != nil {
 			notify(fmt.Sprintf("Could not show USS prompt: %s", errors.Unwrap(err)))
@@ -200,7 +202,7 @@ func (s *Signer) loadApp() error {
 	}
 
 	le.Printf("Loading signer app...\n")
-	if err := s.tk.LoadApp(appBinary, secret); err != nil {
+	if err := s.tk.LoadApp(devApp, secret); err != nil {
 		return fmt.Errorf("LoadApp: %w", err)
 	}
 	le.Printf("Signer app loaded.\n")
@@ -312,16 +314,4 @@ func handleSignals(action func(), sig ...os.Signal) {
 			action()
 		}
 	}()
-}
-
-// GetEmbeddedAppName returns the name of the embedded device app.
-func GetEmbeddedAppName() string {
-	return appName
-}
-
-// GetEmbeddedAppDigest returns a string of the SHA512 digest for the embedded
-// device app
-func GetEmbeddedAppDigest() string {
-	digest := sha512.Sum512(appBinary)
-	return hex.EncodeToString(digest[:])
 }

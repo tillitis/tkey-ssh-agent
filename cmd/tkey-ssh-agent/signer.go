@@ -24,14 +24,6 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-// nolint:typecheck // Avoid lint error when the embedding file is missing.
-// Makefile copies the built app here ./app.bin
-//
-//go:embed device-app/signer.bin-v1.0.2
-var appBinary []byte
-
-const appName string = "tkey-device-signer 1.0.2"
-
 var notify = func(msg string) {
 	tkeyutil.Notify(progname, msg)
 }
@@ -56,9 +48,10 @@ type Signer struct {
 	mu              sync.Mutex
 	connected       bool
 	disconnectTimer *time.Timer
+	apps            map[AppType]EmbeddedApp
 }
 
-func NewSigner(devPathArg string, speedArg int, enterUSS bool, fileUSS string, pinentry string, exitFunc func(int)) *Signer {
+func NewSigner(devPathArg string, speedArg int, enterUSS bool, fileUSS string, pinentry string, exitFunc func(int), apps map[AppType]EmbeddedApp) *Signer {
 	var signer Signer
 
 	tkeyclient.SilenceLogging()
@@ -74,6 +67,7 @@ func NewSigner(devPathArg string, speedArg int, enterUSS bool, fileUSS string, p
 		enterUSS: enterUSS,
 		fileUSS:  fileUSS,
 		pinentry: pinentry,
+		apps:     apps,
 	}
 
 	// Do nothing on HUP, in case old udev rule is still in effect
@@ -129,7 +123,23 @@ func (s *Signer) connect() bool {
 
 	if s.isFirmwareMode() {
 		le.Printf("TKey is in firmware mode.\n")
-		if err := s.loadApp(); err != nil {
+
+		udi, err := s.tk.GetUDI()
+		if err != nil {
+			le.Printf("Failed to get UDI: %v\n", err)
+			s.closeNow()
+			return false
+		}
+
+		apptype := identifyAppType(*udi)
+		if apptype == AppTypeUnknown {
+			notify("Uknown product ID. Failed to identify what device app to use\n")
+			s.closeNow()
+
+			return false
+		}
+
+		if err := s.loadApp(s.apps[apptype].app); err != nil {
 			le.Printf("Failed to load app: %v\n", err)
 			s.closeNow()
 			return false
@@ -152,6 +162,17 @@ func (s *Signer) connect() bool {
 
 	s.connected = true
 	return true
+}
+
+func identifyAppType(udi tkeyclient.UDI) AppType {
+	// XXX product ID 0 is assumed to be Castor-compatible.
+	if udi.ProductID == tkeyclient.UDIPIDCastor || udi.ProductID == 0 {
+		return AppTypeCastor
+	} else if udi.ProductID >= tkeyclient.UDIPIDAcrab && udi.ProductID <= tkeyclient.UDIPIDBellatrix {
+		return AppTypePreCastor
+	}
+
+	return AppTypeUnknown
 }
 
 func (s *Signer) isFirmwareMode() bool {
@@ -177,7 +198,7 @@ func (s *Signer) isWantedApp() bool {
 		nameVer.Name1 == wantAppName1
 }
 
-func (s *Signer) loadApp() error {
+func (s *Signer) loadApp(devApp []byte) error {
 	var secret []byte
 	if s.enterUSS {
 		udi, err := s.tk.GetUDI()
@@ -200,7 +221,7 @@ func (s *Signer) loadApp() error {
 	}
 
 	le.Printf("Loading signer app...\n")
-	if err := s.tk.LoadApp(appBinary, secret); err != nil {
+	if err := s.tk.LoadApp(devApp, secret); err != nil {
 		return fmt.Errorf("LoadApp: %w", err)
 	}
 	le.Printf("Signer app loaded.\n")
@@ -314,14 +335,7 @@ func handleSignals(action func(), sig ...os.Signal) {
 	}()
 }
 
-// GetEmbeddedAppName returns the name of the embedded device app.
-func GetEmbeddedAppName() string {
-	return appName
-}
-
-// GetEmbeddedAppDigest returns a string of the SHA512 digest for the embedded
-// device app
-func GetEmbeddedAppDigest() string {
-	digest := sha512.Sum512(appBinary)
+func embeddedAppDigest(bin []byte) string {
+	digest := sha512.Sum512(bin)
 	return hex.EncodeToString(digest[:])
 }

@@ -98,9 +98,15 @@ will flash green when the stick must be touched to complete a signature.`, progn
 		pflag.Usage()
 		exit(0)
 	}
+
+	apps := NewDeviceApps()
+
 	if versionOnly {
 		fmt.Printf("%s %s\n\n", progname, version)
-		fmt.Printf("Embedded device app:\n%s\nSHA512: %s\n", GetEmbeddedAppName(), GetEmbeddedAppDigest())
+		fmt.Printf("Embedded device apps:\n")
+		for _, app := range apps {
+			fmt.Printf("%s\nSHA512: %s\n", app.name, app.digest)
+		}
 		exit(0)
 	}
 
@@ -150,7 +156,7 @@ will flash green when the stick must be touched to complete a signature.`, progn
 		prevExitFunc(code)
 	}
 
-	signer := NewSigner(devPath, speed, enterUSS, fileUSS, pinentry, exit)
+	signer := NewSigner(devPath, speed, enterUSS, fileUSS, pinentry, exit, apps)
 
 	if showPubkeyOnly {
 		if !signer.connect() {

@@ -1,6 +1,6 @@
 module github.com/tillitis/tkey-ssh-agent
 
-go 1.22.0
+go 1.23.0
 
 require (
 	github.com/Microsoft/go-winio v0.6.2
@@ -8,11 +8,11 @@ require (
 	github.com/getlantern/systray v1.2.2
 	github.com/spf13/pflag v1.0.5
 	github.com/tawesoft/golib/v2 v2.16.0
-	github.com/tillitis/tkeyclient v1.1.0
-	github.com/tillitis/tkeysign v1.0.1
+	github.com/tillitis/tkeyclient v1.2.0
+	github.com/tillitis/tkeysign v1.1.0
 	github.com/tillitis/tkeyutil v0.0.8
 	github.com/twpayne/go-pinentry-minimal v0.0.0-20220113210447-2a5dc4396c2a
-	golang.org/x/crypto v0.29.0
+	golang.org/x/crypto v0.40.0
 )
 
 require (
@@ -42,7 +42,7 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c // indirect
-	golang.org/x/sys v0.27.0 // indirect
-	golang.org/x/term v0.26.0 // indirect
-	golang.org/x/text v0.20.0 // indirect
+	golang.org/x/sys v0.34.0 // indirect
+	golang.org/x/term v0.33.0 // indirect
+	golang.org/x/text v0.27.0 // indirect
 )

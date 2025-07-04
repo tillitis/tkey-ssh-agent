@@ -83,6 +83,8 @@ github.com/tawesoft/golib/v2 v2.16.0 h1:QJPqTFPVz++45fTVyP66o8IfCfz8MYgTrn6nypVL
 github.com/tawesoft/golib/v2 v2.16.0/go.mod h1:S+cpYdLd1NwKQmWnycfIJqJegOek/Zz+JY9FH7EJTWs=
 github.com/tillitis/tkeyclient v1.1.0 h1:/RTIGMZGR8cZ6bUkgZLUmDvTNH5C7qSU2qaSDl3nxhA=
 github.com/tillitis/tkeyclient v1.1.0/go.mod h1:K3b/zU58CLtP5iaOMypc4c7PAAmNqyw7F3bs5iNYtG0=
+github.com/tillitis/tkeyclient v1.1.1-0.20250703081450-744fe0959666 h1:vKyhuslrLhAr4F7uUi3k/wj1X2ifBbpvHa1y+tCukes=
+github.com/tillitis/tkeyclient v1.1.1-0.20250703081450-744fe0959666/go.mod h1:2VIO6SaAZhgVXR6e/IdriUJkV08EhwX5rMXUZmpyWnY=
 github.com/tillitis/tkeysign v1.0.1 h1:E+nycj/iv9247MOBval1PmWcZ68J7LUXhXdlW49+N08=
 github.com/tillitis/tkeysign v1.0.1/go.mod h1:C4gYuqI2HHJ86S0PoWlk30eFsKDnMvdEgIYIVyNfzvY=
 github.com/tillitis/tkeyutil v0.0.8 h1:CbDT6HDuma5/hNPZrZFGrZ1U/zAWH74bIbkqdHIHfKU=

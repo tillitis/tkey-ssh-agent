@@ -8,7 +8,7 @@ require (
 	github.com/getlantern/systray v1.2.2
 	github.com/spf13/pflag v1.0.5
 	github.com/tawesoft/golib/v2 v2.16.0
-	github.com/tillitis/tkeyclient v1.1.0
+	github.com/tillitis/tkeyclient v1.1.1-0.20250703081450-744fe0959666
 	github.com/tillitis/tkeysign v1.0.1
 	github.com/tillitis/tkeyutil v0.0.8
 	github.com/twpayne/go-pinentry-minimal v0.0.0-20220113210447-2a5dc4396c2a

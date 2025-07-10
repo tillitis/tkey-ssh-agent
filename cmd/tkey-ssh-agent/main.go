@@ -26,6 +26,17 @@ var version string
 
 const windowsPipePrefix = `\\.\pipe\`
 
+type Port struct {
+	Path  string
+	Speed int
+}
+
+type UssConfig struct {
+	EnterManually bool
+	Path          string
+	PinentryPath  string
+}
+
 func main() {
 	exit := func(code int) {
 		os.Exit(code)
@@ -35,9 +46,10 @@ func main() {
 		version = readBuildInfo()
 	}
 
-	var agentPath, devPath, fileUSS, pinentry string
-	var speed int
-	var enterUSS, showPubkeyOnly, listPortsOnly, versionOnly, helpOnly bool
+	var port Port
+	var ussConf UssConfig
+	var agentPath string
+	var showPubkeyOnly, listPortsOnly, versionOnly, helpOnly bool
 	pflag.CommandLine.SetOutput(os.Stderr)
 	pflag.CommandLine.SortFlags = false
 	pflag.CommandLine.SetNormalizeFunc(func(_ *pflag.FlagSet, name string) pflag.NormalizedName {
@@ -53,15 +65,15 @@ func main() {
 		"Don't start the agent, only output the ssh-ed25519 public key.")
 	pflag.BoolVarP(&listPortsOnly, "list-ports", "L", false,
 		"List possible serial ports to use with --port.")
-	pflag.StringVar(&devPath, "port", "",
+	pflag.StringVar(&port.Path, "port", "",
 		"Set serial port device `PATH`. If this is not passed, auto-detection will be attempted.")
-	pflag.IntVar(&speed, "speed", tkeyclient.SerialSpeed,
+	pflag.IntVar(&port.Speed, "speed", tkeyclient.SerialSpeed,
 		"Set serial port speed in `BPS` (bits per second).")
-	pflag.BoolVar(&enterUSS, "uss", false,
+	pflag.BoolVar(&ussConf.EnterManually, "uss", false,
 		"Enable typing of a phrase to be hashed as the User Supplied Secret. The USS is loaded onto the TKey along with the app itself. A different USS results in different SSH public/private keys, meaning a different identity.")
-	pflag.StringVar(&fileUSS, "uss-file", "",
+	pflag.StringVar(&ussConf.Path, "uss-file", "",
 		"Read `FILE` and hash its contents as the USS. Use '-' (dash) to read from stdin. The full contents are hashed unmodified (e.g. newlines are not stripped).")
-	pflag.StringVar(&pinentry, "pinentry", "",
+	pflag.StringVar(&ussConf.PinentryPath, "pinentry", "",
 		"Pinentry `PROGRAM` for use by --uss. The default is found by looking in your gpg-agent.conf for pinentry-program, or 'pinentry' if not found there. On Windows, an attempt is made to find Gpg4win's pinentry program to use as default. On macOS, a native prompt is used by default.")
 	pflag.BoolVar(&versionOnly, "version", false, "Output version information.")
 	pflag.BoolVar(&helpOnly, "help", false, "Output this help.")
@@ -144,7 +156,7 @@ will flash green when the stick must be touched to complete a signature.`, progn
 		exit(2)
 	}
 
-	if enterUSS && fileUSS != "" {
+	if ussConf.EnterManually && ussConf.Path != "" {
 		le.Printf("Pass only one of --uss or --uss-file.\n\n")
 		pflag.Usage()
 		exit(2)
@@ -156,7 +168,7 @@ will flash green when the stick must be touched to complete a signature.`, progn
 		prevExitFunc(code)
 	}
 
-	signer := NewSigner(devPath, speed, enterUSS, fileUSS, pinentry, exit, apps)
+	signer := NewSigner(port, ussConf, exit, apps)
 
 	if showPubkeyOnly {
 		if !signer.connect() {

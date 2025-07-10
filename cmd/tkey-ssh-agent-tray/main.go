@@ -124,8 +124,8 @@ func tray(mainCmdLine string, onExit func()) {
 				_ = dialog.Info(fmt.Sprintf(`TKey SSH Agent
 Copyright (C) Tillitis AB
 
-Source code is licensed under
-GNU General Public License v2.0 only
+Source code is licensed under the
+BSD 2-Clause License
 unless otherwise noted in the source code.
 
 Source repository: https://github.com/tillitis/tkey-ssh-agent

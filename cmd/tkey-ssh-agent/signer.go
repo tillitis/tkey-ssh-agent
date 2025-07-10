@@ -37,17 +37,14 @@ const (
 type Signer struct {
 	tk              *tkeyclient.TillitisKey
 	tkSigner        *tkeysign.Signer
-	devPath         string
-	speed           int
-	enterUSS        bool
-	fileUSS         string
-	pinentry        string
+	port            Port
+	uss             UssConfig
 	mu              sync.Mutex
 	connected       bool
 	disconnectTimer *time.Timer
 }
 
-func NewSigner(devPathArg string, speedArg int, enterUSS bool, fileUSS string, pinentry string, exitFunc func(int)) *Signer {
+func NewSigner(port Port, uss UssConfig, exitFunc func(int)) *Signer {
 	var signer Signer
 
 	tkeyclient.SilenceLogging()
@@ -58,11 +55,8 @@ func NewSigner(devPathArg string, speedArg int, enterUSS bool, fileUSS string, p
 	signer = Signer{
 		tk:       tk,
 		tkSigner: &tkSigner,
-		devPath:  devPathArg,
-		speed:    speedArg,
-		enterUSS: enterUSS,
-		fileUSS:  fileUSS,
-		pinentry: pinentry,
+		port:     port,
+		uss:      uss,
 	}
 
 	// Do nothing on HUP, in case old udev rule is still in effect
@@ -90,7 +84,7 @@ func (s *Signer) connect() bool {
 		return true
 	}
 
-	devPath := s.devPath
+	devPath := s.port.Path
 	if devPath == "" {
 		var err error
 		devPath, err = tkeyclient.DetectSerialPort(false)
@@ -110,7 +104,7 @@ func (s *Signer) connect() bool {
 	}
 
 	le.Printf("Connecting to TKey on serial port %s\n", devPath)
-	if err := s.tk.Connect(devPath, tkeyclient.WithSpeed(s.speed)); err != nil {
+	if err := s.tk.Connect(devPath, tkeyclient.WithSpeed(s.port.Speed)); err != nil {
 		notify(fmt.Sprintf("Could not connect to a TKey on port %v.", devPath))
 		le.Printf("Failed to connect: %v", err)
 		return false
@@ -186,18 +180,18 @@ func (s *Signer) loadApp(devApp []byte, udi tkeyclient.UDI) error {
 	var secret []byte
 	var err error
 
-	if s.enterUSS {
-		secret, err = getSecret(udi.String(), s.pinentry)
+	if s.uss.EnterManually {
+		secret, err = getSecret(udi.String(), s.uss.PinentryPath)
 		if err != nil {
 			notify(fmt.Sprintf("Could not show USS prompt: %s", errors.Unwrap(err)))
 			return fmt.Errorf("Failed to get USS: %w", err)
 		}
-	} else if s.fileUSS != "" {
+	} else if s.uss.Path != "" {
 		var err error
-		secret, err = tkeyutil.ReadUSS(s.fileUSS)
+		secret, err = tkeyutil.ReadUSS(s.uss.Path)
 		if err != nil {
 			notify(fmt.Sprintf("Could not read USS file: %s", err))
-			return fmt.Errorf("Failed to read uss-file %s: %w", s.fileUSS, err)
+			return fmt.Errorf("Failed to read uss-file %s: %w", s.uss.Path, err)
 		}
 	}
 

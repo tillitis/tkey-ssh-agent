@@ -7,20 +7,15 @@ import (
 	_ "embed"
 )
 
-// Variable containing the signer app for Engineering Sample, Acrab,
-// and Bellatrix models of TKey.
-
 // nolint:typecheck // Avoid lint error when the embedding file is missing.
 //
 //go:embed device-app/signer.bin-v1.0.2
-var appBinaryPreCastor []byte
-
-// Variable containing the signer app for the Castor model of TKey.
+var appBinaryV1_0_2 []byte
 
 // nolint:typecheck // Avoid lint error when the embedding file is missing.
 //
 //go:embed device-app/signer.bin-castor-alpha-1
-var appBinaryCastor []byte
+var appBinaryVCastorAlpha1 []byte
 
 type AppType int
 
@@ -36,17 +31,27 @@ type EmbeddedApp struct {
 	app    []byte
 }
 
+// NewDeviceApps returns a map mapping an application type to a
+// specific embedded device app.
+//
+// Different app types are needed depending on the TKey platform used.
+// Currently there are two types: AppTypePreCastor (Acrab, Bellatrix
+// models of TKey) and AppTypeCastor (the Castor model).
+//
+// The mapping between the app type to use is usually done by looking
+// at the UDI product ID and then mapping to one of the AppTypes in
+// the map returned from NewDeviceApps().
 func NewDeviceApps() map[AppType]EmbeddedApp {
 	apps := map[AppType]EmbeddedApp{
 		AppTypePreCastor: {
 			name:   "tkey-device-signer 1.0.2",
-			digest: embeddedAppDigest(appBinaryPreCastor),
-			app:    appBinaryPreCastor,
+			digest: embeddedAppDigest(appBinaryV1_0_2),
+			app:    appBinaryV1_0_2,
 		},
 		AppTypeCastor: {
 			name:   "tkey-device-signer castor-alpha-1",
-			digest: embeddedAppDigest(appBinaryCastor),
-			app:    appBinaryCastor,
+			digest: embeddedAppDigest(appBinaryVCastorAlpha1),
+			app:    appBinaryVCastorAlpha1,
 		},
 	}
 

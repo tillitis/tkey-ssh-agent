@@ -4,7 +4,11 @@
 package main
 
 import (
+	"crypto/sha512"
 	_ "embed"
+	"encoding/hex"
+
+	"github.com/tillitis/tkeyclient"
 )
 
 // nolint:typecheck // Avoid lint error when the embedding file is missing.
@@ -56,4 +60,20 @@ func NewDeviceApps() map[AppType]EmbeddedApp {
 	}
 
 	return apps
+}
+
+func embeddedAppDigest(bin []byte) string {
+	digest := sha512.Sum512(bin)
+	return hex.EncodeToString(digest[:])
+}
+
+func identifyAppType(udi tkeyclient.UDI) AppType {
+	// XXX product ID 0 is assumed to be Castor-compatible.
+	if udi.ProductID == tkeyclient.UDIPIDCastor || udi.ProductID == 0 {
+		return AppTypeCastor
+	} else if udi.ProductID >= tkeyclient.UDIPIDAcrab && udi.ProductID <= tkeyclient.UDIPIDBellatrix {
+		return AppTypePreCastor
+	}
+
+	return AppTypeUnknown
 }

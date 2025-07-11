@@ -130,7 +130,7 @@ func (s *Signer) connect() bool {
 			return false
 		}
 
-		if err := s.loadApp(app); err != nil {
+		if err := s.loadApp(app, *udi); err != nil {
 			le.Printf("Failed to load app: %v\n", err)
 			s.closeNow()
 			return false
@@ -178,15 +178,11 @@ func (s *Signer) isWantedApp() bool {
 		nameVer.Name1 == wantAppName1
 }
 
-func (s *Signer) loadApp(devApp []byte) error {
+func (s *Signer) loadApp(devApp []byte, udi tkeyclient.UDI) error {
 	var secret []byte
+	var err error
 
 	if s.uss.EnterManually {
-		udi, err := s.tk.GetUDI()
-		if err != nil {
-			return fmt.Errorf("Failed to get UDI: %w", err)
-		}
-
 		secret, err = getSecret(udi.String(), s.uss.PinentryPath)
 		if err != nil {
 			notify(fmt.Sprintf("Could not show USS prompt: %s", errors.Unwrap(err)))

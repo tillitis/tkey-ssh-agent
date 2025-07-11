@@ -1,5 +1,14 @@
 # Release notes
 
+## Upcoming release
+
+- Detect and load different signer device apps depending on TKey
+  model.
+- Embed two different signer binaries: one for Castor and one for
+  earlier versions.
+- tkeysign updated to v1.1.0.
+- tkeyclient updated to v1.2.0.
+
 ## v1.0.0
 
 - All other apps, libraries, and packages have moved to their own

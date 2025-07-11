@@ -42,10 +42,10 @@ type Signer struct {
 	mu              sync.Mutex
 	connected       bool
 	disconnectTimer *time.Timer
-	apps            map[AppType]EmbeddedApp
+	apps            Apps
 }
 
-func NewSigner(port Port, uss UssConfig, exitFunc func(int), apps map[AppType]EmbeddedApp) *Signer {
+func NewSigner(port Port, uss UssConfig, exitFunc func(int), apps Apps) *Signer {
 	var signer Signer
 
 	tkeyclient.SilenceLogging()
@@ -122,15 +122,15 @@ func (s *Signer) connect() bool {
 			return false
 		}
 
-		apptype := identifyAppType(*udi)
-		if apptype == AppTypeUnknown {
-			notify("Uknown product ID. Failed to identify what device app to use\n")
+		app, err := s.apps.GetApp(*udi)
+		if err != nil {
+			notify("Uknown product ID. Failed to identify what device app to use.")
 			s.closeNow()
 
 			return false
 		}
 
-		if err := s.loadApp(s.apps[apptype].app); err != nil {
+		if err := s.loadApp(app); err != nil {
 			le.Printf("Failed to load app: %v\n", err)
 			s.closeNow()
 			return false

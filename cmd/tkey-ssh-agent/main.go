@@ -116,7 +116,7 @@ will flash green when the stick must be touched to complete a signature.`, progn
 	if versionOnly {
 		fmt.Printf("%s %s\n\n", progname, version)
 		fmt.Printf("Embedded device apps:\n")
-		for _, app := range apps {
+		for _, app := range apps.Map() {
 			fmt.Printf("%s\nSHA512: %s\n", app.name, app.digest)
 		}
 		exit(0)

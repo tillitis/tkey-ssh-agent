@@ -7,6 +7,7 @@ import (
 	"crypto/sha512"
 	_ "embed"
 	"encoding/hex"
+	"fmt"
 
 	"github.com/tillitis/tkeyclient"
 )
@@ -35,18 +36,23 @@ type EmbeddedApp struct {
 	app    []byte
 }
 
-// NewDeviceApps returns a map mapping an application type to a
-// specific embedded device app.
+type Apps struct {
+	appMap map[AppType]EmbeddedApp
+}
+
+// NewDeviceApps returns type Apps which has methods to get at a
+// mapping between a specific TKey UDI and the app type to use.
 //
 // Different app types are needed depending on the TKey platform used.
 // Currently there are two types: AppTypePreCastor (Acrab, Bellatrix
 // models of TKey) and AppTypeCastor (the Castor model).
 //
 // The mapping between the app type to use is usually done by looking
-// at the UDI product ID and then mapping to one of the AppTypes in
-// the map returned from NewDeviceApps().
-func NewDeviceApps() map[AppType]EmbeddedApp {
-	apps := map[AppType]EmbeddedApp{
+// at the UDI product ID. See GetApp().
+func NewDeviceApps() Apps {
+	var apps Apps
+
+	apps.appMap = map[AppType]EmbeddedApp{
 		AppTypePreCastor: {
 			name:   "tkey-device-signer 1.0.2",
 			digest: embeddedAppDigest(appBinaryV1_0_2),
@@ -60,6 +66,23 @@ func NewDeviceApps() map[AppType]EmbeddedApp {
 	}
 
 	return apps
+}
+
+// Map returns the map between the app type and the embedded device
+// app.
+func (a Apps) Map() map[AppType]EmbeddedApp {
+	return a.appMap
+}
+
+// GetApp looks up what type of app is needed depending on the UDI
+// product ID. It returns the app and any error.
+func (a Apps) GetApp(udi tkeyclient.UDI) ([]byte, error) {
+	t := identifyAppType(udi)
+	if t == AppTypeUnknown {
+		return nil, fmt.Errorf("unknown device")
+	}
+
+	return a.appMap[t].app, nil
 }
 
 func embeddedAppDigest(bin []byte) string {

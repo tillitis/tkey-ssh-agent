@@ -6,7 +6,6 @@ package main
 import (
 	"crypto"
 	"crypto/ed25519"
-	_ "embed"
 	"errors"
 	"fmt"
 	"io"

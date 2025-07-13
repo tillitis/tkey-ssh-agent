@@ -130,23 +130,27 @@ to desired target. Again, this won't work with a macOS target.
 
 ### Building with another signer
 
-For convenience, and to be able to support `go install`, a precompiled
-[signer device app](https://github.com/tkey-device-signer) binary is
-included under `cmd/tkey-ssh-agent`.
+For convenience, and to be able to support `go install`, precompiled
+[signer device app](https://github.com/tkey-device-signer) binaries
+are included under `cmd/tkey-ssh-agent/device-app`.
 
 If you want to replace a signer used by the agent you have to:
 
 1. Compile your own signer and place it in the
    `cmd/tkey-ssh-agent/device-app` directory.
 2. Change the path to the embedded signers in
-   `cmd/tkey-ssh-agent/apps.go`. Look for `go:embed...`. There are
-   currently two variables for different app types: one for older
-   TKeys and one for the new Castor. If you're replacing one of them,
-   add the path to the right variable. If you're adding a new
-   application type, create a new variable.
-3. Add your device app variable to the `appMap` in
-   `apps.go:NewDeviceApps()` if it isn't there already and check that
-   the TKey model you're supporting has the right app type in `pidMap`.
+   `cmd/tkey-ssh-agent/apps.go`. Look for `go:embed...`.
+
+   There are currently two variables for different app types: one for
+   older TKeys and one for the new Castor. If you're replacing one of
+   them, add the path to the right variable.
+
+   If you're adding a new application type for a new kind of TKey,
+   create a new variable. If you do, also update the switch in
+   `apps.go:GetApp()` to return your new app type for the new product
+   ID.
+3. Uppdate the `apps.go:List()` function that lists data about all
+   embedded apps.
 4. Compute a new SHA-512 hash digest for your binary, typically by
    something like `sha512sum signer.bin-${signer_version}` and put the
    resulting output in the file `signers.sha512` next to the binary.

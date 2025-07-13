@@ -144,8 +144,9 @@ If you want to replace a signer used by the agent you have to:
    TKeys and one for the new Castor. If you're replacing one of them,
    add the path to the right variable. If you're adding a new
    application type, create a new variable.
-3. Add your device app variable to the map in
-   `apps.go:NewDeviceApps()` if it isn't there already.
+3. Add your device app variable to the `appMap` in
+   `apps.go:NewDeviceApps()` if it isn't there already and check that
+   the TKey model you're supporting has the right app type in `pidMap`.
 4. Compute a new SHA-512 hash digest for your binary, typically by
    something like `sha512sum signer.bin-${signer_version}` and put the
    resulting output in the file `signers.sha512` next to the binary.

@@ -42,10 +42,9 @@ type Signer struct {
 	mu              sync.Mutex
 	connected       bool
 	disconnectTimer *time.Timer
-	apps            Apps
 }
 
-func NewSigner(port Port, uss UssConfig, exitFunc func(int), apps Apps) *Signer {
+func NewSigner(port Port, uss UssConfig, exitFunc func(int)) *Signer {
 	var signer Signer
 
 	tkeyclient.SilenceLogging()
@@ -58,7 +57,6 @@ func NewSigner(port Port, uss UssConfig, exitFunc func(int), apps Apps) *Signer 
 		tkSigner: &tkSigner,
 		port:     port,
 		uss:      uss,
-		apps:     apps,
 	}
 
 	// Do nothing on HUP, in case old udev rule is still in effect
@@ -122,7 +120,7 @@ func (s *Signer) connect() bool {
 			return false
 		}
 
-		app, err := s.apps.GetApp(udi.ProductID)
+		app, err := GetApp(udi.ProductID)
 		if err != nil {
 			notify("Uknown product ID. Failed to identify what device app to use.")
 			s.closeNow()

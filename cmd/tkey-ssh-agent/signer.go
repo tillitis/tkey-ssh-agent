@@ -122,7 +122,7 @@ func (s *Signer) connect() bool {
 
 		app, err := GetApp(udi.ProductID)
 		if err != nil {
-			notify("Uknown product ID. Failed to identify what device app to use.")
+			notify("Unknown product ID. Failed to identify what device app to use.")
 			s.closeNow()
 
 			return false

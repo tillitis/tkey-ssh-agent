@@ -11,7 +11,7 @@ require (
 	github.com/tillitis/tkeyclient v1.2.0
 	github.com/tillitis/tkeysign v1.1.0
 	github.com/tillitis/tkeyutil v0.0.8
-	github.com/twpayne/go-pinentry-minimal v0.0.0-20220113210447-2a5dc4396c2a
+	github.com/twpayne/go-pinentry v0.3.0
 	golang.org/x/crypto v0.40.0
 )
 
@@ -32,8 +32,11 @@ require (
 	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/go-toast/toast v0.0.0-20190211030409-01e6764cf0a4 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.18 // indirect
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d // indirect
 	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c // indirect
+	github.com/rs/zerolog v1.29.1 // indirect
 	github.com/tadvi/systray v0.0.0-20190226123456-11a2b8fa57af // indirect
 	go.bug.st/serial v1.6.2 // indirect
 	go.opentelemetry.io/otel v1.31.0 // indirect

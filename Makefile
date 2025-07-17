@@ -8,6 +8,8 @@ else
 	BUILD_CGO_ENABLED ?= 0
 endif
 
+IMAGE=ghcr.io/tillitis/tkey-builder:5rc2
+
 .PHONY: all
 all: tkey-ssh-agent
 
@@ -45,7 +47,7 @@ reload-rules:
 
 .PHONY: podman
 podman:
-	podman run --rm --mount type=bind,source=$(CURDIR),target=/src -w /src -it ghcr.io/tillitis/tkey-builder:4 make -j
+	podman run --rm --mount type=bind,source=$(CURDIR),target=/src -w /src -it $(IMAGE) make -j
 
 .PHONY: check-signer-hash
 check-signer-hash:

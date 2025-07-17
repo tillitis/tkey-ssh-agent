@@ -13,7 +13,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/tillitis/tkey-builder:4
+      image: ghcr.io/tillitis/tkey-builder:5rc2
     steps:
       - name: checkout
         uses: actions/checkout@v4

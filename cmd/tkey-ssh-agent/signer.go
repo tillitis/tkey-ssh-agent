@@ -195,7 +195,7 @@ func (s *Signer) loadApp(devApp []byte, udi tkeyclient.UDI) error {
 		}
 	}
 
-	le.Printf("Loading signer app...\n")
+	le.Printf("Loading signer app...\nSHA512: %s\n", AppDigest(devApp))
 	if err := s.tk.LoadApp(devApp, secret); err != nil {
 		return fmt.Errorf("LoadApp: %w", err)
 	}

@@ -41,11 +41,11 @@ func ListApps() []EmbeddedApp {
 	list := []EmbeddedApp{
 		{
 			name:   "tkey-device-signer 1.0.2",
-			digest: embeddedAppDigest(appBinaryPreCastor),
+			digest: AppDigest(appBinaryPreCastor),
 		},
 		{
 			name:   "tkey-device-signer castor-alpha-1",
-			digest: embeddedAppDigest(appBinaryCastor),
+			digest: AppDigest(appBinaryCastor),
 		},
 	}
 
@@ -69,7 +69,7 @@ func GetApp(pid uint8) ([]byte, error) {
 	return nil, ErrNotFound
 }
 
-func embeddedAppDigest(bin []byte) string {
+func AppDigest(bin []byte) string {
 	digest := sha512.Sum512(bin)
 	return hex.EncodeToString(digest[:])
 }

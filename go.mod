@@ -19,7 +19,7 @@ require (
 	github.com/alessio/shellescape v1.4.2 // indirect
 	github.com/apenwarr/w32 v0.0.0-20190407065021-aa00fece76ab // indirect
 	github.com/ccoveille/go-safecast v1.1.0 // indirect
-	github.com/creack/goselect v0.1.2 // indirect
+	github.com/creack/goselect v0.1.3 // indirect
 	github.com/gen2brain/beeep v0.0.0-20240516210008-9c006672e7f4 // indirect
 	github.com/getlantern/context v0.0.0-20220418194847-3d5e7a086201 // indirect
 	github.com/getlantern/errors v1.0.4 // indirect

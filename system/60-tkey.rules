@@ -3,3 +3,5 @@
 # (see loginctl) can read/write to the serial port in /dev.
 ATTRS{idVendor}=="1207", ATTRS{idProduct}=="8887",\
 ENV{ID_SECURITY_TOKEN}="1"
+ATTRS{idVendor}=="1209", ATTRS{idProduct}=="8885",\
+ENV{ID_SECURITY_TOKEN}="1"

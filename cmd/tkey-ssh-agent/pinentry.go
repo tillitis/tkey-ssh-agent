@@ -15,7 +15,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/twpayne/go-pinentry"
+	"github.com/twpayne/go-pinentry/v4"
 )
 
 func getSecret(udi string, pinentryProgram string) ([]byte, error) {
@@ -66,11 +66,11 @@ func getSecret(udi string, pinentryProgram string) ([]byte, error) {
 
 	defer client.Close()
 
-	pin, _, err := client.GetPIN()
+	pin, err := client.GetPIN()
 	if err != nil {
 		return nil, fmt.Errorf("pinentry GetPin: %w", err)
 	}
-	return []byte(pin), nil
+	return []byte(pin.PIN), nil
 }
 
 func findWindowsPinentry() string {

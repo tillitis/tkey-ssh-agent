@@ -52,13 +52,14 @@ type Signer struct {
 	speed           int
 	enterUSS        bool
 	fileUSS         string
+	forceFullUSS    bool
 	pinentry        string
 	mu              sync.Mutex
 	connected       bool
 	disconnectTimer *time.Timer
 }
 
-func NewSigner(devPathArg string, speedArg int, enterUSS bool, fileUSS string, pinentry string, exitFunc func(int)) *Signer {
+func NewSigner(devPathArg string, speedArg int, enterUSS bool, fileUSS string, forceFullUSS bool, pinentry string, exitFunc func(int)) *Signer {
 	var signer Signer
 
 	tkeyclient.SilenceLogging()
@@ -67,13 +68,14 @@ func NewSigner(devPathArg string, speedArg int, enterUSS bool, fileUSS string, p
 
 	tkSigner := tkeysign.New(tk)
 	signer = Signer{
-		tk:       tk,
-		tkSigner: &tkSigner,
-		devPath:  devPathArg,
-		speed:    speedArg,
-		enterUSS: enterUSS,
-		fileUSS:  fileUSS,
-		pinentry: pinentry,
+		tk:           tk,
+		tkSigner:     &tkSigner,
+		devPath:      devPathArg,
+		speed:        speedArg,
+		enterUSS:     enterUSS,
+		fileUSS:      fileUSS,
+		forceFullUSS: forceFullUSS,
+		pinentry:     pinentry,
 	}
 
 	// Do nothing on HUP, in case old udev rule is still in effect
@@ -120,8 +122,18 @@ func (s *Signer) connect() bool {
 		le.Printf("Auto-detected serial port %s\n", devPath)
 	}
 
+	options := []func(*tkeyclient.TillitisKey){}
+
+	if s.speed != 0 {
+		options = append(options, tkeyclient.WithSpeed(s.speed))
+	}
+
+	if s.forceFullUSS {
+		options = append(options, tkeyclient.WithFullUss())
+	}
+
 	le.Printf("Connecting to TKey on serial port %s\n", devPath)
-	if err := s.tk.Connect(devPath, tkeyclient.WithSpeed(s.speed)); err != nil {
+	if err := s.tk.Connect(devPath, options...); err != nil {
 		notify(fmt.Sprintf("Could not connect to a TKey on port %v.", devPath))
 		le.Printf("Failed to connect: %v", err)
 		return false

@@ -10,6 +10,7 @@
 .Nm
 .Op Fl L | -list-ports
 .Op Fl a | -agent-path Ar path
+.Op Fl -force-full-uss
 .Op Fl -help
 .Op Fl p | -show-pubkey
 .Op Fl -pinentry Ar command
@@ -67,6 +68,9 @@ Read a secret from a file path and hash its contents as the User
 Supplied Secret to be mixed into the TKey identity. Use '-' (dash) to
 read from stdin. The full contents are hashed unmodified (i.e.
 newlines are not stripped).
+.It Fl -force-full-uss
+Force the use of a full 32 byte USS digest. For backwards compatibility
+the default is 31 bytes.
 .It Fl -version
 Output version information.
 .El

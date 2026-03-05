@@ -37,7 +37,7 @@ func main() {
 
 	var agentPath, devPath, fileUSS, pinentry string
 	var speed int
-	var enterUSS, showPubkeyOnly, listPortsOnly, versionOnly, helpOnly bool
+	var enterUSS, forceFullUSS, showPubkeyOnly, listPortsOnly, versionOnly, helpOnly bool
 	pflag.CommandLine.SetOutput(os.Stderr)
 	pflag.CommandLine.SortFlags = false
 	pflag.CommandLine.SetNormalizeFunc(func(_ *pflag.FlagSet, name string) pflag.NormalizedName {
@@ -55,12 +55,14 @@ func main() {
 		"List possible serial ports to use with --port.")
 	pflag.StringVar(&devPath, "port", "",
 		"Set serial port device `PATH`. If this is not passed, auto-detection will be attempted.")
-	pflag.IntVar(&speed, "speed", tkeyclient.SerialSpeed,
+	pflag.IntVar(&speed, "speed", 0,
 		"Set serial port speed in `BPS` (bits per second).")
 	pflag.BoolVar(&enterUSS, "uss", false,
 		"Enable typing of a phrase to be hashed as the User Supplied Secret. The USS is loaded onto the TKey along with the app itself. A different USS results in different SSH public/private keys, meaning a different identity.")
 	pflag.StringVar(&fileUSS, "uss-file", "",
 		"Read `FILE` and hash its contents as the USS. Use '-' (dash) to read from stdin. The full contents are hashed unmodified (e.g. newlines are not stripped).")
+	pflag.BoolVar(&forceFullUSS, "force-full-uss", false,
+		"Force use of 32 byte USS digest. Default is 31.")
 	pflag.StringVar(&pinentry, "pinentry", "",
 		"Pinentry `PROGRAM` for use by --uss. The default is found by looking in your gpg-agent.conf for pinentry-program, or 'pinentry' if not found there. On Windows, an attempt is made to find Gpg4win's pinentry program to use as default.")
 	pflag.BoolVar(&versionOnly, "version", false, "Output version information.")
@@ -150,7 +152,7 @@ will flash green when the stick must be touched to complete a signature.`, progn
 		prevExitFunc(code)
 	}
 
-	signer := NewSigner(devPath, speed, enterUSS, fileUSS, pinentry, exit)
+	signer := NewSigner(devPath, speed, enterUSS, fileUSS, forceFullUSS, pinentry, exit)
 
 	if showPubkeyOnly {
 		if !signer.connect() {

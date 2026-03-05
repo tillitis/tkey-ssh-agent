@@ -103,8 +103,18 @@ func (s *Signer) connect() bool {
 		le.Printf("Auto-detected serial port %s\n", devPath)
 	}
 
+	options := []func(*tkeyclient.TillitisKey){}
+
+	if s.port.Speed != 0 {
+		options = append(options, tkeyclient.WithSpeed(s.port.Speed))
+	}
+
+	if s.uss.ForceFullUSS {
+		options = append(options, tkeyclient.WithFullUss())
+	}
+
 	le.Printf("Connecting to TKey on serial port %s\n", devPath)
-	if err := s.tk.Connect(devPath, tkeyclient.WithSpeed(s.port.Speed)); err != nil {
+	if err := s.tk.Connect(devPath, options...); err != nil {
 		notify(fmt.Sprintf("Could not connect to a TKey on port %v.", devPath))
 		le.Printf("Failed to connect: %v", err)
 		return false

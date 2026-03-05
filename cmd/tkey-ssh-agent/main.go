@@ -33,6 +33,7 @@ type Port struct {
 
 type UssConfig struct {
 	EnterManually bool
+	ForceFullUSS  bool
 	Path          string
 	PinentryPath  string
 }
@@ -67,10 +68,12 @@ func main() {
 		"List possible serial ports to use with --port.")
 	pflag.StringVar(&port.Path, "port", "",
 		"Set serial port device `PATH`. If this is not passed, auto-detection will be attempted.")
-	pflag.IntVar(&port.Speed, "speed", tkeyclient.SerialSpeed,
+	pflag.IntVar(&port.Speed, "speed", 0,
 		"Set serial port speed in `BPS` (bits per second).")
 	pflag.BoolVar(&ussConf.EnterManually, "uss", false,
 		"Enable typing of a phrase to be hashed as the User Supplied Secret. The USS is loaded onto the TKey along with the app itself. A different USS results in different SSH public/private keys, meaning a different identity.")
+	pflag.BoolVar(&ussConf.ForceFullUSS, "force-full-uss", false,
+		"Force use of 32 byte USS digest on Bellatrix and earlier. Default on Castor and later.")
 	pflag.StringVar(&ussConf.Path, "uss-file", "",
 		"Read `FILE` and hash its contents as the USS. Use '-' (dash) to read from stdin. The full contents are hashed unmodified (e.g. newlines are not stripped).")
 	pflag.StringVar(&ussConf.PinentryPath, "pinentry", "",

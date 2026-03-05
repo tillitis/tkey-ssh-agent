@@ -7,8 +7,8 @@ github.com/apenwarr/fixconsole v0.0.0-20191012055117-5a9f6489cc29/go.mod h1:JYWa
 github.com/apenwarr/w32 v0.0.0-20190407065021-aa00fece76ab h1:CMGzRRCjnD50RjUFSArBLuCxiDvdp7b8YPAcikBEQ+k=
 github.com/apenwarr/w32 v0.0.0-20190407065021-aa00fece76ab/go.mod h1:nfFtvHn2Hgs9G1u0/J6LHQv//EksNC+7G8vXmd1VTJ8=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
-github.com/ccoveille/go-safecast v1.1.0 h1:iHKNWaZm+OznO7Eh6EljXPjGfGQsSfa6/sxPlIEKO+g=
-github.com/ccoveille/go-safecast v1.1.0/go.mod h1:QqwNjxQ7DAqY0C721OIO9InMk9zCwcsO7tnRuHytad8=
+github.com/ccoveille/go-safecast/v2 v2.0.0 h1:+5eyITXAUj3wMjad6cRVJKGnC7vDS55zk0INzJagub0=
+github.com/ccoveille/go-safecast/v2 v2.0.0/go.mod h1:JIYA4CAR33blIDuE6fSwCp2sz1oOBahXnvmdBhOAABs=
 github.com/creack/goselect v0.1.2 h1:2DNy14+JPjRBgPzAd1thbQp4BSIihxcBf0IXhQXDRa0=
 github.com/creack/goselect v0.1.2/go.mod h1:a/NhLweNvqIYMuxcMOuWY516Cimucms3DglDzQP3hKY=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -81,8 +81,8 @@ github.com/tadvi/systray v0.0.0-20190226123456-11a2b8fa57af h1:6yITBqGTE2lEeTPG0
 github.com/tadvi/systray v0.0.0-20190226123456-11a2b8fa57af/go.mod h1:4F09kP5F+am0jAwlQLddpoMDM+iewkxxt6nxUQ5nq5o=
 github.com/tawesoft/golib/v2 v2.16.0 h1:QJPqTFPVz++45fTVyP66o8IfCfz8MYgTrn6nypVLv2o=
 github.com/tawesoft/golib/v2 v2.16.0/go.mod h1:S+cpYdLd1NwKQmWnycfIJqJegOek/Zz+JY9FH7EJTWs=
-github.com/tillitis/tkeyclient v1.2.0 h1:X/PjUPK061EFNmf3V4knb20wTfcIuUH13VSC/0VFaYo=
-github.com/tillitis/tkeyclient v1.2.0/go.mod h1:4TiEj0qUwaffmOODPZro6cUBaw+Gb6F5EFd6tcH7UXE=
+github.com/tillitis/tkeyclient v1.3.0 h1:fUlghD+xvtL+qoajgrsetCC7KPwSfpjDDgqxMOBA2VU=
+github.com/tillitis/tkeyclient v1.3.0/go.mod h1:7VtzyEjm08Wf+1zdrs20HsvM+WzhyztinvGG2/HY+Is=
 github.com/tillitis/tkeysign v1.1.0 h1:a6fGmEsufsMh5amGIm9H8qmixNsuvWs8J/z4OPj4OGE=
 github.com/tillitis/tkeysign v1.1.0/go.mod h1:tpQhQBc2Vbr7WBTHBp0MPIzcOLasA+c23dmKxSgEvVQ=
 github.com/tillitis/tkeyutil v0.0.8 h1:CbDT6HDuma5/hNPZrZFGrZ1U/zAWH74bIbkqdHIHfKU=

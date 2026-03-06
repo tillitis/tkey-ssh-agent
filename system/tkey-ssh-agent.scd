@@ -14,7 +14,7 @@ tkey-ssh-agent – An SSH agent backed by Tillitis TKey
 
 *tkey-ssh-agent* -L | --list-ports
 
-*tkey-ssh-agent* [-a | --agent-path path] [-p | --show-pubkey] [--pinentry command] [--port path] [--speed bit_speed] [--uss] [--uss-file path]
+*tkey-ssh-agent* [-a | --agent-path path] [--force-full-uss] [-p | --show-pubkey] [--pinentry command] [--port path] [--speed bit_speed] [--uss] [--uss-file path]
 
 # DESCRIPTION
 
@@ -40,6 +40,11 @@ The options are as follows:
 *-a | --agent-path path*
 
 	Bind the agent to the UNIX-domain socket at path.
+
+*--force-full-uss*
+
+	Force sending a 32 byte USS digest. For backwards compatibility
+	the default is sending 31 bytes of the computed digest and a zero.
 
 *--help*
 

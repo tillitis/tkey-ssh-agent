@@ -72,6 +72,12 @@ tkey-ssh-agent-tray.exe:
 	cd ./cmd/tkey-ssh-agent-tray && ../../gotools/go-winres make --arch amd64
 	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-H windowsgui -X main.version=$(TKEY_SSH_AGENT_VERSION)" -trimpath -buildvcs=false ./cmd/tkey-ssh-agent-tray
 
+.PHONY: man
+man: system/tkey-ssh-agent.1
+
+system/tkey-ssh-agent.1: system/tkey-ssh-agent.scd
+	scdoc < $^ > $@
+
 .PHONY: clean
 clean:
 	rm -f \

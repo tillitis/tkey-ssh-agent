@@ -26,6 +26,7 @@ path = [
      "system/60-tkey.rules",
      "system/copyright",
      "system/tkey-ssh-agent.1",
+     "system/tkey-ssh-agent.scd",     
      "system/tkey-ssh-agent.service",
      "system/tkey-ssh-agent.service.tmpl",
      "system/windows/Dockerfile",

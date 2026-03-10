@@ -182,20 +182,20 @@ func (s *Signer) loadApp() error {
 	if s.enterUSS {
 		udi, err := s.tk.GetUDI()
 		if err != nil {
-			return fmt.Errorf("Failed to get UDI: %w", err)
+			return fmt.Errorf("failed to get UDI: %w", err)
 		}
 
 		secret, err = getSecret(udi.String(), s.pinentry)
 		if err != nil {
 			notify(fmt.Sprintf("Could not show USS prompt: %s", errors.Unwrap(err)))
-			return fmt.Errorf("Failed to get USS: %w", err)
+			return fmt.Errorf("failed to get USS: %w", err)
 		}
 	} else if s.fileUSS != "" {
 		var err error
 		secret, err = tkeyutil.ReadUSS(s.fileUSS)
 		if err != nil {
 			notify(fmt.Sprintf("Could not read USS file: %s", err))
-			return fmt.Errorf("Failed to read uss-file %s: %w", s.fileUSS, err)
+			return fmt.Errorf("failed to read uss-file %s: %w", s.fileUSS, err)
 		}
 	}
 
@@ -286,7 +286,7 @@ func (s *Signer) Public() crypto.PublicKey {
 
 func (s *Signer) Sign(_ io.Reader, message []byte, opts crypto.SignerOpts) ([]byte, error) {
 	if !s.connect() {
-		return nil, fmt.Errorf("Connect failed")
+		return nil, fmt.Errorf("connect failed")
 	}
 	defer s.disconnect()
 

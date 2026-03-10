@@ -43,7 +43,7 @@ func (s *SSHAgent) Serve(absSockPath string) error {
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
-			return fmt.Errorf("Accept: %w", err)
+			return fmt.Errorf("accept: %w", err)
 		}
 		le.Printf("Handling a client connection\n")
 		go s.handleConn(conn)

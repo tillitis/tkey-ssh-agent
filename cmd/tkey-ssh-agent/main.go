@@ -225,7 +225,7 @@ func readBuildInfo() string {
 func printPorts() (int, error) {
 	ports, err := tkeyclient.GetSerialPorts()
 	if err != nil {
-		return 0, fmt.Errorf("Failed to list ports: %w", err)
+		return 0, fmt.Errorf("failed to list ports: %w", err)
 	}
 	if len(ports) == 0 {
 		le.Printf("No TKey serial ports found.\n")

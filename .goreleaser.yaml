@@ -100,7 +100,7 @@ builds:
     # Custom ldflags mostly to avoid setting main.date which for some
     # reason is default
     ldflags:
-      -w -H windowsgui -buildid=
+      -w -H windowsgui -X main.version={{ .Version }} -buildid=
 
     hooks:
       pre: sh -c "cd ./cmd/tkey-ssh-agent-tray && go-winres make --arch amd64"

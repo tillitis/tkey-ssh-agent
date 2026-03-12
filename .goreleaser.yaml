@@ -78,7 +78,7 @@ builds:
       -w -X main.version={{ .Version }} -X main.signerAppNoTouch= -buildid=
 
     hooks:
-      pre: sh -c "cd ./cmd/tkey-ssh-agent && go-winres make --arch amd64"
+      pre: sh -c "cd ./cmd/tkey-ssh-agent && ../../gotools/go-winres make --arch amd64"
 
   - id: windows-tray
     main: ./cmd/tkey-ssh-agent-tray
@@ -103,7 +103,7 @@ builds:
       -w -H windowsgui -X main.version={{ .Version }} -buildid=
 
     hooks:
-      pre: sh -c "cd ./cmd/tkey-ssh-agent-tray && go-winres make --arch amd64"
+      pre: sh -c "cd ./cmd/tkey-ssh-agent-tray && ../../gotools/go-winres make --arch amd64"
 
 universal_binaries:
   - ids:

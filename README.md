@@ -114,14 +114,14 @@ If you want to use our tkey-builder image and you have `make` you can
 run:
 
 ```
-$ podman pull ghcr.io/tillitis/tkey-builder:4
+$ podman pull ghcr.io/tillitis/tkey-builder:5rc2
 $ make podman
 ```
 
 or run it directly with Podman:
 
 ```
-$ podman run --rm --mount type=bind,source=$(CURDIR),target=/src --mount type=bind,source=$(CURDIR)/../tkey-libs,target=/tkey-libs -w /src -it ghcr.io/tillitis/tkey-builder:4 make -j
+$ podman run --rm --mount type=bind,source=$(CURDIR),target=/src --mount type=bind,source=$(CURDIR)/../tkey-libs,target=/tkey-libs -w /src -it ghcr.io/tillitis/tkey-builder:5rc2 make -j
 ```
 
 Note that building with Podman like this by default creates a Linux

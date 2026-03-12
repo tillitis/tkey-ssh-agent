@@ -45,7 +45,7 @@ reload-rules:
 
 .PHONY: podman
 podman:
-	podman run --rm --mount type=bind,source=$(CURDIR),target=/src -w /src -it ghcr.io/tillitis/tkey-builder:4 make -j
+	podman run --rm --mount type=bind,source=$(CURDIR),target=/src -w /src -it ghcr.io/tillitis/tkey-builder:5rc2 make -j
 
 .PHONY: check-signer-hash
 check-signer-hash:

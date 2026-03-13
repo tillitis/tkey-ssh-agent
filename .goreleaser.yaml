@@ -106,7 +106,8 @@ builds:
       pre: sh -c "cd ./cmd/tkey-ssh-agent-tray && ../../gotools/go-winres make --arch amd64"
 
 universal_binaries:
-  - ids:
+  - id: tkey-ssh-agent
+    ids:
       - darwin
     replace: true
     name_template: "tkey-ssh-agent"

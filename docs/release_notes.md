@@ -1,5 +1,16 @@
 # Release notes
 
+## v1.1.0
+
+- Update tkeyclient version because of a vulnerability leaving some
+  USSs unused. Keys might have changed since earlier versions! Read
+  more here:
+
+  https://github.com/tillitis/tkeyclient/security/advisories/GHSA-4w7r-3222-8h6v
+
+- Add a new option flag: `--force-full-uss` to force full use of the
+  32 byte USS digest.
+
 ## v1.0.0
 
 - All other apps, libraries, and packages have moved to their own

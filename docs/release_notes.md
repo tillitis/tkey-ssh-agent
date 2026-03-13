@@ -2,12 +2,27 @@
 
 ## Upcoming release
 
+- License changed to BSD-2-Clause
 - Detect and load different signer device apps depending on TKey
   model.
 - Embed two different signer binaries: one for Castor and one for
   earlier versions.
-- tkeysign updated to v1.1.0.
-- tkeyclient updated to v1.2.0.
+- macOS: remove pinentry dependency and use built-in osascript
+  instead.
+
+## v1.1.0
+
+Note well: This tag and release is on the maintenance branch
+v1.0.0-maintenance, but the same changes are here.
+
+- Update tkeyclient version to v1.3.0 because of a vulnerability
+  leaving some USSs unused. Keys might have changed since earlier
+  versions! Read more here:
+
+  https://github.com/tillitis/tkeyclient/security/advisories/GHSA-4w7r-3222-8h6v
+
+- Add a new option flag: `--force-full-uss` to force full use of the
+  32 byte USS digest.
 
 ## v1.0.0
 

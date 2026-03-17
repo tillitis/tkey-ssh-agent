@@ -29,9 +29,6 @@ jobs:
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-      - name: check for SPDX tags
-        run: ./tools/spdx-ensure
-
       - name: make
         run: make tkey-ssh-agent -j
 

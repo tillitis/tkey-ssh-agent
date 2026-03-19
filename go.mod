@@ -1,6 +1,6 @@
 module github.com/tillitis/tkey-ssh-agent
 
-go 1.23.0
+go 1.24.0
 
 require (
 	github.com/Microsoft/go-winio v0.6.2
@@ -11,7 +11,7 @@ require (
 	github.com/tillitis/tkeyclient v1.3.0
 	github.com/tillitis/tkeysign v1.1.0
 	github.com/tillitis/tkeyutil v0.0.8
-	github.com/twpayne/go-pinentry-minimal v0.0.0-20220113210447-2a5dc4396c2a
+	github.com/twpayne/go-pinentry/v4 v4.0.1
 	golang.org/x/crypto v0.40.0
 )
 

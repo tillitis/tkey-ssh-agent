@@ -62,7 +62,7 @@ func main() {
 	pflag.StringVar(&fileUSS, "uss-file", "",
 		"Read `FILE` and hash its contents as the USS. Use '-' (dash) to read from stdin. The full contents are hashed unmodified (e.g. newlines are not stripped).")
 	pflag.BoolVar(&forceFullUSS, "force-full-uss", false,
-		"Force use of 32 byte USS digest. Default is 31.")
+		"Force use of 32 byte USS digest. Default is 31. Must also use --uss.")
 	pflag.StringVar(&pinentry, "pinentry", "",
 		"Pinentry `PROGRAM` for use by --uss. The default is found by looking in your gpg-agent.conf for pinentry-program, or 'pinentry' if not found there. On Windows, an attempt is made to find Gpg4win's pinentry program to use as default.")
 	pflag.BoolVar(&versionOnly, "version", false, "Output version information.")
@@ -142,6 +142,12 @@ will flash green when the stick must be touched to complete a signature.`, progn
 
 	if enterUSS && fileUSS != "" {
 		le.Printf("Pass only one of --uss or --uss-file.\n\n")
+		pflag.Usage()
+		exit(2)
+	}
+
+	if forceFullUSS && !enterUSS {
+		le.Printf("--force-full-uss unusable unless you also specify --uss.\n\n")
 		pflag.Usage()
 		exit(2)
 	}

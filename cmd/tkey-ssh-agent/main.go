@@ -73,7 +73,7 @@ func main() {
 	pflag.BoolVar(&ussConf.EnterManually, "uss", false,
 		"Enable typing of a phrase to be hashed as the User Supplied Secret. The USS is loaded onto the TKey along with the app itself. A different USS results in different SSH public/private keys, meaning a different identity.")
 	pflag.BoolVar(&ussConf.ForceFullUSS, "force-full-uss", false,
-		"Force use of 32 byte USS digest on Bellatrix and earlier. Default on Castor and later.")
+		"Force use of 32 byte USS digest on Bellatrix and earlier. Default on Castor and later. Only usable with --uss or --uss-file.")
 	pflag.StringVar(&ussConf.Path, "uss-file", "",
 		"Read `FILE` and hash its contents as the USS. Use '-' (dash) to read from stdin. The full contents are hashed unmodified (e.g. newlines are not stripped).")
 	pflag.StringVar(&ussConf.PinentryPath, "pinentry", "",
@@ -159,6 +159,12 @@ will flash green when the stick must be touched to complete a signature.`, progn
 
 	if ussConf.EnterManually && ussConf.Path != "" {
 		le.Printf("Pass only one of --uss or --uss-file.\n\n")
+		pflag.Usage()
+		exit(2)
+	}
+
+	if ussConf.ForceFullUSS && ussConf.Path == "" != ussConf.EnterManually {
+		le.Printf("--force-full-uss unusable unless you also specify --uss or --uss-file.\n\n")
 		pflag.Usage()
 		exit(2)
 	}

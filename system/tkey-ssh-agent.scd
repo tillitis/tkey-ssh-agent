@@ -46,6 +46,8 @@ The options are as follows:
 	Force sending a 32 byte USS digest. For backwards compatibility
 	the default is sending 31 bytes of the computed digest and a zero.
 
+	Only usable with *--uss* or *--uss-file*.
+
 *--help*
 
 	Output help text and exit.

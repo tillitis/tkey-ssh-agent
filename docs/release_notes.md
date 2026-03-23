@@ -9,6 +9,8 @@
   earlier versions.
 - macOS: remove pinentry dependency and use built-in osascript
   instead.
+- Only allow `--force-full-uss` when either `--uss` or `--uss-file` is
+  also set.
 
 ## v1.1.0
 

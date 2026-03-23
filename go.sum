@@ -81,8 +81,8 @@ github.com/tadvi/systray v0.0.0-20190226123456-11a2b8fa57af h1:6yITBqGTE2lEeTPG0
 github.com/tadvi/systray v0.0.0-20190226123456-11a2b8fa57af/go.mod h1:4F09kP5F+am0jAwlQLddpoMDM+iewkxxt6nxUQ5nq5o=
 github.com/tawesoft/golib/v2 v2.16.0 h1:QJPqTFPVz++45fTVyP66o8IfCfz8MYgTrn6nypVLv2o=
 github.com/tawesoft/golib/v2 v2.16.0/go.mod h1:S+cpYdLd1NwKQmWnycfIJqJegOek/Zz+JY9FH7EJTWs=
-github.com/tillitis/tkeyclient v1.3.0 h1:fUlghD+xvtL+qoajgrsetCC7KPwSfpjDDgqxMOBA2VU=
-github.com/tillitis/tkeyclient v1.3.0/go.mod h1:7VtzyEjm08Wf+1zdrs20HsvM+WzhyztinvGG2/HY+Is=
+github.com/tillitis/tkeyclient v1.3.1 h1:IouMAtwwXewhXLmcySBmXuyFuI4WoAw8NQj+gFWlLaw=
+github.com/tillitis/tkeyclient v1.3.1/go.mod h1:7VtzyEjm08Wf+1zdrs20HsvM+WzhyztinvGG2/HY+Is=
 github.com/tillitis/tkeysign v1.1.0 h1:a6fGmEsufsMh5amGIm9H8qmixNsuvWs8J/z4OPj4OGE=
 github.com/tillitis/tkeysign v1.1.0/go.mod h1:tpQhQBc2Vbr7WBTHBp0MPIzcOLasA+c23dmKxSgEvVQ=
 github.com/tillitis/tkeyutil v0.0.8 h1:CbDT6HDuma5/hNPZrZFGrZ1U/zAWH74bIbkqdHIHfKU=

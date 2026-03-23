@@ -1,5 +1,16 @@
 # Release notes
 
+## v1.1.1
+
+- Update tkeyclient to v1.3.1 to handle TKey Unlocked (product ID 8)
+  as a Bellatrix when it comes to USS digest handling.
+
+- Only allow `--force-full-uss` when either `--uss` or `--uss-file` is
+  used.
+
+Full
+[changelog](https://github.com/tillitis/tkey-ssh-agent/compare/v1.1.0...v1.1.1).
+
 ## v1.1.0
 
 - Update tkeyclient version because of a vulnerability leaving some
@@ -10,6 +21,9 @@
 
 - Add a new option flag: `--force-full-uss` to force full use of the
   32 byte USS digest.
+
+Full
+[changelog](https://github.com/tillitis/tkey-ssh-agent/compare/v1.0.0...v1.1.0).
 
 ## v1.0.0
 

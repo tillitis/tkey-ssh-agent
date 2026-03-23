@@ -11,6 +11,8 @@
   instead.
 - Only allow `--force-full-uss` when either `--uss` or `--uss-file` is
   also set.
+- Update tkeyclient to v1.3.1 to handle TKey Unlocked (product ID 8)
+  as a Bellatrix when it comes to USS digest handling.
 
 ## v1.1.0
 
@@ -25,6 +27,9 @@ v1.0.0-maintenance, but the same changes are here.
 
 - Add a new option flag: `--force-full-uss` to force full use of the
   32 byte USS digest.
+
+Full
+[changelog](https://github.com/tillitis/tkey-ssh-agent/compare/v1.0.0...v1.1.0).
 
 ## v1.0.0
 

@@ -130,13 +130,7 @@ func (s *Signer) connect() bool {
 			return false
 		}
 
-		app, err := GetApp(udi.ProductID)
-		if err != nil {
-			notify("Unknown product ID. Failed to identify what device app to use.")
-			s.closeNow()
-
-			return false
-		}
+		app := GetApp(udi.ProductID)
 
 		if err := s.loadApp(app, *udi); err != nil {
 			le.Printf("Failed to load app: %v\n", err)

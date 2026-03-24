@@ -52,23 +52,24 @@ func ListApps() []EmbeddedApp {
 	return list
 }
 
-// GetApp looks up what type of app is needed depending on the UDI
-// product ID pid. It returns the app binary and any error.
-func GetApp(pid uint8) ([]byte, error) {
+// GetApp returns an app compatible with the device. Compatibility is
+// determined by the UDI product ID pid. For backwards compatibility
+// the pre Castor app is returned if pid is unknown.
+func GetApp(pid uint8) []byte {
 	switch pid {
 	case tkeyclient.UDIPIDEngSample:
-		return appBinaryCastor, nil
+		return appBinaryCastor
 	case tkeyclient.UDIPIDAcrab:
-		return appBinaryPreCastor, nil
+		return appBinaryPreCastor
 	case tkeyclient.UDIPIDBellatrix:
-		return appBinaryPreCastor, nil
+		return appBinaryPreCastor
 	case tkeyclient.UDIPIDBellatrixUnlocked:
-		return appBinaryPreCastor, nil
+		return appBinaryPreCastor
 	case tkeyclient.UDIPIDCastor:
-		return appBinaryCastor, nil
+		return appBinaryCastor
 	}
 
-	return nil, ErrNotFound
+	return appBinaryPreCastor
 }
 
 func AppDigest(bin []byte) string {

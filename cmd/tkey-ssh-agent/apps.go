@@ -62,6 +62,8 @@ func GetApp(pid uint8) ([]byte, error) {
 		return appBinaryPreCastor, nil
 	case tkeyclient.UDIPIDBellatrix:
 		return appBinaryPreCastor, nil
+	case tkeyclient.UDIPIDBellatrixUnlocked:
+		return appBinaryPreCastor, nil
 	case tkeyclient.UDIPIDCastor:
 		return appBinaryCastor, nil
 	}

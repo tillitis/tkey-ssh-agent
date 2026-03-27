@@ -14,5 +14,4 @@
 /runrandom
 /gotools/golangci-lint
 /gotools/go-winres
-test/venv
 /dist

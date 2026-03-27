@@ -34,7 +34,6 @@ path = [
      "system/windows/README.md",
      "system/windows/tillitis-ant.ico",
      "system/windows/tkey-ssh-agent.wxs",
-     "test/requirements.txt",
      ".editorconfig",
      ".gitignore",
      ".golangci.yml",

@@ -23,3 +23,7 @@ convention = "google"
 
 [tool.mypy]
 strict = true
+
+[tool.pytest]
+strict = true
+markers = ["issue: mark tests with a reference to an issue."]

@@ -1,0 +1,22 @@
+[tool.ruff.lint]
+select = [
+    "B",    # flake8-bugbear
+    "D",    # pydocstyle
+    "E",    # pycodestyle-error
+    "F",    # Pyflakes
+    "I",    # isort
+    "PL",   # Pylint
+    "PT",   # flake8-pytest-style
+    "Q",    # flake8-quotes
+    "SIM",  # flake8-simplify
+    "SLF",  # flake8-self
+    "W",    # pycodestyle-warning
+]
+ignore = [
+    "PLR0913",  # too-many-arguments
+    "SIM114",   # if-with-same-arms
+    "D1",       # Missing docstring
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"

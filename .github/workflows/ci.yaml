@@ -14,6 +14,8 @@ permissions:
 
 jobs:
   build:
+    outputs:
+      commit_sha: ${{ github.sha }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/tillitis/tkey-builder:5rc2
@@ -34,6 +36,63 @@ jobs:
 
       - name: make windows
         run: make windows
+
+      - name: Cache linux binary
+        uses: actions/cache@v4
+        with:
+          path: tkey-ssh-agent
+          key: build-${{ github.run_number }}-${{ github.sha }}-${{ github.run_attempt }}
+
+  e2e-test:
+    needs: build
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/tillitis/tkey-qemu-tk1-24.03:1
+    steps:
+      - name: Install system dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends git pipenv
+
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          submodules: true
+
+      - name: Retrieve binary from cache
+        uses: actions/cache@v4
+        with:
+          path: tkey-ssh-agent
+          key: build-${{ github.run_number }}-${{ needs.build.outputs.commit_sha }}-${{ github.run_attempt }}
+          fail-on-cache-miss: true
+
+      - name: Install development dependencies
+        working-directory: test
+        run: |
+          pipenv install --deploy --dev
+
+      - name: Lint
+        working-directory: test
+        run: |
+          pipenv run ruff check
+          pipenv run ruff format --check
+          pipenv run mypy .
+
+      - name: Remove Python development dependencies
+        working-directory: test
+        run: |
+          pipenv --rm
+
+      - name: Install test dependencies
+        working-directory: test
+        run: |
+          pipenv install --deploy
+
+      - name: Run tests
+        working-directory: test
+        run: |
+          pipenv run pytest -v
 
   reuse-compliance-check:
     runs-on: ubuntu-latest

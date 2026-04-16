@@ -51,6 +51,7 @@ func main() {
 	var ussConf UssConfig
 	var agentPath string
 	var showPubkeyOnly, listPortsOnly, versionOnly, helpOnly bool
+	var remindDelay int
 	pflag.CommandLine.SetOutput(os.Stderr)
 	pflag.CommandLine.SortFlags = false
 	pflag.CommandLine.SetNormalizeFunc(func(_ *pflag.FlagSet, name string) pflag.NormalizedName {
@@ -78,6 +79,8 @@ func main() {
 		"Read `FILE` and hash its contents as the USS. Use '-' (dash) to read from stdin. The full contents are hashed unmodified (e.g. newlines are not stripped).")
 	pflag.StringVar(&ussConf.PinentryPath, "pinentry", "",
 		"Pinentry `PROGRAM` for use by --uss. The default is found by looking in your gpg-agent.conf for pinentry-program, or 'pinentry' if not found there. On Windows, an attempt is made to find Gpg4win's pinentry program to use as default. On macOS, a native prompt is used by default.")
+	pflag.IntVar(&remindDelay, "remind-delay", 4,
+		"Delay in `SECONDS` before sending a notification reminding the user to touch the TKey to confirm SSH login.")
 	pflag.BoolVar(&versionOnly, "version", false, "Output version information.")
 	pflag.BoolVar(&helpOnly, "help", false, "Output this help.")
 	pflag.Usage = func() {
@@ -169,13 +172,19 @@ will flash green when the stick must be touched to complete a signature.`, progn
 		exit(2)
 	}
 
+	if remindDelay < 0 {
+		le.Printf("--remind-delay cannot be negative.\n\n")
+		pflag.Usage()
+		exit(2)
+	}
+
 	prevExitFunc := exit
 	exit = func(code int) {
 		_ = os.Remove(agentPath)
 		prevExitFunc(code)
 	}
 
-	signer := NewSigner(port, ussConf, exit)
+	signer := NewSigner(port, ussConf, remindDelay, exit)
 
 	if showPubkeyOnly {
 		if !signer.connect() {

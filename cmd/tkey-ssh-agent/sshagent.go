@@ -102,10 +102,16 @@ func (s *SSHAgent) Sign(key ssh.PublicKey, data []byte) (*ssh.Signature, error) 
 	}
 
 	if signerAppNoTouch == "" {
-		timer := time.AfterFunc(4*time.Second, func() {
+		delaySeconds := s.signer.remindDelay
+		showReminder := func() {
 			notify("Touch your TKey to confirm SSH login.")
-		})
-		defer timer.Stop()
+		}
+		if delaySeconds == 0 {
+			showReminder()
+		} else {
+			timer := time.AfterFunc(time.Duration(delaySeconds)*time.Second, showReminder)
+			defer timer.Stop()
+		}
 
 		le.Printf("Sign: user will have to touch the TKey\n")
 	} else {

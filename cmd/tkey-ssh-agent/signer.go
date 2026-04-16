@@ -42,9 +42,10 @@ type Signer struct {
 	mu              sync.Mutex
 	connected       bool
 	disconnectTimer *time.Timer
+	remindDelay     int
 }
 
-func NewSigner(port Port, uss UssConfig, exitFunc func(int)) *Signer {
+func NewSigner(port Port, uss UssConfig, remindDelay int, exitFunc func(int)) *Signer {
 	var signer Signer
 
 	tkeyclient.SilenceLogging()
@@ -53,10 +54,11 @@ func NewSigner(port Port, uss UssConfig, exitFunc func(int)) *Signer {
 
 	tkSigner := tkeysign.New(tk)
 	signer = Signer{
-		tk:       tk,
-		tkSigner: &tkSigner,
-		port:     port,
-		uss:      uss,
+		tk:          tk,
+		tkSigner:    &tkSigner,
+		port:        port,
+		uss:         uss,
+		remindDelay: remindDelay,
 	}
 
 	// Do nothing on HUP, in case old udev rule is still in effect

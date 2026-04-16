@@ -67,6 +67,12 @@ The options are as follows:
 	Set serial port device path. If this is not set, auto-detection will
 	be attempted.
 
+*--remind-delay seconds*
+
+	Delay in seconds before sending a notification reminding the
+	user to touch the TKey to confirm SSH login. Default is 4
+	seconds.
+
 *--speed bit_speed*
 
 	Set serial port speed in bits per second. Default is 62500 b/s.

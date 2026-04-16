@@ -13,6 +13,8 @@
   also set.
 - Update tkeyclient to v1.3.1 to handle TKey Unlocked (product ID 8)
   as a Bellatrix when it comes to USS digest handling.
+- Add flag `--remind-delay` to customize delay before sending
+  notificaton to remind about touch.
 
 ## v1.1.0
 

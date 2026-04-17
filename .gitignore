@@ -1,7 +1,3 @@
-*.a
-*.o
-*.bin
-*.elf
 /tkey-ssh-agent
 /tkey-ssh-agent.exe
 /cmd/tkey-ssh-agent/rsrc_windows_amd64.syso

@@ -52,7 +52,7 @@ jobs:
       - name: Install system dependencies
         run: |
           apt-get update
-          apt-get install -y --no-install-recommends git pipenv
+          apt-get install -y --no-install-recommends git pipenv openssh-client
 
       - name: checkout
         uses: actions/checkout@v4

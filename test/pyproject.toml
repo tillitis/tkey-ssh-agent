@@ -26,4 +26,7 @@ strict = true
 
 [tool.pytest]
 strict = true
-markers = ["issue: mark tests with a reference to an issue."]
+markers = [
+    "issue: mark tests with a reference to an issue.",
+    "touch: mark tests as requiring touch.",
+]

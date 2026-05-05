@@ -36,6 +36,7 @@ path = [
      "system/windows/tkey-ssh-agent.wxs",
      "test/Pipfile",
      "test/Pipfile.lock",
+     "test/README.md",
      "test/pyproject.toml",
      ".editorconfig",
      ".gitignore",

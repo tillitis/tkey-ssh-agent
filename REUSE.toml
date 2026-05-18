@@ -39,6 +39,7 @@ path = [
      "test/pyproject.toml",
      ".editorconfig",
      ".gitignore",
+     ".gitmodules",
      ".golangci.yml",
      ".goreleaser.yaml",
      "Makefile",

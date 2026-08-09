@@ -89,13 +89,15 @@ func (s *Signer) connect() bool {
 	devPath := s.port.Path
 	if devPath == "" {
 		var err error
-		devPath, err = tkeyclient.DetectSerialPort(false)
+		devPath, err = detectSerialPort(s.port.Serial)
 		if err != nil {
 			switch {
 			case errors.Is(err, tkeyclient.ErrNoDevice):
 				notify("Could not find any TKey plugged in.")
 			case errors.Is(err, tkeyclient.ErrManyDevices):
 				notify("Cannot work with more than 1 TKey plugged in.")
+			case errors.Is(err, errDeviceSerialNotFound):
+				notify(fmt.Sprintf("Could not find TKey with serialnumber %s.", s.port.Serial))
 			default:
 				notify(fmt.Sprintf("TKey detection failed: %s\n", err))
 			}
@@ -157,6 +159,40 @@ func (s *Signer) connect() bool {
 
 	s.connected = true
 	return true
+}
+
+const errDeviceSerialNotFound = constError("TKey with specific serial not connected")
+
+// DetectSerialPort tries to detect an inserted TKey and returns the
+// device path if successful. If passed an empty serial string,
+// detecting multiple TKeys always returns an error. If serial is
+// non-empty, the serial number of a detected TKey must match this. In
+// this case, multiple TKeys are handled by returning the first TKey
+// with a matching serial number. This function is based on
+// tkeyclient.DetectSerialPort.
+func detectSerialPort(serial string) (string, error) {
+	ports, err := tkeyclient.GetSerialPorts()
+	if err != nil {
+		return "", fmt.Errorf("failed GetSerialPorts: %w", err)
+	}
+	if len(ports) == 0 {
+		return "", tkeyclient.ErrNoDevice
+	}
+
+	if serial != "" {
+		for i := range ports {
+			if ports[i].SerialNumber == serial {
+				return ports[i].DevPath, nil
+			}
+		}
+		return "", errDeviceSerialNotFound
+	}
+
+	if len(ports) > 1 {
+		return "", tkeyclient.ErrManyDevices
+	}
+
+	return ports[0].DevPath, nil
 }
 
 func (s *Signer) isFirmwareMode() bool {

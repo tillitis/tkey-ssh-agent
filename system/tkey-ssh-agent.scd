@@ -14,7 +14,7 @@ tkey-ssh-agent – An SSH agent backed by Tillitis TKey
 
 *tkey-ssh-agent* -L | --list-ports
 
-*tkey-ssh-agent* [-a | --agent-path path] [--force-full-uss] [-p | --show-pubkey] [--pinentry command] [--port path] [--speed bit_speed] [--uss] [--uss-file path]
+*tkey-ssh-agent* [-a | --agent-path path] [--force-full-uss] [-p | --show-pubkey] [--pinentry command] [--port path] [--serial serialnumber] [--speed bit_speed] [--uss] [--uss-file path]
 
 # DESCRIPTION
 
@@ -72,6 +72,12 @@ The options are as follows:
 	Delay in seconds before sending a notification reminding the
 	user to touch the TKey to confirm SSH login. Default is 4
 	seconds.
+
+*--serial serialnumber*
+
+	During port auto-detection, consider only a TKey with a specific
+	serialnumber (as shown by --list-ports). Cannot be used together
+	with --port.
 
 *--speed bit_speed*
 
@@ -169,6 +175,14 @@ interactively ask for the User Supplied Secret:
 
 ```
 $ tkey-ssh-agent -a ./agent.sock --uss
+```
+
+Running with automatic port detection, connecting only to a TKey with
+aspecific serial number. This makes it possible to keep multiple TKeys
+plugged in; this agent will only connect to a specific one.
+
+```
+$ tkey-ssh-agent -a ./agent.sock --uss --serial 8b8d3600_084a_3cff_ff0f_0d3fac30f45c
 ```
 
 Running manually against qemu (look when qemu is starting what device it

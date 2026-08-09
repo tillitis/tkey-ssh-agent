@@ -27,8 +27,9 @@ var version string
 const windowsPipePrefix = `\\.\pipe\`
 
 type Port struct {
-	Path  string
-	Speed int
+	Path   string
+	Serial string
+	Speed  int
 }
 
 type UssConfig struct {
@@ -69,6 +70,8 @@ func main() {
 		"List possible serial ports to use with --port.")
 	pflag.StringVar(&port.Path, "port", "",
 		"Set serial port device `PATH`. If this is not passed, auto-detection will be attempted.")
+	pflag.StringVar(&port.Serial, "serial", "",
+		"During port auto-detection, consider only a TKey with a specific `SERIALNUMBER` (as shown by --list-ports). Cannot be used together with --port.")
 	pflag.IntVar(&port.Speed, "speed", 0,
 		"Set serial port speed in `BPS` (bits per second).")
 	pflag.BoolVar(&ussConf.EnterManually, "uss", false,
@@ -156,6 +159,12 @@ will flash green when the stick must be touched to complete a signature.`, progn
 
 	if !showPubkeyOnly && agentPath == "" {
 		le.Printf("Please pass at least -a or -p.\n\n")
+		pflag.Usage()
+		exit(2)
+	}
+
+	if port.Path != "" && port.Serial != "" {
+		le.Printf("Pass only one of --port or --serial.\n\n")
 		pflag.Usage()
 		exit(2)
 	}

@@ -15,6 +15,8 @@
   as a Bellatrix when it comes to USS digest handling.
 - Add flag `--remind-delay` to customize delay before sending
   notificaton to remind about touch.
+- Add flag `--serial` for only connecting to a TKey with specific
+  serial number.
 
 ## v1.1.0
 

@@ -161,7 +161,7 @@ func (s *Signer) connect() bool {
 
 func (s *Signer) isFirmwareMode() bool {
 	nameVer, err := s.tk.GetNameVersion()
-	if err != nil {
+	if errors.Is(err, tkeyclient.ErrResponseStatusNotOK) {
 		return false
 	}
 	// not caring about nameVer.Version
